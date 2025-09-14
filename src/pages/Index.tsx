@@ -1,19 +1,11 @@
 import ChatBot from "@/components/ChatBot";
-import RotatingPanel from "@/components/RotatingPanel";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 const Index = () => {
   return (
-    <div className="h-screen bg-background">
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel defaultSize={50} minSize={30}>
-          <ChatBot />
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={50} minSize={30}>
-          <RotatingPanel />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <div className="h-screen bg-background flex items-center justify-center p-8">
+      <div className="w-full max-w-4xl h-full max-h-[600px] bg-card border border-border rounded-lg shadow-lg">
+        <ChatBot />
+      </div>
     </div>
   );
 };
