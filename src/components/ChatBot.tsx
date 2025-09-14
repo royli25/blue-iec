@@ -53,7 +53,7 @@ const ChatBot = () => {
   };
 
   return (
-    <div className="flex h-full flex-col bg-card rounded-lg overflow-hidden">
+    <div className="flex h-full flex-col bg-background border-r border-border">
       {/* Header */}
       <div className="border-b border-border p-4">
         <h2 className="text-lg font-semibold text-foreground">Chat</h2>
