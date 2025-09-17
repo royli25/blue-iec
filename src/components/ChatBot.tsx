@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { createChatCompletion } from "@/integrations/openai/client";
+import { SUGGESTIONS } from "@/config/suggestions";
+import OrbGraphic from "@/components/OrbGraphic";
 
 interface Message {
   id: number;
@@ -20,13 +23,26 @@ const ChatBot = () => {
     },
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  // Auto-scroll to bottom when messages change or when thinking
+  const endRef = useRef<HTMLDivElement | null>(null);
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    endRef.current?.scrollIntoView({ behavior, block: "end" });
+  };
+  useEffect(() => {
+    scrollToBottom("auto");
+  }, []);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isThinking]);
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim()) return;
 
     const newMessage: Message = {
       id: Date.now(),
-      text: inputValue,
+      text,
       isUser: true,
       timestamp: new Date(),
     };
@@ -34,17 +50,35 @@ const ChatBot = () => {
     setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      setIsThinking(true);
+      const content = await createChatCompletion([
+        { role: "system", content: "You are Blue AI, a helpful assistant." },
+        ...messages.map((m) => ({ role: m.isUser ? "user" : "assistant", content: m.text })),
+        { role: "user", content: text },
+      ]);
+
       const botResponse: Message = {
         id: Date.now() + 1,
-        text: "I received your message. This is a demo chatbot response.",
+        text: content,
         isUser: false,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    } catch (err) {
+      const botResponse: Message = {
+        id: Date.now() + 1,
+        text: "There was an error contacting the AI service. Please add your API key to .env and try again.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, botResponse]);
+    } finally {
+      setIsThinking(false);
+    }
   };
+
+  const handleSendMessage = () => void sendMessage(inputValue);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -52,54 +86,103 @@ const ChatBot = () => {
     }
   };
 
+  const showEmptyState = messages.length <= 1;
+  // pick 5 random unique suggestions each load
+  const suggestions = [...SUGGESTIONS]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 5);
+
   return (
-    <div className="flex h-full flex-col bg-background border-r border-border">
-      {/* Header */}
-      <div className="border-b border-border p-4">
-        <h2 className="text-lg font-semibold text-foreground">Chat</h2>
+    <div className="relative flex h-full flex-col bg-background">
+      {/* Body */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* grid background with right fade */}
+        <div className="absolute inset-0 grid-bg opacity-90 mask-fade-right" />
+        {/* radial blur focus, centered in left column (roughly mid of chat area) */}
+        <div className="absolute left-[32.5%] top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vh] h-[60vh] radial-blur-spot" />
+        {showEmptyState ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
+            <p className="text-sm text-muted-foreground">Hello there, how can I help you today?</p>
+          </div>
+        ) : (
+          <ScrollArea className="absolute inset-0 p-4 pb-56 overflow-y-auto">
+            <div className="mx-auto w-[80%] space-y-6">
+              {messages.map((message) => (
+                <div key={message.id} className={message.isUser ? "flex justify-end" : "flex justify-start"}>
+                  {message.isUser ? (
+                    <div className="max-w-[60%] rounded-2xl bg-primary px-4 py-2 text-primary-foreground shadow-sm">
+                      <p className="text-sm leading-6 whitespace-pre-line">{message.text}</p>
+                    </div>
+                  ) : (
+                    <div className="w-full">
+                      <div className="mb-2 flex items-center gap-2">
+                        <div className="h-5 w-5 rounded-full bg-primary" />
+                        <span className="text-[13px] font-semibold text-primary">blue AI</span>
+                      </div>
+                      <div className="w-full rounded-2xl px-0 py-0">
+                        <div className="text-[15px] leading-8 text-foreground/90 whitespace-pre-line">
+                          {message.text}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {isThinking && (
+                <div className="flex justify-start">
+                  <div className="w-full">
+                    <div className="mb-2 flex items-center gap-2">
+                      <div className="h-5 w-5 rounded-full bg-primary" />
+                      <span className="text-[13px] font-semibold text-primary">blue AI</span>
+                    </div>
+                    <div className="inline-flex items-center gap-1 rounded-full bg-card/80 border border-border px-3 py-2">
+                      <span className="sr-only">Typing…</span>
+                      <span className="h-2 w-2 rounded-full bg-foreground/60 animate-bounce" style={{animationDelay: "0ms"}} />
+                      <span className="h-2 w-2 rounded-full bg-foreground/60 animate-bounce" style={{animationDelay: "150ms"}} />
+                      <span className="h-2 w-2 rounded-full bg-foreground/60 animate-bounce" style={{animationDelay: "300ms"}} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={endRef} />
+            </div>
+          </ScrollArea>
+        )}
       </div>
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg p-3 ${
-                  message.isUser
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
+      {/* Floating Input Bar */}
+      {/* Suggestions Panel */}
+      <div className="absolute inset-x-0 bottom-24 z-10 px-6">
+        <div className="mx-auto w-[80%] rounded-2xl border border-border/50 bg-background/60 backdrop-blur-md shadow-lg">
+          <div className="divide-y divide-border/60">
+            {suggestions.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => sendMessage(s)}
+                className="w-full text-left px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
               >
-                <p className="text-sm">{message.text}</p>
-                <span className="mt-1 block text-xs opacity-70">
-                  {message.timestamp.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-            </div>
-          ))}
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
-      </ScrollArea>
+      </div>
 
-      {/* Input */}
-      <div className="border-t border-border p-4">
-        <div className="flex gap-2">
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="flex-1"
-          />
-          <Button onClick={handleSendMessage} variant="default">
-            Send
-          </Button>
+      {/* Floating Input Bar */}
+      <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-6">
+        <div className="mx-auto w-[80%]">
+          <div className="flex items-center gap-2">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask me anything..."
+              className="flex-1 rounded-full shadow-sm focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-slate-300"
+            />
+            <Button onClick={handleSendMessage} variant="default" className="rounded-full">
+              Send
+            </Button>
+          </div>
         </div>
       </div>
     </div>
