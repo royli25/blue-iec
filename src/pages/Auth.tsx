@@ -72,29 +72,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
-        <Button
-          variant="ghost"
-          className="mb-4"
+    <div className="relative min-h-screen w-screen overflow-hidden flex items-center justify-center">
+      {/* warm background only */}
+      <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
+
+      <div className="relative z-10 w-full max-w-md p-4 flex flex-col items-center">
+        <button
+          className="mb-4 inline-flex items-center justify-center rounded-md border border-border bg-white/70 px-4 py-1 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
           onClick={() => navigate('/')}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="h-4 w-4 mr-2 inline" />
           Back to Home
-        </Button>
+        </button>
 
-        <Card className="border border-border bg-card">
+        <Card className="border border-border bg-white/80 backdrop-blur-md shadow-[0_30px_60px_-20px_rgba(2,6,23,0.12),0_12px_24px_rgba(2,6,23,0.06)]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Welcome</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-xl font-bold text-center">Welcome</CardTitle>
+            <CardDescription className="text-center text-foreground/70">
               Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 h-8 text-[12px] p-0.5">
+                <TabsTrigger value="signin" className="py-1 text-[12px]">Sign In</TabsTrigger>
+                <TabsTrigger value="signup" className="py-1 text-[12px]">Sign Up</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin" className="space-y-4">
@@ -121,9 +123,13 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <button
+                    type="submit"
+                    className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white disabled:opacity-50 disabled:pointer-events-none"
+                    disabled={loading}
+                  >
                     {loading ? 'Signing in...' : 'Sign In'}
-                  </Button>
+                  </button>
                 </form>
               </TabsContent>
               
@@ -161,9 +167,13 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <button
+                    type="submit"
+                    className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white disabled:opacity-50 disabled:pointer-events-none"
+                    disabled={loading}
+                  >
                     {loading ? 'Creating account...' : 'Create Account'}
-                  </Button>
+                  </button>
                 </form>
               </TabsContent>
             </Tabs>
