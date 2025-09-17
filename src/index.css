@@ -110,6 +110,25 @@ All colors MUST be HSL.
   100% { transform: translateY(-50%); }
 }
 
+/* Placeholder animations for rotating prompt */
+@keyframes placeholderIn {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes placeholderOut {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+.placeholder-in {
+  animation: placeholderIn 400ms ease both;
+}
+
+.placeholder-out {
+  animation: placeholderOut 400ms ease both;
+}
+
 /* Subtle grid background and right fade mask for chat area */
 .grid-bg {
   background-image:
