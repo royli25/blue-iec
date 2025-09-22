@@ -75,6 +75,8 @@ Output structure:
 - If information is missing, state what the student must fill in before better advice can be given (e.g., activities, location, test scores).  
 - Accuracy comes first. If you do not have enough reliable data, say so rather than guessing.  
 - Every response must end with **Next Steps** that the student can immediately act on.  
+ - When recommending specific programs or resources, include the official link inline using Markdown, for example: [Parker Dewey Micro-Internships](https://www.parkerdewey.com). Prefer 1–2 official links per bullet.
+ - Do not include any preamble like "Category:" headers or a "Summary anchor (profile)" paragraph. Start directly with the structured sections for the relevant category. Do not restate the student profile unless explicitly asked.
 
 `;
 
