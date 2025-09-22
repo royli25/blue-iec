@@ -6,6 +6,7 @@ import { createChatCompletion, type ChatMessage } from "@/integrations/openai/cl
 import { SYSTEM_HOME_CHAT } from "@/config/prompts";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import renderMarkdownToHtml from "@/lib/markdown";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -38,55 +39,8 @@ const Index = () => {
   }, [isFocused, query.length]);
   const rotatingPlaceholder = PROMPTS[promptIndex];
   const placeholderClass = query.length > 0 ? '' : (phase === 'in' ? 'placeholder-in' : 'placeholder-out');
-  // Minimal Markdown → HTML renderer supporting H1/H2/H3, lists, bold/italic, inline code, links
-  const renderMarkdown = useMemo(() => {
-    const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as any)[c]);
-    const inline = (s: string) => {
-      let t = escapeHtml(s);
-      t = t.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
-      t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
-      t = t.replace(/(^|\W)\*([^*]+)\*(?=\W|$)/g, '$1<em>$2</em>');
-      return t;
-    };
-    return (md: string) => {
-      const lines = md.replace(/\r\n?/g, '\n').split('\n');
-      let html = '';
-      let inUl = false;
-      let inOl = false;
-      const closeLists = () => {
-        if (inUl) { html += '</ul>'; inUl = false; }
-        if (inOl) { html += '</ol>'; inOl = false; }
-      };
-      for (const raw of lines) {
-        const line = raw.replace(/\s+$/, '');
-        const h = line.match(/^#{1,3}\s+(.*)$/);
-        if (h) {
-          closeLists();
-          const level = h[0].startsWith('###') ? 3 : h[0].startsWith('##') ? 2 : 1;
-          html += `<h${level}>${inline(h[1])}</h${level}>`;
-          continue;
-        }
-        const ol = line.match(/^\s*\d+\.\s+(.*)$/);
-        if (ol) {
-          if (!inOl) { closeLists(); html += '<ol>'; inOl = true; }
-          html += `<li>${inline(ol[1])}</li>`;
-          continue;
-        }
-        const ul = line.match(/^\s*[-*]\s+(.*)$/);
-        if (ul) {
-          if (!inUl) { closeLists(); html += '<ul>'; inUl = true; }
-          html += `<li>${inline(ul[1])}</li>`;
-          continue;
-        }
-        if (line.trim() === '') { closeLists(); continue; }
-        closeLists();
-        html += `<p>${inline(line)}</p>`;
-      }
-      closeLists();
-      return html;
-    };
-  }, []);
+  // Markdown renderer for assistant messages
+  const renderMarkdown = useMemo(() => (md: string) => renderMarkdownToHtml(md), []);
   const handleSend = async () => {
     const text = query.trim();
     if (!text) return;

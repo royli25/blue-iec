@@ -6,6 +6,7 @@ import { createChatCompletion } from "@/integrations/openai/client";
 import { SYSTEM_CHATBOT } from "@/config/prompts";
 import { SUGGESTIONS } from "@/config/suggestions";
 import OrbGraphic from "@/components/OrbGraphic";
+import renderMarkdownToHtml from "@/lib/markdown";
 
 interface Message {
   id: number;
@@ -121,9 +122,10 @@ const ChatBot = () => {
                         <span className="text-[13px] font-semibold text-primary">blue AI</span>
                       </div>
                       <div className="w-full rounded-2xl px-0 py-0">
-                        <div className="text-[15px] leading-8 text-foreground/90 whitespace-pre-line">
-                          {message.text}
-                        </div>
+                        <div
+                          className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(message.text) }}
+                        />
                       </div>
                     </div>
                   )}
