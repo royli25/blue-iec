@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createChatCompletion } from "@/integrations/openai/client";
+import { SYSTEM_CHATBOT } from "@/config/prompts";
 import { SUGGESTIONS } from "@/config/suggestions";
 import OrbGraphic from "@/components/OrbGraphic";
 
@@ -53,7 +54,7 @@ const ChatBot = () => {
     try {
       setIsThinking(true);
       const content = await createChatCompletion([
-        { role: "system", content: "You are Blue AI, a helpful assistant." },
+        { role: "system", content: SYSTEM_CHATBOT },
         ...messages.map((m) => ({ role: m.isUser ? "user" : "assistant", content: m.text })),
         { role: "user", content: text },
       ]);
