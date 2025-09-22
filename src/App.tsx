@@ -9,8 +9,6 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Blogs from "./pages/Blogs";
 import ProfileContext from "./pages/ProfileContext";
-import Technology from "./pages/Technology";
-import ApplicationContext from "./pages/ApplicationContext";
 
 const queryClient = new QueryClient();
 
@@ -25,8 +23,6 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<ProfileContext />} />
-            <Route path="/technology" element={<Technology />} />
-            <Route path="/context" element={<ApplicationContext />} />
             <Route path="/blogs" element={<Blogs />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
