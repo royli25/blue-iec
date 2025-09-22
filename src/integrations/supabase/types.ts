@@ -14,6 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+        share_links: {
+          Row: {
+            id: string
+            user_id: string
+            resource_type: string
+            resource_id: string | null
+            token: string
+            title: string | null
+            snapshot: Json | null
+            is_revoked: boolean
+            expires_at: string | null
+            view_count: number
+            created_at: string
+            updated_at: string
+          }
+          Insert: {
+            id?: string
+            user_id: string
+            resource_type: string
+            resource_id?: string | null
+            token: string
+            title?: string | null
+            snapshot?: Json | null
+            is_revoked?: boolean
+            expires_at?: string | null
+            view_count?: number
+            created_at?: string
+            updated_at?: string
+          }
+          Update: {
+            id?: string
+            user_id?: string
+            resource_type?: string
+            resource_id?: string | null
+            token?: string
+            title?: string | null
+            snapshot?: Json | null
+            is_revoked?: boolean
+            expires_at?: string | null
+            view_count?: number
+            created_at?: string
+            updated_at?: string
+          }
+          Relationships: []
+        },
+        application_contexts: {
+          Row: {
+            id: string
+            user_id: string
+            content: string
+            created_at: string
+            updated_at: string
+          }
+          Insert: {
+            id?: string
+            user_id: string
+            content?: string
+            created_at?: string
+            updated_at?: string
+          }
+          Update: {
+            id?: string
+            user_id?: string
+            content?: string
+            created_at?: string
+            updated_at?: string
+          }
+          Relationships: []
+        },
+        profile_details: {
+          Row: {
+            id: string
+            user_id: string
+            grade_level: string | null
+            demographic: string | null
+            school: string | null
+            gpa: string | null
+            sat: string | null
+            activities: Json | null
+            ap_exams: Json | null
+            awards: Json | null
+            created_at: string
+            updated_at: string
+          }
+          Insert: {
+            id?: string
+            user_id: string
+            grade_level?: string | null
+            demographic?: string | null
+            school?: string | null
+            gpa?: string | null
+            sat?: string | null
+            activities?: Json | null
+            ap_exams?: Json | null
+            awards?: Json | null
+            created_at?: string
+            updated_at?: string
+          }
+          Update: {
+            id?: string
+            user_id?: string
+            grade_level?: string | null
+            demographic?: string | null
+            school?: string | null
+            gpa?: string | null
+            sat?: string | null
+            activities?: Json | null
+            ap_exams?: Json | null
+            awards?: Json | null
+            created_at?: string
+            updated_at?: string
+          }
+          Relationships: []
+        },
       profiles: {
         Row: {
           avatar_url: string | null
