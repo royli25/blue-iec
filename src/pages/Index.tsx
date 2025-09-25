@@ -26,14 +26,6 @@ const Index = () => {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [loading, setLoading] = useState(false);
-  const LOADING_MESSAGES: string[] = [
-    "Comparing your profile with 1,000+ past admitted profiles",
-    "Retrieving data from curated college consulting list",
-    "Analyzing admissions priorities across top universities",
-    "Finding high-ROI activities for your intended major",
-  ];
-  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
-  const [loadingMsgPhase, setLoadingMsgPhase] = useState<'in' | 'out'>('in');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   useEffect(() => {
     if (isFocused || query.length > 0) return; // pause rotation while typing or when text exists
@@ -50,21 +42,6 @@ const Index = () => {
   const placeholderClass = query.length > 0 ? '' : (phase === 'in' ? 'placeholder-in' : 'placeholder-out');
   // Markdown renderer for assistant messages
   const renderMarkdown = useMemo(() => (md: string) => renderMarkdownToHtml(md), []);
-  // Rotate loading messages while waiting
-  useEffect(() => {
-    if (!loading) {
-      setLoadingMsgIndex(0);
-      return;
-    }
-    const interval = setInterval(() => {
-      setLoadingMsgPhase('out');
-      setTimeout(() => {
-        setLoadingMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
-        setLoadingMsgPhase('in');
-      }, 250);
-    }, 2400);
-    return () => clearInterval(interval);
-  }, [loading]);
   const handleSend = async () => {
     const text = query.trim();
     if (!text) return;
@@ -255,8 +232,10 @@ const Index = () => {
               {loading && (
                 <div className="text-foreground">
                   <div className="rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 inline-block" style={{ backgroundColor: '#F1E9DA' }}>
-                    <div className={`text-[14px] leading-7 transition-opacity duration-300 ${loadingMsgPhase === 'in' ? 'opacity-100' : 'opacity-0'}`}>
-                      {LOADING_MESSAGES[loadingMsgIndex]}
+                    <div className="typing-dots text-[14px] leading-7">
+                      <span>•</span>
+                      <span>•</span>
+                      <span>•</span>
                     </div>
                   </div>
                 </div>
