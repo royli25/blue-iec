@@ -193,7 +193,7 @@ const Index = () => {
                             />
                           </div>
                         )}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex gap-3 overflow-x-auto pb-1">
                           {cards.map((card, idx) => {
                             const href = extractFirstUrl(card);
                             return (
@@ -202,7 +202,7 @@ const Index = () => {
                                 href={href || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors ${href ? 'hover:bg-white/80' : ''}`}
+                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors flex-shrink-0 min-w-[280px] sm:min-w-[420px] ${href ? 'hover:bg-white/80' : ''}`}
                                 style={{ backgroundColor: bubbleBg, cursor: href ? 'pointer' as const : 'default' }}
                               >
                                 <div
