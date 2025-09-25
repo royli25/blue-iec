@@ -4,10 +4,10 @@ export type ChatMessage = {
 };
 
 export async function createChatCompletion(messages: ChatMessage[]): Promise<string> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+  const apiKey = import.meta.env.OPENAI_API_KEY as string | undefined;
 
   if (!apiKey) {
-    throw new Error("Missing VITE_OPENAI_API_KEY. Add it to your .env file.");
+    throw new Error("Missing OPENAI_API_KEY. Add it to your .env file.");
   }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -17,7 +17,7 @@ export async function createChatCompletion(messages: ChatMessage[]): Promise<str
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-5-mini",
+      model: "gpt-5",
       messages,
     }),
   });

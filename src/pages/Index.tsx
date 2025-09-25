@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -121,7 +121,7 @@ const Index = () => {
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onKeyDown={(e) => {
-                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSend();
                   }
@@ -132,9 +132,9 @@ const Index = () => {
                 onClick={handleSend}
                 disabled={loading}
                 className="absolute right-3 bottom-3 h-8 w-8 flex items-center justify-center rounded-md border border-border bg-white/80 text-foreground/70 disabled:opacity-50 disabled:pointer-events-none"
-                title={loading ? 'Searching...' : 'Search'}
+                title={loading ? 'Sending...' : 'Send'}
               >
-                <Search className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
+                <ChevronRight className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
               </button>
             </div>
           </div>
@@ -192,7 +192,7 @@ const Index = () => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => {
-                    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       handleSend();
                     }
@@ -205,7 +205,7 @@ const Index = () => {
                   className="absolute right-3 bottom-2 h-8 w-8 flex items-center justify-center rounded-md border border-white/80 bg-white/80 backdrop-blur-md text-foreground/70 disabled:opacity-50 disabled:pointer-events-none"
                   title={loading ? 'Sending...' : 'Send'}
                 >
-                  <Search className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
+                  <ChevronRight className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
                 </button>
               </div>
             </div>
