@@ -7,7 +7,7 @@ import { SYSTEM_HOME_CHAT } from "@/config/prompts";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
-import { parseCardSections } from "@/lib/utils";
+import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -153,52 +153,80 @@ const Index = () => {
             <div className="mx-auto max-w-2xl space-y-3">
               {messages.map((m, i) => (
                 <div key={i} className={`${m.role === 'user' ? 'text-foreground/90' : 'text-foreground'} `}>
-                  <div
-                    className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
-                    style={{ backgroundColor: m.role === 'user' ? '#F2DABA' : '#F1E9DA' }}
-                  >
-                    {m.role === 'assistant' ? (
-                      (() => {
-                        const { preamble, cards, postscript } = parseCardSections(m.content);
-                        if (cards.length === 0) {
-                          return (
+                  {(() => {
+                    const isAssistant = m.role === 'assistant';
+                    if (!isAssistant) {
+                      return (
+                        <div
+                          className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
+                          style={{ backgroundColor: '#F2DABA' }}
+                        >
+                          <div className="whitespace-pre-wrap leading-7 text-[14px]">{m.content}</div>
+                        </div>
+                      );
+                    }
+                    const { preamble, cards, postscript } = parseCardSections(m.content);
+                    const bubbleBg = '#F1E9DA';
+                    if (cards.length === 0) {
+                      return (
+                        <div
+                          className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
+                          style={{ backgroundColor: bubbleBg }}
+                        >
+                          <div
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold prose-h1:text-[18px] prose-h2:text-[16px] prose-h3:text-[14px]"
+                            dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }}
+                          />
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="space-y-3">
+                        {preamble && (
+                          <div
+                            className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
+                            style={{ backgroundColor: bubbleBg }}
+                          >
                             <div
-                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold prose-h1:text-[18px] prose-h2:text-[16px] prose-h3:text-[14px]"
-                              dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }}
+                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                              dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
                             />
-                          );
-                        }
-                        return (
-                          <div className="space-y-3">
-                            {preamble && (
-                              <div
-                                className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                                dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
-                              />
-                            )}
-                            {cards.map((card, idx) => (
-                              <div key={idx} className="rounded-lg border border-border/70 bg-white/70 p-3 shadow-sm">
+                          </div>
+                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {cards.map((card, idx) => {
+                            const href = extractFirstUrl(card);
+                            return (
+                              <a
+                                key={idx}
+                                href={href || undefined}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors ${href ? 'hover:bg-white/80' : ''}`}
+                                style={{ backgroundColor: bubbleBg, cursor: href ? 'pointer' as const : 'default' }}
+                              >
                                 <div
                                   className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
                                   dangerouslySetInnerHTML={{ __html: renderMarkdown(card) }}
                                 />
-                              </div>
-                            ))}
-                            {postscript && (
-                              <div
-                                className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                                dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
-                              />
-                            )}
+                              </a>
+                            );
+                          })}
+                        </div>
+                        {postscript && (
+                          <div
+                            className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
+                            style={{ backgroundColor: bubbleBg }}
+                          >
+                            <div
+                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                              dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
+                            />
                           </div>
-                        );
-                      })()
-                    ) : (
-                      <div className="whitespace-pre-wrap leading-7 text-[14px]">
-                        {m.content}
+                        )}
                       </div>
-                    )}
-                  </div>
+                    );
+                  })()}
                 </div>
               ))}
               {loading && (
