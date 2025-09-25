@@ -7,6 +7,7 @@ import { SYSTEM_CHATBOT } from "@/config/prompts";
 import { SUGGESTIONS } from "@/config/suggestions";
 import OrbGraphic from "@/components/OrbGraphic";
 import renderMarkdownToHtml from "@/lib/markdown";
+import { parseCardSections } from "@/lib/utils";
 
 interface Message {
   id: number;
@@ -122,10 +123,41 @@ const ChatBot = () => {
                         <span className="text-[13px] font-semibold text-primary">blue AI</span>
                       </div>
                       <div className="w-full rounded-2xl px-0 py-0">
-                        <div
-                          className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                          dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(message.text) }}
-                        />
+                        {(() => {
+                          const { preamble, cards, postscript } = parseCardSections(message.text);
+                          if (cards.length === 0) {
+                            return (
+                              <div
+                                className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(message.text) }}
+                              />
+                            );
+                          }
+                          return (
+                            <div className="space-y-3">
+                              {preamble && (
+                                <div
+                                  className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                  dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(preamble) }}
+                                />
+                              )}
+                              {cards.map((card, idx) => (
+                                <div key={idx} className="rounded-lg border border-border/70 bg-white/70 p-3 shadow-sm">
+                                  <div
+                                    className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                    dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(card) }}
+                                  />
+                                </div>
+                              ))}
+                              {postscript && (
+                                <div
+                                  className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                  dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(postscript) }}
+                                />
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}
