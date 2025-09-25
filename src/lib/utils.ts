@@ -61,3 +61,14 @@ export function parseCardSections(source: string): {
     postscript: postscriptLines.join("\n").trim(),
   };
 }
+
+export function extractFirstUrl(markdown: string): string | null {
+  const linkSyntaxMatch = markdown.match(/\[[^\]]*\]\((https?:\/\/[^)\s]+)\)/i);
+  if (linkSyntaxMatch && linkSyntaxMatch[1]) return linkSyntaxMatch[1];
+  const bareUrlMatch = markdown.match(/(https?:\/\/[\w\-._~:/?#%[@!$&'()*+,;=]+)|(www\.[\w\-._~:/?#%[@!$&'()*+,;=]+)/i);
+  if (bareUrlMatch) {
+    const url = bareUrlMatch[0];
+    return url.startsWith("http") ? url : `https://${url}`;
+  }
+  return null;
+}

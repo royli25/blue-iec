@@ -7,7 +7,7 @@ import { SYSTEM_CHATBOT } from "@/config/prompts";
 import { SUGGESTIONS } from "@/config/suggestions";
 import OrbGraphic from "@/components/OrbGraphic";
 import renderMarkdownToHtml from "@/lib/markdown";
-import { parseCardSections } from "@/lib/utils";
+import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 
 interface Message {
   id: number;
@@ -125,6 +125,7 @@ const ChatBot = () => {
                       <div className="w-full rounded-2xl px-0 py-0">
                         {(() => {
                           const { preamble, cards, postscript } = parseCardSections(message.text);
+                          const bubbleBg = 'transparent';
                           if (cards.length === 0) {
                             return (
                               <div
@@ -141,14 +142,26 @@ const ChatBot = () => {
                                   dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(preamble) }}
                                 />
                               )}
-                              {cards.map((card, idx) => (
-                                <div key={idx} className="rounded-lg border border-border/70 bg-white/70 p-3 shadow-sm">
-                                  <div
-                                    className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                                    dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(card) }}
-                                  />
-                                </div>
-                              ))}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {cards.map((card, idx) => {
+                                  const href = extractFirstUrl(card);
+                                  return (
+                                    <a
+                                      key={idx}
+                                      href={href || undefined}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors ${href ? 'hover:bg-white/80' : ''}`}
+                                      style={{ backgroundColor: '#F1E9DA', cursor: href ? 'pointer' as const : 'default' }}
+                                    >
+                                      <div
+                                        className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                        dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(card) }}
+                                      />
+                                    </a>
+                                  );
+                                })}
+                              </div>
                               {postscript && (
                                 <div
                                   className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
