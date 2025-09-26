@@ -104,7 +104,7 @@ const Index = () => {
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       {/* top-right auth button / email */}
-      <div className="absolute top-4 right-4 z-20 text-[12px]">
+      <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
         {user ? (
           <details className="group relative">
             <summary className="list-none cursor-pointer rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white">
@@ -128,6 +128,12 @@ const Index = () => {
             Log in
           </button>
         )}
+        <button
+          onClick={() => navigate('/profile')}
+          className="rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
+        >
+          My Blueprint
+        </button>
       </div>
       {/* subtle warm background with grid */}
       <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
