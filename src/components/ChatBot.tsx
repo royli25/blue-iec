@@ -158,14 +158,14 @@ const ChatBot = () => {
                             );
                           }
                           return (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                               {preamble && (
                                 <div
                                   className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
                                   dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(preamble) }}
                                 />
                               )}
-                              <div className="flex gap-3 overflow-x-auto pb-1">
+                              <div className="space-y-3">
                                 {cards.map((card, idx) => {
                                   const href = extractFirstUrl(card);
                                   return (
@@ -174,7 +174,7 @@ const ChatBot = () => {
                                       href={href || undefined}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors flex-shrink-0 min-w-[280px] sm:min-w-[420px] ${href ? 'hover:bg-white/80' : ''}`}
+                                      className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors ${href ? 'hover:bg-white/80' : ''}`}
                                       style={{ backgroundColor: '#F1E9DA', cursor: href ? 'pointer' as const : 'default' }}
                                     >
                                       <div
