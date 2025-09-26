@@ -53,6 +53,11 @@ const PersonalBlueprint = () => {
                 Your personalized roadmap to academic and career success.
               </p>
             </div>
+
+            {/* Empty Card */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+              {/* Card content will be added later */}
+            </div>
           </div>
         </div>
       </div>
