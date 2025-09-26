@@ -27,14 +27,6 @@ const ChatBot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
-  const LOADING_MESSAGES: string[] = [
-    "Comparing your profile with 1,000+ past admitted profiles",
-    "Retrieving data from curated college consulting list",
-    "Analyzing admissions priorities across top universities",
-    "Finding high-ROI activities for your intended major",
-  ];
-  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
-  const [loadingMsgPhase, setLoadingMsgPhase] = useState<'in' | 'out'>("in");
 
   // Auto-scroll to bottom when messages change or when thinking
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -47,21 +39,6 @@ const ChatBot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isThinking]);
-
-  useEffect(() => {
-    if (!isThinking) {
-      setLoadingMsgIndex(0);
-      return;
-    }
-    const interval = setInterval(() => {
-      setLoadingMsgPhase('out');
-      setTimeout(() => {
-        setLoadingMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
-        setLoadingMsgPhase('in');
-      }, 250);
-    }, 2400);
-    return () => clearInterval(interval);
-  }, [isThinking]);
 
   const sendMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -207,9 +184,11 @@ const ChatBot = () => {
                       <span className="text-[13px] font-semibold text-primary">blue AI</span>
                     </div>
                     <div className="inline-block rounded-full bg-card/80 border border-border px-3 py-2">
-                      <span className={`text-[13px] leading-6 transition-opacity duration-300 ${loadingMsgPhase === 'in' ? 'opacity-100' : 'opacity-0'}`}>
-                        {LOADING_MESSAGES[loadingMsgIndex]}
-                      </span>
+                      <div className="typing-dots text-[13px] leading-6">
+                        <span>•</span>
+                        <span>•</span>
+                        <span>•</span>
+                      </div>
                     </div>
                   </div>
                 </div>
