@@ -128,13 +128,15 @@ const Index = () => {
             Log in
           </button>
         )}
-        <button
-          onClick={() => navigate('/profile')}
-          className="rounded-md border border-border px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white text-right"
-          style={{ backgroundColor: '#F2DABA' }}
-        >
-          My Blueprint
-        </button>
+        <div className="flex justify-end">
+          <button
+            onClick={() => navigate('/profile')}
+            className="rounded-md border border-border px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
+            style={{ backgroundColor: '#F2DABA' }}
+          >
+            My Blueprint
+          </button>
+        </div>
       </div>
       {/* subtle warm background with grid */}
       <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
