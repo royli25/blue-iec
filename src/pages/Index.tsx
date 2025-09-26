@@ -130,7 +130,8 @@ const Index = () => {
         )}
         <button
           onClick={() => navigate('/profile')}
-          className="rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
+          className="rounded-md border border-border px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
+          style={{ backgroundColor: '#F2DABA' }}
         >
           My Blueprint
         </button>
