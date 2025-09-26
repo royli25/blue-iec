@@ -34,7 +34,7 @@ const Index = () => {
     "Finding high-ROI activities for your intended major",
   ];
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
-  const [loadingMsgPhase, setLoadingMsgPhase] = useState<'in' | 'out'>('in');
+  const [loadingLines, setLoadingLines] = useState<string[]>([]);
   useEffect(() => {
     if (isFocused || query.length > 0) return; // pause rotation while typing or when text exists
     const interval = setInterval(() => {
@@ -50,21 +50,27 @@ const Index = () => {
   const placeholderClass = query.length > 0 ? '' : (phase === 'in' ? 'placeholder-in' : 'placeholder-out');
   // Markdown renderer for assistant messages
   const renderMarkdown = useMemo(() => (md: string) => renderMarkdownToHtml(md), []);
-  // Rotate loading message while awaiting response
+  // Append loading lines progressively (no bubble), each with animated ellipsis
   useEffect(() => {
     if (!loading) {
       setLoadingMsgIndex(0);
+      setLoadingLines([]);
       return;
     }
+    setLoadingLines([LOADING_MESSAGES[0]]);
     const interval = setInterval(() => {
-      setLoadingMsgPhase('out');
-      setTimeout(() => {
-        setLoadingMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
-        setLoadingMsgPhase('in');
-      }, 250);
+      setLoadingMsgIndex((i) => {
+        const next = (i + 1) % LOADING_MESSAGES.length;
+        setLoadingLines((lines) => {
+          const nextMsg = LOADING_MESSAGES[next];
+          return lines.includes(nextMsg) ? lines : [...lines, nextMsg];
+        });
+        return next;
+      });
     }, 2400);
     return () => clearInterval(interval);
   }, [loading]);
+  // (removed old rotating fade loader)
   const handleSend = async () => {
     const text = query.trim();
     if (!text) return;
@@ -254,10 +260,17 @@ const Index = () => {
               ))}
               {loading && (
                 <div className="text-foreground">
-                  <div className="rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 inline-block" style={{ backgroundColor: '#F1E9DA' }}>
-                    <div className={`text-[14px] leading-7 transition-opacity duration-300 ${loadingMsgPhase === 'in' ? 'opacity-100' : 'opacity-0'}`}>
-                      {LOADING_MESSAGES[loadingMsgIndex]}
-                    </div>
+                  <div className="space-y-1 pl-1">
+                    {loadingLines.map((line, idx) => (
+                      <div key={idx} className="text-[13px] leading-6 flex items-center gap-1">
+                        <span>{line}</span>
+                        <span className="typing-dots ml-1">
+                          <span>.</span>
+                          <span>.</span>
+                          <span>.</span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
