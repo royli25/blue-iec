@@ -29,161 +29,202 @@ const PersonalBlueprint = () => {
 
       {/* content */}
       <div className="relative px-6 pt-12 pb-8">
-        <div className="mx-auto max-w-4xl flex flex-col">
-          <div className="pb-3">
-            <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
-              <ol className="flex items-center gap-2">
-                <li>
-                  <button onClick={() => navigate('/')} className="underline underline-offset-2 hover:opacity-80">Home</button>
-                </li>
-                <li className="text-foreground/60">/</li>
-                <li>
-                  <span className="text-foreground/80">Personal Blueprint</span>
-                </li>
-              </ol>
-            </nav>
+        <div className="mx-auto max-w-6xl flex">
+          {/* Left sidebar - Timeline */}
+          <div className="w-24 flex flex-col items-center pr-6">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="text-xs text-gray-500">Now</div>
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <div className="text-4xl font-bold text-gray-800">26</div>
+              <div className="text-xs text-gray-500">Today</div>
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+            </div>
           </div>
-          
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
-              <p className="text-foreground/70 text-sm">
-                Your personalized roadmap to academic and career success.
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Academic Profile Card */}
-              <div className="rounded-xl border border-border/40 bg-white/70 backdrop-blur-sm shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-foreground/90">Academic Profile</h3>
-                </div>
-                <p className="text-sm text-foreground/70 mb-4">
-                  Track your academic achievements, test scores, and academic milestones.
+          {/* Main content area - Scrollable roadmap */}
+          <div className="flex-1 overflow-y-auto max-h-screen">
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
+                <p className="text-foreground/70 text-sm">
+                  Your personalized roadmap to academic and career success.
                 </p>
-                <button 
-                  onClick={() => navigate('/profile')}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Manage Profile →
-                </button>
               </div>
 
-              {/* Career Goals Card */}
-              <div className="rounded-xl border border-border/40 bg-white/70 backdrop-blur-sm shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-foreground/90">Career Goals</h3>
-                </div>
-                <p className="text-sm text-foreground/70 mb-4">
-                  Define your career aspirations and create a roadmap to achieve them.
-                </p>
-                <button className="text-sm text-green-600 hover:text-green-700 font-medium">
-                  Set Goals →
-                </button>
-              </div>
+              {/* Loading state */}
+              <div className="text-sm text-gray-500 mb-4">Fetching the data...</div>
 
-              {/* Extracurricular Activities Card */}
-              <div className="rounded-xl border border-border/40 bg-white/70 backdrop-blur-sm shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+              {/* Roadmap Cards */}
+              <div className="space-y-4">
+                {/* James Wood Card */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">James Wood</h3>
+                        <p className="text-sm text-gray-600">Senior ML Engineer</p>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-gray-600">JW</span>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-foreground/90">Activities</h3>
-                </div>
-                <p className="text-sm text-foreground/70 mb-4">
-                  Document your extracurricular activities, leadership roles, and achievements.
-                </p>
-                <button className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                  Track Activities →
-                </button>
-              </div>
-
-              {/* College Planning Card */}
-              <div className="rounded-xl border border-border/40 bg-white/70 backdrop-blur-sm shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                  
+                  <div className="mb-4">
+                    <span className="text-sm font-medium text-blue-600">Accomplishment</span>
                   </div>
-                  <h3 className="font-semibold text-foreground/90">College Planning</h3>
-                </div>
-                <p className="text-sm text-foreground/70 mb-4">
-                  Research colleges, track applications, and plan your college journey.
-                </p>
-                <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                  Plan College →
-                </button>
-              </div>
-
-              {/* Skills Development Card */}
-              <div className="rounded-xl border border-border/40 bg-white/70 backdrop-blur-sm shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex gap-2">
+                        <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                        <div className="w-4 h-4 bg-gray-800 rounded"></div>
+                      </div>
+                      <p className="text-sm text-gray-700">Implemented core feedback system with data models and services.</p>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="flex gap-2">
+                        <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                        <div className="w-4 h-4 bg-gray-800 rounded"></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                        <div className="w-4 h-4 bg-red-500 rounded"></div>
+                      </div>
+                      <p className="text-sm text-gray-700">Successfully launched a new product line ahead of schedule</p>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="flex gap-2">
+                        <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                      </div>
+                      <p className="text-sm text-gray-700">Implemented a cost-saving strategy that reduced expenses by 15%</p>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="flex gap-2">
+                        <div className="w-4 h-4 bg-red-500 rounded"></div>
+                      </div>
+                      <p className="text-sm text-gray-700">Developed an innovative training program that improved team efficiency by 20%</p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-foreground/90">Skills Development</h3>
                 </div>
-                <p className="text-sm text-foreground/70 mb-4">
-                  Identify and develop key skills for your academic and career success.
-                </p>
-                <button className="text-sm text-red-600 hover:text-red-700 font-medium">
-                  Build Skills →
-                </button>
-              </div>
 
-              {/* Progress Tracking Card */}
-              <div className="rounded-xl border border-border/40 bg-white/70 backdrop-blur-sm shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                {/* Kate Happkins Card */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Kate Happkins</h3>
+                        <p className="text-sm text-gray-600">Intern ML Engineer</p>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-gray-600">KH</span>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-foreground/90">Progress Tracking</h3>
+                  
+                  <div className="mb-4">
+                    <span className="text-sm font-medium text-green-600">Goal & Achievement</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="flex gap-2">
+                          <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                          <div className="w-4 h-4 bg-gray-800 rounded"></div>
+                        </div>
+                        <p className="text-sm text-gray-700">Implemented core feedback system with data models and services.</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">74%</span>
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="flex gap-2">
+                          <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                          <div className="w-4 h-4 bg-gray-800 rounded"></div>
+                        </div>
+                        <p className="text-sm text-gray-700">Developed an innovative training program that improved team efficiency by 20%</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">0%</span>
+                        <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="flex gap-2">
+                          <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                          <div className="w-4 h-4 bg-gray-800 rounded"></div>
+                        </div>
+                        <p className="text-sm text-gray-700">Developed an innovative training program that improved team efficiency by 20%</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">34%</span>
+                        <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-sm text-foreground/70 mb-4">
-                  Monitor your progress and celebrate milestones along your journey.
-                </p>
-                <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
-                  View Progress →
-                </button>
-              </div>
-            </div>
 
-            {/* Quick Actions Section */}
-            <div className="mt-8 p-6 rounded-xl border border-border/40 bg-gradient-to-r from-blue-50 to-indigo-50">
-              <h2 className="text-lg font-semibold text-foreground/90 mb-4">Quick Actions</h2>
-              <div className="flex flex-wrap gap-3">
-                <button 
-                  onClick={() => navigate('/profile')}
-                  className="px-4 py-2 rounded-md border border-border bg-white/70 text-sm text-foreground/70 hover:bg-white shadow-sm"
-                >
-                  Update Profile
-                </button>
-                <button className="px-4 py-2 rounded-md border border-border bg-white/70 text-sm text-foreground/70 hover:bg-white shadow-sm">
-                  Set Goals
-                </button>
-                <button className="px-4 py-2 rounded-md border border-border bg-white/70 text-sm text-foreground/70 hover:bg-white shadow-sm">
-                  Track Progress
-                </button>
-                <button className="px-4 py-2 rounded-md border border-border bg-white/70 text-sm text-foreground/70 hover:bg-white shadow-sm">
-                  Export Data
-                </button>
+                {/* Ian McGuigan Card */}
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Ian McGuigan</h3>
+                        <p className="text-sm text-gray-600">Product Owner</p>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-gray-600">IM</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <span className="text-sm font-medium text-purple-600">Feedback Received</span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm text-gray-500">2 days ago via Windmill</span>
+                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white animate-spin" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-700 mb-3">
+                        "Working with Max is great. He is very talented developer. We just completed a sprint and he has been working hard on his tasks to achieve the deadline. Thank you James!"
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-medium text-gray-600">BJ</span>
+                        </div>
+                        <span className="text-sm text-gray-600">Benjamin Jackson</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
