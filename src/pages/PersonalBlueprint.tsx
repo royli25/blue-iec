@@ -31,8 +31,8 @@ const PersonalBlueprint = () => {
       <div className="relative px-6 pt-12 pb-8">
         <div className="mx-auto max-w-6xl flex">
           {/* Left sidebar - Timeline */}
-          <div className="w-24 flex flex-col items-center pr-6">
-            <div className="flex flex-col items-center space-y-4">
+          <div className="w-20 flex flex-col items-center pr-4">
+            <div className="flex flex-col items-center space-y-4 pt-1">
               <div className="text-xs text-gray-500">Now</div>
               <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
               <div className="text-4xl font-bold text-gray-800">26</div>
@@ -43,7 +43,7 @@ const PersonalBlueprint = () => {
 
           {/* Main content area - Scrollable roadmap */}
           <div className="flex-1 overflow-y-auto max-h-screen">
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Breadcrumb */}
               <div className="pb-3">
                 <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
@@ -71,9 +71,9 @@ const PersonalBlueprint = () => {
               <div className="text-sm text-gray-500 mb-4">Fetching the data...</div>
 
               {/* Roadmap Cards */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* James Wood Card */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div>
@@ -127,7 +127,7 @@ const PersonalBlueprint = () => {
                 </div>
 
                 {/* Kate Happkins Card */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div>
@@ -200,7 +200,7 @@ const PersonalBlueprint = () => {
                 </div>
 
                 {/* Ian McGuigan Card */}
-                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div>
