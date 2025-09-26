@@ -285,12 +285,19 @@ const ProfileContext = () => {
               </div>
               <div className="grid gap-0.5">
                 {activities.map((act, idx) => (
-                  <div key={idx} className="flex items-center gap-1">
+                  <div key={idx} className="flex items-start gap-1">
                     <input
                       className="flex-1 rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80"
                       placeholder={`Activity ${idx + 1}`}
                       value={act}
                       onChange={(e) => setActivities(activities.map((a, i) => (i === idx ? e.target.value : a)))}
+                    />
+                    <textarea
+                      className="flex-1 rounded-md border border-border bg-white/70 px-3 py-1 text-[12px] text-foreground/80 resize-none"
+                      placeholder="description"
+                      value=""
+                      onChange={() => {}}
+                      rows={2}
                     />
                     {activities.length > 1 && (
                       <button

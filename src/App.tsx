@@ -11,6 +11,7 @@ import Blogs from "./pages/Blogs";
 import ProfileContext from "./pages/ProfileContext";
 import Technology from "./pages/Technology";
 import ApplicationContext from "./pages/ApplicationContext";
+import PersonalBlueprint from "./pages/PersonalBlueprint";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<ProfileContext />} />
+            <Route path="/personal-blueprint" element={<PersonalBlueprint />} />
             <Route path="/technology" element={<Technology />} />
             <Route path="/context" element={<ApplicationContext />} />
             <Route path="/blogs" element={<Blogs />} />
