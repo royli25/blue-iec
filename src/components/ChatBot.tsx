@@ -183,12 +183,11 @@ const ChatBot = () => {
                       <div className="h-5 w-5 rounded-full bg-primary" />
                       <span className="text-[13px] font-semibold text-primary">blue AI</span>
                     </div>
-                    <div className="inline-block rounded-full bg-card/80 border border-border px-3 py-2">
-                      <div className="typing-dots text-[13px] leading-6">
-                        <span>•</span>
-                        <span>•</span>
-                        <span>•</span>
-                      </div>
+                    <div className="inline-flex items-center gap-1 rounded-full bg-card/80 border border-border px-3 py-2">
+                      <span className="sr-only">Typing…</span>
+                      <span className="h-2 w-2 rounded-full bg-foreground/60 animate-bounce" style={{animationDelay: "0ms"}} />
+                      <span className="h-2 w-2 rounded-full bg-foreground/60 animate-bounce" style={{animationDelay: "150ms"}} />
+                      <span className="h-2 w-2 rounded-full bg-foreground/60 animate-bounce" style={{animationDelay: "300ms"}} />
                     </div>
                   </div>
                 </div>
