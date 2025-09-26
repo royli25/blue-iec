@@ -217,7 +217,7 @@ const Index = () => {
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
                           />
                         )}
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           {cards.map((card, idx) => {
                             const href = extractFirstUrl(card);
                             return (
@@ -226,13 +226,25 @@ const Index = () => {
                                 href={href || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors ${href ? 'hover:bg-white/80' : ''}`}
-                                style={{ backgroundColor: bubbleBg, cursor: href ? 'pointer' as const : 'default' }}
+                                className={`group block rounded-2xl border border-border/40 shadow-lg backdrop-blur-sm px-6 py-5 transition-all duration-200 ${href ? 'hover:shadow-xl hover:scale-[1.02] hover:border-border/60' : ''}`}
+                                style={{ 
+                                  backgroundColor: bubbleBg, 
+                                  cursor: href ? 'pointer' as const : 'default',
+                                  background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
+                                }}
                               >
                                 <div
-                                  className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                  className="prose prose-sm prose-neutral max-w-none leading-relaxed text-[15px] prose-headings:mt-0 prose-headings:mb-3 prose-h3:text-lg prose-h3:font-bold prose-h3:text-gray-800 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold prose-strong:text-gray-800"
                                   dangerouslySetInnerHTML={{ __html: renderMarkdown(card) }}
                                 />
+                                {href && (
+                                  <div className="mt-3 flex items-center text-xs text-gray-500 group-hover:text-blue-600 transition-colors">
+                                    <span>Click to visit</span>
+                                    <svg className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </div>
+                                )}
                               </a>
                             );
                           })}
