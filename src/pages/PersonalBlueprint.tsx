@@ -29,7 +29,7 @@ const PersonalBlueprint = () => {
 
       {/* content */}
       <div className="relative px-6 pt-12 pb-8">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-4xl">
           <div className="space-y-6">
             {/* Breadcrumb */}
             <div className="pb-3">
