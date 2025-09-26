@@ -273,24 +273,19 @@ const ProfileContext = () => {
                 <input id="sat" className="w-full rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80" placeholder="e.g., 1520 (760 EBRW / 760 Math)" value={sat} onChange={(e) => setSat(e.target.value)} />
               </div>
             </div>
-            {/* Activities list (up to 10) */}
+            {/* Activities list (10 fixed) */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between">
                 <label className="text-foreground/80">Activities</label>
-                <button
-                  onClick={() => activities.length < 10 && setActivities([...activities, ""])}
-                  className="rounded-md border border-border/70 bg-white/50 px-2.5 py-0 text-[11px] text-foreground/70 backdrop-blur-sm hover:bg-white/70 h-[24px] min-h-0 leading-none"
-                  type="button"
-                >Add</button>
               </div>
               <div className="grid gap-0.5">
-                {activities.map((act, idx) => (
+                {Array.from({ length: 10 }, (_, idx) => (
                   <div key={idx} className="flex items-start gap-1">
                     <input
                       className="flex-1 rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80"
                       placeholder={`Activity ${idx + 1}`}
-                      value={act}
-                      onChange={(e) => setActivities(activities.map((a, i) => (i === idx ? e.target.value : a)))}
+                      value=""
+                      onChange={() => {}}
                     />
                     <textarea
                       className="flex-1 rounded-md border border-border bg-white/70 px-3 py-1 text-[12px] text-foreground/80 resize-none"
@@ -299,13 +294,6 @@ const ProfileContext = () => {
                       onChange={() => {}}
                       rows={2}
                     />
-                    {activities.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => setActivities(activities.filter((_, i) => i !== idx))}
-                      className="rounded-md border border-border/70 bg-white/70 px-2.5 py-0 text-[12px] text-foreground/70 h-[24px] min-h-0 leading-none hover:bg-white"
-                      >Remove</button>
-                    )}
                   </div>
                 ))}
               </div>
