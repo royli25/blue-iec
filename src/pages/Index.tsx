@@ -130,7 +130,7 @@ const Index = () => {
         )}
         <div className="flex justify-end">
           <button
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate('/personal-blueprint')}
             className="rounded-md border border-border px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
             style={{ backgroundColor: '#F2DABA' }}
           >
