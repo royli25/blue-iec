@@ -285,7 +285,7 @@ const ProfileContext = () => {
               </div>
               <div className="grid gap-0.5">
                 {activities.map((act, idx) => (
-                  <div key={idx} className="flex items-center gap-1">
+                  <div key={idx} className="flex items-start gap-1">
                     <input
                       className="flex-1 rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80"
                       placeholder={`Activity ${idx + 1}`}
