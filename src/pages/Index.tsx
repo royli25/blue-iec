@@ -226,7 +226,7 @@ const Index = () => {
                                 href={href || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`group block rounded-2xl border border-border/40 shadow-lg backdrop-blur-sm px-6 py-5 transition-all duration-200 ${href ? 'hover:shadow-xl hover:scale-[1.02] hover:border-border/60' : ''}`}
+                                className={`block rounded-2xl border border-border/40 shadow-lg backdrop-blur-sm px-6 py-5`}
                                 style={{ 
                                   backgroundColor: bubbleBg, 
                                   cursor: href ? 'pointer' as const : 'default',
@@ -238,9 +238,9 @@ const Index = () => {
                                   dangerouslySetInnerHTML={{ __html: renderMarkdown(card) }}
                                 />
                                 {href && (
-                                  <div className="mt-3 flex items-center text-xs text-gray-500 group-hover:text-blue-600 transition-colors">
+                                  <div className="mt-3 flex items-center text-xs text-gray-500">
                                     <span>Click to visit</span>
-                                    <svg className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                     </svg>
                                   </div>
