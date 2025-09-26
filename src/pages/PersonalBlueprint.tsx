@@ -21,23 +21,56 @@ const PersonalBlueprint = () => {
             Log in
           </button>
         )}
-        <div className="flex justify-end">
-          <button
-            onClick={() => navigate('/personal-blueprint')}
-            className="rounded-md border border-border px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
-            style={{ backgroundColor: '#F2DABA' }}
-          >
-            My Blueprint
-          </button>
-        </div>
       </div>
 
-      {/* Main content area */}
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
-        <p className="text-foreground/70 text-sm">
-          Content removed.
-        </p>
+      {/* subtle warm background with grid */}
+      <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
+      <div className="absolute inset-0 grid-bg opacity-70" />
+
+      {/* content */}
+      <div className="relative px-6 pt-12 pb-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex">
+            {/* Left sidebar - Timeline */}
+            <div className="w-24 flex flex-col items-center pr-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="text-xs text-gray-500">Now</div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <div className="text-4xl font-bold text-gray-800">26</div>
+                <div className="text-xs text-gray-500">Today</div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              </div>
+            </div>
+
+            {/* Main content area */}
+            <div className="flex-1">
+              <div className="space-y-6">
+                {/* Breadcrumb */}
+                <div className="pb-3">
+                  <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
+                    <ol className="flex items-center gap-2">
+                      <li>
+                        <button onClick={() => navigate('/')} className="underline underline-offset-2 hover:opacity-80">Home</button>
+                      </li>
+                      <li className="text-foreground/60">/</li>
+                      <li>
+                        <span className="text-foreground/80">Personal Blueprint</span>
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+
+                {/* Header */}
+                <div className="mb-6">
+                  <h1 className="text-2xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
+                  <p className="text-foreground/70 text-sm">
+                    Your personalized roadmap to academic and career success.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
