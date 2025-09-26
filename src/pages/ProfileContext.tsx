@@ -292,6 +292,12 @@ const ProfileContext = () => {
                       value={act}
                       onChange={(e) => setActivities(activities.map((a, i) => (i === idx ? e.target.value : a)))}
                     />
+                    <input
+                      className="flex-1 rounded-md border-2 border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80"
+                      placeholder="description"
+                      value=""
+                      onChange={() => {}}
+                    />
                     {activities.length > 1 && (
                       <button
                         type="button"
