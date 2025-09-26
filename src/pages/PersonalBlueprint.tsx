@@ -54,9 +54,30 @@ const PersonalBlueprint = () => {
               </p>
             </div>
 
-            {/* Empty Card */}
+            {/* Activities Card */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-              {/* Card content will be added later */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">Activities</h3>
+                  <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md border border-gray-300">
+                    Add
+                  </button>
+                </div>
+                
+                <div className="space-y-3">
+                  <input 
+                    type="text" 
+                    placeholder="Activity 1" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  
+                  <textarea 
+                    placeholder="Description" 
+                    className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    rows={3}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
