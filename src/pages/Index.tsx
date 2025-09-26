@@ -210,19 +210,14 @@ const Index = () => {
                       );
                     }
                     return (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {preamble && (
                           <div
-                            className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
-                            style={{ backgroundColor: bubbleBg }}
-                          >
-                            <div
-                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                              dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
-                            />
-                          </div>
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
+                          />
                         )}
-                        <div className="flex gap-3 overflow-x-auto pb-1">
+                        <div className="space-y-3">
                           {cards.map((card, idx) => {
                             const href = extractFirstUrl(card);
                             return (
@@ -231,7 +226,7 @@ const Index = () => {
                                 href={href || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors flex-shrink-0 min-w-[280px] sm:min-w-[420px] ${href ? 'hover:bg-white/80' : ''}`}
+                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors ${href ? 'hover:bg-white/80' : ''}`}
                                 style={{ backgroundColor: bubbleBg, cursor: href ? 'pointer' as const : 'default' }}
                               >
                                 <div
@@ -244,14 +239,9 @@ const Index = () => {
                         </div>
                         {postscript && (
                           <div
-                            className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
-                            style={{ backgroundColor: bubbleBg }}
-                          >
-                            <div
-                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                              dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
-                            />
-                          </div>
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
+                          />
                         )}
                       </div>
                     );
