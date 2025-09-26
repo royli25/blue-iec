@@ -48,7 +48,7 @@ const PersonalBlueprint = () => {
 
             {/* Header */}
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
+              <h1 className="text-xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
               <p className="text-foreground/70 text-sm">
                 Your personalized roadmap to academic and career success.
               </p>
