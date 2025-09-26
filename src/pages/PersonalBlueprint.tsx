@@ -44,6 +44,21 @@ const PersonalBlueprint = () => {
           {/* Main content area - Scrollable roadmap */}
           <div className="flex-1 overflow-y-auto max-h-screen">
             <div className="space-y-6">
+              {/* Breadcrumb */}
+              <div className="pb-3">
+                <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
+                  <ol className="flex items-center gap-2">
+                    <li>
+                      <button onClick={() => navigate('/')} className="underline underline-offset-2 hover:opacity-80">Home</button>
+                    </li>
+                    <li className="text-foreground/60">/</li>
+                    <li>
+                      <span className="text-foreground/80">Personal Blueprint</span>
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+
               {/* Header */}
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
