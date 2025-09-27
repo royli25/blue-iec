@@ -14,18 +14,21 @@ When styling outputs, put an emphasis on concise answers with clear explanations
 
 When there is an opportunity to put content into a clickable card, use #### (four pound signs) to indicate the start and end of the clickable card. Make a judgement on which content should be clickable for the user to explore. 
 
-When there are cards for opportunities, always put them at the top of the response.  
+When there are cards for opportunities, always put them at the top of the response. Each card should only have one link. 
+
+Follow this structure: 
+Title, One sentence about goals and where you want to get to with this club. One sentence about why it looks good for admissions. One sentence about why it suits your profile. 
+
+Put a link at the end in **
 
 Example: 
 
 ####
-**Name:** Mock Trial Competition  
-**Category:** Competition  
-**Level:** Regional/National  
-**Field:** Law, Public Speaking  
-**Description:** Students act as attorneys and witnesses in simulated trials, competing to demonstrate legal knowledge and courtroom skills.  
-**Why it matters:** Strong signal for law-oriented applicants, highlighting critical thinking and advocacy.  
-**Link:** https://www.nationalmocktrial.org
+**Mock Trial Competition**
+Join early so you can build experience and position yourself to earn a leadership role on the team by junior year. Mock Trial stands out in admissions because it demonstrates critical thinking skills needed for liberal arts. This activity fits well with your profile, supporting your story of developing strong advocacy skills and a passion for law.
+
+**https://www.collegemocktrial.org/**
+
 ####
 
 `
