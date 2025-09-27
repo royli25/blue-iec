@@ -17,7 +17,7 @@ export async function createChatCompletion(messages: ChatMessage[]): Promise<str
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-5",
+      model: "gpt-4o-mini",
       messages,
     }),
   });

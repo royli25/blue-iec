@@ -75,7 +75,7 @@ const Index = () => {
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       {/* top-right auth button / email */}
-      <div className="absolute top-4 right-4 z-20 text-[12px]">
+      <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
         {user ? (
           <details className="group relative">
             <summary className="list-none cursor-pointer rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white">
@@ -99,6 +99,15 @@ const Index = () => {
             Log in
           </button>
         )}
+        <div className="flex justify-end">
+          <button
+            onClick={() => navigate('/personal-blueprint')}
+            className="rounded-md border border-border px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white"
+            style={{ backgroundColor: '#F2DABA' }}
+          >
+            My Blueprint
+          </button>
+        </div>
       </div>
       {/* subtle warm background with grid */}
       <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
@@ -181,19 +190,14 @@ const Index = () => {
                       );
                     }
                     return (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {preamble && (
                           <div
-                            className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
-                            style={{ backgroundColor: bubbleBg }}
-                          >
-                            <div
-                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                              dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
-                            />
-                          </div>
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
+                          />
                         )}
-                        <div className="flex gap-3 overflow-x-auto pb-1">
+                        <div className="space-y-4">
                           {cards.map((card, idx) => {
                             const href = extractFirstUrl(card);
                             return (
@@ -202,27 +206,34 @@ const Index = () => {
                                 href={href || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`block rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3 transition-colors flex-shrink-0 min-w-[280px] sm:min-w-[420px] ${href ? 'hover:bg-white/80' : ''}`}
-                                style={{ backgroundColor: bubbleBg, cursor: href ? 'pointer' as const : 'default' }}
+                                className={`block rounded-2xl border border-border/40 shadow-lg backdrop-blur-sm px-6 py-5`}
+                                style={{ 
+                                  backgroundColor: bubbleBg, 
+                                  cursor: href ? 'pointer' as const : 'default',
+                                  background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
+                                }}
                               >
                                 <div
-                                  className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                                  className="prose prose-sm prose-neutral max-w-none leading-relaxed text-[15px] prose-headings:mt-0 prose-headings:mb-3 prose-h3:text-lg prose-h3:font-bold prose-h3:text-gray-800 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold prose-strong:text-gray-800"
                                   dangerouslySetInnerHTML={{ __html: renderMarkdown(card) }}
                                 />
+                                {href && (
+                                  <div className="mt-3 flex items-center text-xs text-gray-500">
+                                    <span>Click to visit</span>
+                                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </div>
+                                )}
                               </a>
                             );
                           })}
                         </div>
                         {postscript && (
                           <div
-                            className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
-                            style={{ backgroundColor: bubbleBg }}
-                          >
-                            <div
-                              className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
-                              dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
-                            />
-                          </div>
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
+                          />
                         )}
                       </div>
                     );
