@@ -1,5 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import Timeline from "@/components/Timeline";
+import GenerateLink from "@/components/GenerateLink";
 
 const PersonalBlueprint = () => {
   const { user } = useAuth();
@@ -28,11 +30,11 @@ const PersonalBlueprint = () => {
       <div className="absolute inset-0 grid-bg opacity-70" />
 
       {/* content */}
-      <div className="relative px-6 pt-12 pb-8">
+      <div className="relative px-6 pt-6 pb-8">
         <div className="mx-auto max-w-4xl">
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Breadcrumb */}
-            <div className="pb-3">
+            <div className="pb-2">
               <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
                 <ol className="flex items-center gap-2">
                   <li>
@@ -47,16 +49,18 @@ const PersonalBlueprint = () => {
             </div>
 
             {/* Header */}
-            <div className="mb-6">
+            <div className="mb-4">
               <h1 className="text-xl font-bold text-foreground/90 mb-2">Personal Blueprint</h1>
-              <p className="text-foreground/70 text-sm">
-                Your personalized roadmap to academic and career success.
-              </p>
+              <GenerateLink 
+                resourceType="personal_blueprint"
+                title="Personal Blueprint"
+                snapshot={{ user: user?.email, timestamp: new Date().toISOString() }}
+              />
             </div>
 
-            {/* Empty Card */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-              {/* Card content will be added later */}
+            {/* Extended White Box */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm h-[calc(100vh-12rem)] overflow-hidden">
+              <Timeline />
             </div>
           </div>
         </div>

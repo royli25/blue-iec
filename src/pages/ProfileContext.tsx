@@ -6,8 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { createChatCompletion } from "@/integrations/openai/client";
-import { SYSTEM_BUILD_APPLICATION_CONTEXT } from "@/config/prompts";
 
 const ProfileContext = () => {
   const { user } = useAuth();
@@ -19,7 +17,7 @@ const ProfileContext = () => {
   const [school, setSchool] = useState("");
   const [gpa, setGpa] = useState("");
   const [sat, setSat] = useState("");
-  const [activities, setActivities] = useState<string[]>([""]);
+  const [activities, setActivities] = useState<{name: string, description: string}[]>([{name: "", description: ""}]);
   const [apExams, setApExams] = useState<{ exam: string; score: string }[]>([{ exam: "", score: "" }]);
   const [awards, setAwards] = useState<{ name: string; level: string }[]>([{ name: "", level: "" }]);
   const [saving, setSaving] = useState(false);
@@ -28,6 +26,8 @@ const ProfileContext = () => {
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const pendingActionRef = useRef<null | (() => void)>(null);
   const initialSnapshotRef = useRef<string>("");
+  const saveCallbackRef = useRef<((silent?: boolean) => Promise<void>) | null>(null);
+  const DRAFT_KEY = `profile_draft_${user?.id || 'anonymous'}`;
 
   const currentSnapshot = () => JSON.stringify({
     gradeLevel,
@@ -46,13 +46,13 @@ const ProfileContext = () => {
     if (school) lines.push(`School: ${school}`);
     if (gpa) lines.push(`GPA: ${gpa}`);
     if (sat) lines.push(`SAT: ${sat}`);
-    if (activities && activities.filter(Boolean).length) lines.push(`Activities: ${activities.filter(Boolean).join('; ')}`);
+    if (activities && activities.filter(a => a.name || a.description).length) lines.push(`Activities: ${activities.filter(a => a.name || a.description).map(a => `${a.name}${a.description ? ` - ${a.description}` : ''}`).join('; ')}`);
     if (apExams && apExams.filter((a) => a.exam || a.score).length) lines.push(`AP Exams: ${apExams.filter((a)=>a.exam||a.score).map((a)=>`${a.exam}${a.score?` - ${a.score}`:""}`).join('; ')}`);
     if (awards && awards.filter((a)=>a.name||a.level).length) lines.push(`Awards: ${awards.filter((a)=>a.name||a.level).map((a)=>`${a.name}${a.level?` (${a.level})`:""}`).join('; ')}`);
     return `Application Context\n${lines.join('\n')}`;
   };
 
-  const handleSave = async () => {
+  const handleSave = async (silent = false) => {
     if (!user) { navigate('/auth'); return; }
     setSaving(true);
     const payload = {
@@ -62,43 +62,26 @@ const ProfileContext = () => {
       school: school || null,
       gpa: gpa || null,
       sat: sat || null,
-      activities: activities && activities.length ? activities : null,
-      ap_exams: apExams && apExams.length ? apExams : null,
-      awards: awards && awards.length ? awards : null,
+      activities: activities && activities.filter(a => a.name || a.description).length ? activities.filter(a => a.name || a.description) : null,
+      ap_exams: apExams && apExams.filter(e => e.exam || e.score).length ? apExams.filter(e => e.exam || e.score) : null,
+      awards: awards && awards.filter(a => a.name || a.level).length ? awards.filter(a => a.name || a.level) : null,
     };
     const { error } = await supabase.from('profile_details').upsert(payload, { onConflict: 'user_id' });
     if (error) {
       setSaving(false);
-      toast({ title: 'Save failed', description: error.message, variant: 'destructive' });
-      return;
+      if (!silent) {
+        toast({ title: 'Save failed', description: error.message, variant: 'destructive' });
+      }
+      throw error; // Re-throw for auto-save error handling
     }
 
-    // After saving profile details, auto-generate AI context and save it
-    try {
-      const grade = gradeLevel;
-      const schoolName = school;
-      const apCount = apExams.filter((e) => e && (e.exam || e.score)).length;
-      const activitiesSummary = activities.filter(Boolean).slice(0, 5).join('; ');
-      const awardsSummary = awards.filter((a) => a && (a.name || a.level)).slice(0, 5).map((a) => `${a.name}${a.level ? ` (${a.level})` : ''}`).join('; ');
-
-      const userSummary = `Student summary:\nGraduation Year: ${grade}\nSchool: ${schoolName}\nGPA: ${gpa}\nSAT: ${sat}\nAP exams (count): ${apCount}\nActivities: ${activitiesSummary}\nAwards: ${awardsSummary}`;
-
-      const content = await createChatCompletion([
-        { role: 'system', content: SYSTEM_BUILD_APPLICATION_CONTEXT },
-        { role: 'user', content: userSummary },
-      ]);
-
-      await supabase
-        .from('application_contexts')
-        .upsert({ user_id: user.id, content }, { onConflict: 'user_id' });
-
-      toast({ title: 'Saved', description: 'Profile and AI context have been updated.' });
-      // mark as clean after successful save
-      initialSnapshotRef.current = currentSnapshot();
-      setIsDirty(false);
-    } catch (e: any) {
-      toast({ title: 'AI context update failed', description: e?.message || 'Saved profile, but generating AI context failed.', variant: 'destructive' });
+    if (!silent) {
+      toast({ title: 'Saved', description: 'Profile has been updated.' });
     }
+    // mark as clean after successful save and clear draft
+    initialSnapshotRef.current = currentSnapshot();
+    setIsDirty(false);
+    localStorage.removeItem(DRAFT_KEY); // Clear draft after successful save
     setSaving(false);
   };
 
@@ -108,12 +91,14 @@ const ProfileContext = () => {
     setSchool("");
     setGpa("");
     setSat("");
-    setActivities([""]);
+    setActivities([{name: "", description: ""}]);
     setApExams([{ exam: "", score: "" }]);
     setAwards([{ name: "", level: "" }]);
+    localStorage.removeItem(DRAFT_KEY); // Clear draft on reset
   };
 
   const handleDiscard = () => {
+    localStorage.removeItem(DRAFT_KEY); // Clear draft on discard
     requestNavigate(-1);
   };
 
@@ -122,33 +107,54 @@ const ProfileContext = () => {
     window.scrollTo(0, 0);
     if (!user) { navigate('/auth'); return; }
     (async () => {
+      // Check for draft in localStorage first
+      const draftStr = localStorage.getItem(DRAFT_KEY);
+      let draft = null;
+      if (draftStr) {
+        try {
+          draft = JSON.parse(draftStr);
+        } catch (e) {
+          // Invalid draft, ignore
+        }
+      }
+
       const { data } = await supabase
         .from('profile_details')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
-      if (data) {
-        setGradeLevel((data as any).grade_level || "");
-        setDemographic((data as any).demographic || "");
-        setSchool((data as any).school || "");
-        setGpa((data as any).gpa || "");
-        setSat((data as any).sat || "");
-        setActivities(((data as any).activities as string[] | null) ?? [""]);
-        setApExams(((data as any).ap_exams as { exam: string; score: string }[] | null) ?? [{ exam: "", score: "" }]);
-        setAwards(((data as any).awards as { name: string; level: string }[] | null) ?? [{ name: "", level: "" }]);
-        // establish initial snapshot after data load
-        initialSnapshotRef.current = JSON.stringify({
-          gradeLevel: (data as any).grade_level || "",
-          demographic: (data as any).demographic || "",
-          school: (data as any).school || "",
-          gpa: (data as any).gpa || "",
-          sat: (data as any).sat || "",
-          activities: ((data as any).activities as string[] | null) ?? [""],
-          apExams: ((data as any).ap_exams as { exam: string; score: string }[] | null) ?? [{ exam: "", score: "" }],
-          awards: ((data as any).awards as { name: string; level: string }[] | null) ?? [{ name: "", level: "" }],
-        });
-        setIsDirty(false);
-      }
+      
+      // Use draft if it exists and is newer, otherwise use database data
+      const loadedGradeLevel = draft?.gradeLevel ?? (data as any)?.grade_level ?? "";
+      const loadedDemographic = draft?.demographic ?? (data as any)?.demographic ?? "";
+      const loadedSchool = draft?.school ?? (data as any)?.school ?? "";
+      const loadedGpa = draft?.gpa ?? (data as any)?.gpa ?? "";
+      const loadedSat = draft?.sat ?? (data as any)?.sat ?? "";
+      const loadedActivities = draft?.activities ?? ((data as any)?.activities as {name: string, description: string}[] | null) ?? [{name: "", description: ""}];
+      const loadedApExams = draft?.apExams ?? ((data as any)?.ap_exams as { exam: string; score: string }[] | null) ?? [{ exam: "", score: "" }];
+      const loadedAwards = draft?.awards ?? ((data as any)?.awards as { name: string; level: string }[] | null) ?? [{ name: "", level: "" }];
+      
+      setGradeLevel(loadedGradeLevel);
+      setDemographic(loadedDemographic);
+      setSchool(loadedSchool);
+      setGpa(loadedGpa);
+      setSat(loadedSat);
+      setActivities(loadedActivities);
+      setApExams(loadedApExams);
+      setAwards(loadedAwards);
+      
+      // ALWAYS establish initial snapshot after data load, even if no data exists
+      initialSnapshotRef.current = JSON.stringify({
+        gradeLevel: loadedGradeLevel,
+        demographic: loadedDemographic,
+        school: loadedSchool,
+        gpa: loadedGpa,
+        sat: loadedSat,
+        activities: loadedActivities,
+        apExams: loadedApExams,
+        awards: loadedAwards,
+      });
+      setIsDirty(false);
     })();
 
     // Listen for shared profile imports
@@ -159,7 +165,7 @@ const ProfileContext = () => {
       setSchool(detail.school ?? "");
       setGpa(detail.gpa ?? "");
       setSat(detail.sat ?? "");
-      setActivities(Array.isArray(detail.activities) && detail.activities.length ? detail.activities : [""]);
+      setActivities(Array.isArray(detail.activities) && detail.activities.length ? detail.activities : [{name: "", description: ""}]);
       setApExams(Array.isArray(detail.apExams) && detail.apExams.length ? detail.apExams : [{ exam: "", score: "" }]);
       setAwards(Array.isArray(detail.awards) && detail.awards.length ? detail.awards : [{ name: "", level: "" }]);
       window.scrollTo(0, 0);
@@ -168,11 +174,27 @@ const ProfileContext = () => {
     return () => window.removeEventListener('profile-import', onImport as EventListener);
   }, [user]);
 
-  // Dirty tracking
+  // Dirty tracking and localStorage persistence
   useEffect(() => {
     const changed = initialSnapshotRef.current && currentSnapshot() !== initialSnapshotRef.current;
     setIsDirty(Boolean(changed));
-  }, [gradeLevel, demographic, school, gpa, sat, activities, apExams, awards]);
+    
+    // Save draft to localStorage whenever data changes
+    if (changed) {
+      const draft = {
+        gradeLevel,
+        demographic,
+        school,
+        gpa,
+        sat,
+        activities,
+        apExams,
+        awards,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+  }, [gradeLevel, demographic, school, gpa, sat, activities, apExams, awards, DRAFT_KEY]);
 
   // Warn on tab close / refresh
   useEffect(() => {
@@ -185,13 +207,39 @@ const ProfileContext = () => {
     return () => window.removeEventListener('beforeunload', handler as any);
   }, [isDirty]);
 
-  const requestNavigate = (dest: string | number) => {
+  // Keep saveCallbackRef up to date
+  useEffect(() => {
+    saveCallbackRef.current = handleSave;
+  });
+
+  // Auto-save on component unmount (when navigating away)
+  useEffect(() => {
+    return () => {
+      if (isDirty && user && saveCallbackRef.current) {
+        // Silent auto-save on unmount using ref to avoid stale closure
+        saveCallbackRef.current(true).catch(() => {
+          // Ignore errors on unmount to avoid console warnings
+        });
+      }
+    };
+  }, [isDirty, user]);
+
+  const requestNavigate = async (dest: string | number) => {
     if (isDirty) {
-      pendingActionRef.current = () => {
+      // Auto-save before navigating
+      try {
+        await handleSave(true); // Silent save
+        // After successful save, navigate
         if (typeof dest === 'number') navigate(dest as number);
         else navigate(dest as string);
-      };
-      setShowLeaveDialog(true);
+      } catch (error) {
+        // If save fails, show the leave dialog
+        pendingActionRef.current = () => {
+          if (typeof dest === 'number') navigate(dest as number);
+          else navigate(dest as string);
+        };
+        setShowLeaveDialog(true);
+      }
     } else {
       if (typeof dest === 'number') navigate(dest as number);
       else navigate(dest as string);
@@ -278,7 +326,7 @@ const ProfileContext = () => {
               <div className="flex items-center justify-between">
                 <label className="text-foreground/80">Activities</label>
                 <button
-                  onClick={() => activities.length < 10 && setActivities([...activities, ""])}
+                  onClick={() => activities.length < 10 && setActivities([...activities, {name: "", description: ""}])}
                   className="rounded-md border border-border/70 bg-white/50 px-2.5 py-0 text-[11px] text-foreground/70 backdrop-blur-sm hover:bg-white/70 h-[24px] min-h-0 leading-none"
                   type="button"
                 >Add</button>
@@ -289,14 +337,14 @@ const ProfileContext = () => {
                     <input
                       className="flex-1 rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80"
                       placeholder={`Activity ${idx + 1}`}
-                      value={act}
-                      onChange={(e) => setActivities(activities.map((a, i) => (i === idx ? e.target.value : a)))}
+                      value={act.name}
+                      onChange={(e) => setActivities(activities.map((a, i) => (i === idx ? {...a, name: e.target.value} : a)))}
                     />
                     <textarea
                       className="flex-1 rounded-md border border-border bg-white/70 px-3 py-1 text-[12px] text-foreground/80 resize-none"
                       placeholder="description"
-                      value=""
-                      onChange={() => {}}
+                      value={act.description}
+                      onChange={(e) => setActivities(activities.map((a, i) => (i === idx ? {...a, description: e.target.value} : a)))}
                       rows={2}
                     />
                     {activities.length > 1 && (
@@ -397,17 +445,14 @@ const ProfileContext = () => {
             </div>
           </div>
           <div className="pt-6 flex items-center justify-between gap-3">
-            <button onClick={() => requestNavigate('/context')} className="rounded-md border border-border bg-white px-4 py-0 text-[12px] text-foreground/70 shadow-sm hover:bg-white h-[24px] min-h-0 leading-none">View AI Context</button>
+            <div className="text-[12px] text-foreground/60">
+              Profile data will be automatically included in your chat conversations
+            </div>
             <div className="flex gap-2">
               <button onClick={handleDiscard} className="rounded-md border border-border bg-white/70 px-4 py-0 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white h-[24px] min-h-0 leading-none">Discard changes</button>
               <button onClick={handleReset} className="rounded-md border border-border bg-white/70 px-4 py-0 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white h-[24px] min-h-0 leading-none">Reset</button>
-              <button onClick={handleSave} disabled={saving} className="rounded-md border border-border bg-white/70 px-4 py-0 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white disabled:opacity-50 disabled:pointer-events-none h-[24px] min-h-0 leading-none">{saving ? 'Saving...' : 'Save'}</button>
+              <button onClick={() => handleSave(false)} disabled={saving} className="rounded-md border border-border bg-white/70 px-4 py-0 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white disabled:opacity-50 disabled:pointer-events-none h-[24px] min-h-0 leading-none">{saving ? 'Saving...' : 'Save'}</button>
             </div>
-          </div>
-          <div className="mt-4">
-            <p className="text-[13px] sm:text-sm text-red-600 leading-relaxed" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
-              We strongly encourage you to review the context prompt closely (e.g., GPA and SAT percentiles relative to your high school) to improve the accuracy of our suggestions.
-            </p>
           </div>
 
           {/* Additional Features */}
@@ -463,7 +508,7 @@ const AdditionalFeatures = ({
     school: string;
     gpa: string;
     sat: string;
-    activities: string[];
+    activities: {name: string, description: string}[];
     apExams: { exam: string; score: string }[];
     awards: { name: string; level: string }[];
   };
@@ -496,7 +541,7 @@ const AdditionalFeatures = ({
           <div class="section">
             <h2>Activities</h2>
             <ul>
-              ${data.activities.filter(Boolean).map((a) => `<li>${escapeHtml(a)}</li>`).join('') || '<li class="muted">None listed</li>'}
+              ${data.activities.filter(a => a.name || a.description).map((a) => `<li>${escapeHtml(a.name)}${a.description ? ` — ${escapeHtml(a.description)}` : ''}</li>`).join('') || '<li class="muted">None listed</li>'}
             </ul>
           </div>
           <div class="section">
@@ -555,7 +600,7 @@ const ShareProfile = ({
     school: string;
     gpa: string;
     sat: string;
-    activities: string[];
+    activities: {name: string, description: string}[];
     apExams: { exam: string; score: string }[];
     awards: { name: string; level: string }[];
   };
