@@ -8,6 +8,7 @@ import { SUGGESTIONS } from "@/config/suggestions";
 import OrbGraphic from "@/components/OrbGraphic";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
+import { useProfileContext } from "@/hooks/useProfileContext";
 
 interface Message {
   id: number;
@@ -27,6 +28,7 @@ const ChatBot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const { getContextualSystemPrompt } = useProfileContext();
 
   // Auto-scroll to bottom when messages change or when thinking
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -55,8 +57,9 @@ const ChatBot = () => {
 
     try {
       setIsThinking(true);
+      const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_CHATBOT);
       const content = await createChatCompletion([
-        { role: "system", content: SYSTEM_CHATBOT },
+        { role: "system", content: contextualSystemPrompt },
         ...messages.map((m) => ({ role: m.isUser ? "user" : "assistant", content: m.text })),
         { role: "user", content: text },
       ]);
@@ -151,14 +154,14 @@ const ChatBot = () => {
                                       href={href || undefined}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className={`block rounded-2xl border border-border/40 shadow-lg backdrop-blur-sm px-6 py-5`}
+                                      className={`block rounded-xl border border-border/50 px-4 py-3 transition-colors hover:border-border/80`}
                                       style={{ 
                                         backgroundColor: '#F1E9DA', 
                                         cursor: href ? 'pointer' as const : 'default',
                                         background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
                                       }}
                                     >
-                                      <div className="space-y-2 text-[15px] leading-relaxed">
+                                      <div className="space-y-1.5 text-[14px] leading-snug">
                                         {card.split('\n').map((line, lineIdx) => {
                                           const trimmedLine = line.trim();
                                           if (!trimmedLine) return null;
@@ -179,14 +182,14 @@ const ChatBot = () => {
                                           return (
                                             <div 
                                               key={lineIdx}
-                                              className="prose prose-sm prose-neutral max-w-none prose-p:my-1 prose-strong:font-bold prose-strong:text-gray-900"
+                                              className="prose prose-sm prose-neutral max-w-none prose-p:my-0.5 prose-strong:font-bold prose-strong:text-gray-900"
                                               dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(trimmedLine) }}
                                             />
                                           );
                                         })}
                                       </div>
                                       {href && (
-                                        <div className="mt-3 flex items-center text-xs text-gray-500">
+                                        <div className="mt-2 flex items-center text-[11px] text-gray-500">
                                           <span>Click to visit</span>
                                           <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

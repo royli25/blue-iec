@@ -8,11 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
+import { useProfileContext } from '@/hooks/useProfileContext';
 
 const Index = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { getContextualSystemPrompt, isLoading: profileLoading } = useProfileContext();
   // Rotating placeholder prompts focused on opportunities and stories
   const PROMPTS: string[] = [
     "Help me find opportunities in the Bay Area for a Psychology major.",
@@ -50,19 +52,11 @@ const Index = () => {
     setQuery("");
     setLoading(true);
     try {
-      // Attach saved Application Context (if available) to the system prompt
-      let systemPrompt = SYSTEM_HOME_CHAT;
-      try {
-        const { data: ctx } = await supabase.from('application_contexts').select('content').maybeSingle();
-        if (ctx?.content) {
-          systemPrompt = `${SYSTEM_HOME_CHAT}\n\nApplication Context (user-provided):\n${ctx.content}`;
-        }
-      } catch {
-        // ignore fetch errors; proceed without context
-      }
+      // Use the profile context to enhance the system prompt
+      const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_HOME_CHAT);
 
       const content = await createChatCompletion([
-        { role: 'system', content: systemPrompt },
+        { role: 'system', content: contextualSystemPrompt },
         ...nextMessages,
       ]);
       setMessages((prev) => [...prev, { role: 'assistant', content }]);
@@ -175,38 +169,34 @@ const Index = () => {
                       );
                     }
                     const { preamble, cards, postscript } = parseCardSections(m.content);
-                    const bubbleBg = '#F1E9DA';
+                    // If there are no #### card sections, render directly on the background (no card wrapper)
                     if (cards.length === 0) {
                       return (
                         <div
-                          className={`rounded-xl border border-border/70 shadow-sm backdrop-blur-md px-4 py-3`}
-                          style={{ backgroundColor: bubbleBg }}
-                        >
-                          <div
-                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold prose-h1:text-[18px] prose-h2:text-[16px] prose-h3:text-[14px]"
-                            dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }}
-                          />
-                        </div>
+                          className="prose prose-sm prose-neutral max-w-none leading-7 text-[15px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold prose-h1:text-[19px] prose-h2:text-[17px] prose-h3:text-[15px]"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }}
+                        />
                       );
                     }
                     return (
                       <div className="space-y-4">
                         {preamble && (
                           <div
-                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[15px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
                           />
                         )}
                         <div className="space-y-4">
                           {cards.map((card, idx) => {
                             const href = extractFirstUrl(card);
+                            const bubbleBg = '#F1E9DA';
                             return (
                               <a
                                 key={idx}
                                 href={href || undefined}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`block rounded-2xl border border-border/40 shadow-lg backdrop-blur-sm px-6 py-5`}
+                                className={`block rounded-xl border border-border/50 px-4 py-3 transition-colors hover:border-border/80`}
                                 style={{ 
                                   backgroundColor: bubbleBg, 
                                   cursor: href ? 'pointer' as const : 'default',
@@ -214,11 +204,11 @@ const Index = () => {
                                 }}
                               >
                                 <div
-                                  className="prose prose-sm prose-neutral max-w-none leading-relaxed text-[15px] prose-headings:mt-0 prose-headings:mb-3 prose-h3:text-lg prose-h3:font-bold prose-h3:text-gray-800 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold prose-strong:text-gray-800"
+                                  className="prose prose-sm prose-neutral max-w-none leading-snug text-[15px] prose-headings:mt-0 prose-headings:mb-1.5 prose-h3:text-[17px] prose-h3:font-semibold prose-h3:text-gray-900 prose-p:my-1.5 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold prose-strong:text-gray-800"
                                   dangerouslySetInnerHTML={{ __html: renderMarkdown(card) }}
                                 />
                                 {href && (
-                                  <div className="mt-3 flex items-center text-xs text-gray-500">
+                                  <div className="mt-2 flex items-center text-[11px] text-gray-500">
                                     <span>Click to visit</span>
                                     <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -231,7 +221,7 @@ const Index = () => {
                         </div>
                         {postscript && (
                           <div
-                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[14px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            className="prose prose-sm prose-neutral max-w-none leading-7 text-[15px] prose-headings:mt-0 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
                           />
                         )}
