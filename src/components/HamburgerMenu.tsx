@@ -1,4 +1,4 @@
-import { Menu, User, LogOut, LogIn } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,49 +7,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const HamburgerMenu = () => {
-  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  const handleSignIn = () => {
-    navigate('/auth');
-  };
-
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed top-4 left-4 z-50">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="bg-card/80 backdrop-blur-sm">
+          <Button variant="ghost" size="icon" className="bg-transparent hover:bg-transparent shadow-none border-0">
             <Menu className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 bg-card/95 backdrop-blur-sm border border-border">
-          {user ? (
-            <>
-              <DropdownMenuItem disabled className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span className="text-sm text-muted-foreground">{user.email}</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 text-destructive">
-                <LogOut className="h-4 w-4" />
-                <span>Sign out</span>
-              </DropdownMenuItem>
-            </>
-          ) : (
-            <DropdownMenuItem onClick={handleSignIn} className="flex items-center gap-2">
-              <LogIn className="h-4 w-4" />
-              <span>Sign in</span>
-            </DropdownMenuItem>
-          )}
+        <DropdownMenuContent align="start" className="w-48 bg-card/95 backdrop-blur-sm border border-border text-[12px]">
+          <DropdownMenuItem onClick={() => navigate('/technology')} className="font-normal">
+            About
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/personal-blueprint')} className="font-normal">
+            My Blueprint
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/admitted-profiles')} className="font-normal">
+            Admitted Profiles
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
