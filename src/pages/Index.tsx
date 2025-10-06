@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 import { useProfileContext } from '@/hooks/useProfileContext';
-import HamburgerMenu from "@/components/HamburgerMenu";
 import { buildKbContextBlock } from "@/integrations/supabase/search";
 
 const Index = () => {
@@ -122,7 +121,6 @@ const Index = () => {
   };
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      <HamburgerMenu />
       {/* top-right auth button / email */}
       <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
         {user ? (
