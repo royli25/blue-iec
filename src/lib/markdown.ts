@@ -29,10 +29,28 @@ function renderInline(md: string): string {
 export function renderMarkdownToHtml(markdown: string): string {
   const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
   let html = '';
+  // Top-level list states
   let inUl = false;
   let inOl = false;
+  // Ordered-list item grouping state (to group following bullets/paragraphs)
+  let inOlLi = false;
+  let inNestedUl = false;
 
-  const closeLists = () => {
+  const closeNestedUl = () => {
+    if (inNestedUl) { html += '<\/ul>'; inNestedUl = false; }
+  };
+
+  const closeOlLi = () => {
+    if (inOlLi) {
+      closeNestedUl();
+      html += '<\/li>';
+      inOlLi = false;
+    }
+  };
+
+  const closeAllLists = () => {
+    // Close any open ordered-list item first
+    closeOlLi();
     if (inUl) { html += '<\/ul>'; inUl = false; }
     if (inOl) { html += '<\/ol>'; inOl = false; }
   };
@@ -43,39 +61,60 @@ export function renderMarkdownToHtml(markdown: string): string {
     // headings
     const heading = line.match(/^#{1,3}\s+(.*)$/);
     if (heading) {
-      closeLists();
+      closeAllLists();
       const level = heading[0].startsWith('###') ? 3 : heading[0].startsWith('##') ? 2 : 1;
       html += `<h${level}>${renderInline(heading[1])}<\/h${level}>`;
       continue;
     }
 
-    // ordered list
+    // ordered list (start or continue)
     const ordered = line.match(/^\s*\d+\.\s+(.*)$/);
     if (ordered) {
-      if (!inOl) { closeLists(); html += '<ol>'; inOl = true; }
-      html += `<li>${renderInline(ordered[1])}<\/li>`;
+      // If we're switching from top-level UL, close it first
+      if (!inOl) { closeAllLists(); html += '<ol>'; inOl = true; }
+      // Close previous LI if any
+      closeOlLi();
+      // Open new LI and keep it open to group following lines
+      html += `<li><div>${renderInline(ordered[1])}<\/div>`;
+      inOlLi = true;
       continue;
     }
 
     // unordered list
     const unordered = line.match(/^\s*[-*]\s+(.*)$/);
     if (unordered) {
-      if (!inUl) { closeLists(); html += '<ul>'; inUl = true; }
+      // If we are inside an open ordered-list item, treat this as a nested UL
+      if (inOl && inOlLi) {
+        if (!inNestedUl) { html += '<ul>'; inNestedUl = true; }
+        html += `<li>${renderInline(unordered[1])}<\/li>`;
+        continue;
+      }
+      // Otherwise, it's a top-level UL
+      if (!inUl) { closeAllLists(); html += '<ul>'; inUl = true; }
       html += `<li>${renderInline(unordered[1])}<\/li>`;
       continue;
     }
 
-    // Blank lines: do not close lists; allow spacing between list items
+    // Blank lines: keep lists open so following content can still attach
     if (line.trim() === '') {
+      // Do not force-close ordered-list item; allow grouping paragraphs
       if (inUl || inOl) { continue; }
       continue;
     }
 
-    closeLists();
+    // Regular paragraph lines
+    if (inOl && inOlLi) {
+      // Paragraph inside an ordered-list item
+      html += `<p>${renderInline(line)}<\/p>`;
+      continue;
+    }
+
+    // Outside of any OL item
+    closeAllLists();
     html += `<p>${renderInline(line)}<\/p>`;
   }
 
-  closeLists();
+  closeAllLists();
   return html;
 }
 
