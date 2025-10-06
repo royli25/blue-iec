@@ -9,6 +9,7 @@ import OrbGraphic from "@/components/OrbGraphic";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 import { useProfileContext } from "@/hooks/useProfileContext";
+import { buildKbContextBlock } from "@/integrations/supabase/search";
 
 interface Message {
   id: number;
@@ -29,6 +30,23 @@ const ChatBot = () => {
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const { getContextualSystemPrompt } = useProfileContext();
+
+  // Hydrate persisted state so UI remains across reloads
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('bot.messages.v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      }
+      const rawInput = sessionStorage.getItem('bot.input.v1');
+      if (rawInput) setInputValue(rawInput);
+    } catch {}
+  }, []);
+  useEffect(() => { try { sessionStorage.setItem('bot.messages.v1', JSON.stringify(messages)); } catch {} }, [messages]);
+  useEffect(() => { try { sessionStorage.setItem('bot.input.v1', inputValue); } catch {} }, [inputValue]);
 
   // Auto-scroll to bottom when messages change or when thinking
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -58,15 +76,24 @@ const ChatBot = () => {
     try {
       setIsThinking(true);
       const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_CHATBOT);
+      const { block: kbBlock } = await buildKbContextBlock(text, { k: 5, maxCharsPerChunk: 500, maxTotalChars: 1800, header: "KB Context", includeMetadata: true });
+
+      const systemWithContext = kbBlock
+        ? `${contextualSystemPrompt}\n\n---\n${kbBlock}`
+        : contextualSystemPrompt;
+
       const content = await createChatCompletion([
-        { role: "system", content: contextualSystemPrompt },
-        ...messages.map((m) => ({ role: m.isUser ? "user" : "assistant", content: m.text })),
-        { role: "user", content: text },
+        { role: "system", content: systemWithContext } as import("@/integrations/openai/client").ChatMessage,
+        ...messages.map((m): import("@/integrations/openai/client").ChatMessage => ({
+          role: (m.isUser ? "user" : "assistant"),
+          content: m.text,
+        })),
+        { role: "user", content: text } as import("@/integrations/openai/client").ChatMessage,
       ]);
 
       const botResponse: Message = {
         id: Date.now() + 1,
-        text: content,
+        text: kbBlock ? `${content}\n\n---\nKB Context Used\n${kbBlock}` : content,
         isUser: false,
         timestamp: new Date(),
       };
@@ -156,12 +183,12 @@ const ChatBot = () => {
                                       rel="noopener noreferrer"
                                       className={`block rounded-xl border border-border/50 px-4 py-3 transition-colors hover:border-border/80`}
                                       style={{ 
-                                        backgroundColor: '#F1E9DA', 
+                                        backgroundColor: '#F2EEE9', 
                                         cursor: href ? 'pointer' as const : 'default',
-                                        background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
+                                        background: 'linear-gradient(135deg, #F2EEE9 0%, #F5F0E8 100%)'
                                       }}
                                     >
-                                      <div className="space-y-1.5 text-[14px] leading-snug">
+                                      <div className="space-y-1.5 text-[15px] leading-8 text-[#606060]">
                                         {card.split('\n').map((line, lineIdx) => {
                                           const trimmedLine = line.trim();
                                           if (!trimmedLine) return null;
@@ -182,7 +209,7 @@ const ChatBot = () => {
                                           return (
                                             <div 
                                               key={lineIdx}
-                                              className="prose prose-sm prose-neutral max-w-none prose-p:my-0.5 prose-strong:font-bold prose-strong:text-gray-900"
+                                              className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-a:text-blue-700 prose-strong:font-semibold prose-strong:text-foreground"
                                               dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(trimmedLine) }}
                                             />
                                           );
