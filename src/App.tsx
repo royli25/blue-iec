@@ -12,6 +12,7 @@ import ProfileContext from "./pages/ProfileContext";
 import Technology from "./pages/Technology";
 import ApplicationContext from "./pages/ApplicationContext";
 import PersonalBlueprint from "./pages/PersonalBlueprint";
+import AdmittedProfiles from "./pages/AdmittedProfiles";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/personal-blueprint" element={<PersonalBlueprint />} />
               <Route path="/technology" element={<Technology />} />
               <Route path="/context" element={<ApplicationContext />} />
+              <Route path="/admitted-profiles" element={<AdmittedProfiles />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
