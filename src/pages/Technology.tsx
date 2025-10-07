@@ -30,49 +30,67 @@ const Technology = () => {
           <div className="space-y-8">
             {/* Overview */}
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">How BluePrint Works</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">Why BluePrint Is Different</h2>
               <p className="text-[12px] text-foreground/70 leading-relaxed mb-4">
-                BluePrint combines <strong>semantic search</strong>, <strong>vector embeddings</strong>, and <strong>large language models</strong> to provide personalized college guidance. Our system analyzes your profile, finds similar successful students, and recommends opportunities tailored to your unique background.
+                Generic AI chatbots give generic advice. They don't know what actually works for students like you. BluePrint uses <strong>real student data</strong> from admitted students to provide personalized, evidence-based guidance that reflects actual outcomes.
               </p>
             </section>
 
-            {/* System Architecture Diagram */}
+            {/* The Problem with Generic LLMs */}
             <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">System Architecture</h3>
-              <div className="bg-card/50 border border-border/50 rounded-lg p-4 mb-4 font-mono text-[10px] leading-relaxed overflow-x-auto">
-                <pre className="text-foreground/80">{`
-┌─────────────────────────────────────────────────────────────────┐
-│                         USER INTERFACE                          │
-│  React + TypeScript + Tailwind CSS + shadcn/ui Components      │
-└────────────────────┬────────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      APPLICATION LAYER                          │
-│  • Profile Management    • Chat Interface                       │
-│  • Context Building      • Similar Profile Matching             │
-└────────────┬──────────────────────────┬─────────────────────────┘
-             │                          │
-             ▼                          ▼
-┌──────────────────────┐    ┌──────────────────────────────────┐
-│   SUPABASE BACKEND   │    │        OPENAI API                │
-│  • PostgreSQL + RLS  │    │  • GPT-4o-mini (Chat)            │
-│  • pgvector Extension│    │  • text-embedding-3-small        │
-│  • Vector Search     │    │  • Embeddings (1536 dimensions)  │
-│  • Authentication    │    └──────────────────────────────────┘
-└──────────────────────┘
-                `}</pre>
+              <h3 className="text-base font-semibold text-foreground mb-3">The Problem with Generic LLMs</h3>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-3">
+                <div className="space-y-2 text-[12px]">
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-600 mt-0.5">✗</span>
+                    <p className="text-foreground/80"><strong>No Real Data:</strong> ChatGPT and similar models rely on general internet content, not actual student outcomes</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-600 mt-0.5">✗</span>
+                    <p className="text-foreground/80"><strong>Generic Advice:</strong> Recommendations aren't tailored to your specific profile, background, or goals</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-600 mt-0.5">✗</span>
+                    <p className="text-foreground/80"><strong>No Context:</strong> They can't show you what worked for students with similar stats, interests, and demographics</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-600 mt-0.5">✗</span>
+                    <p className="text-foreground/80"><strong>Hallucinations:</strong> Often make up programs, deadlines, or requirements that don't exist</p>
+                  </div>
+                </div>
               </div>
-              <p className="text-[12px] text-foreground/70 leading-relaxed">
-                Our frontend is built with modern React and TypeScript, communicating with Supabase for data storage and OpenAI for AI-powered features.
-              </p>
             </section>
 
-            {/* RAG System Explanation */}
+            {/* The BluePrint Advantage */}
             <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">RAG-Powered Recommendations</h3>
+              <h3 className="text-base font-semibold text-foreground mb-3">The BluePrint Advantage</h3>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-3">
+                <div className="space-y-2 text-[12px]">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <p className="text-foreground/80"><strong>Real Student Profiles:</strong> Every recommendation is based on actual admitted students with their complete profiles, test scores, activities, and college decisions</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <p className="text-foreground/80"><strong>Similar Student Matching:</strong> We find students with backgrounds like yours and show you what opportunities they pursued and where they got accepted</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <p className="text-foreground/80"><strong>Evidence-Based Guidance:</strong> Advice is grounded in real outcomes, not speculation or outdated internet content</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <p className="text-foreground/80"><strong>Personalized Context:</strong> Your GPA, test scores, activities, and goals shape every response you receive</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* How It Works */}
+            <section>
+              <h3 className="text-base font-semibold text-foreground mb-3">How We Use Data to Give Better Responses</h3>
               <p className="text-[12px] text-foreground/70 leading-relaxed mb-4">
-                We use <strong>Retrieval-Augmented Generation (RAG)</strong> to provide contextual, accurate responses. Instead of relying solely on the AI's training data, we retrieve relevant information from our knowledge base in real-time.
+                We use <strong>Retrieval-Augmented Generation (RAG)</strong> — a technique that combines AI with a real-time database of student profiles and outcomes. When you ask a question, we don't just guess. We find real examples and use them to inform our answer.
               </p>
               
               <div className="bg-card/50 border border-border/50 rounded-lg p-4 mb-4 font-mono text-[10px] leading-relaxed overflow-x-auto">
@@ -81,208 +99,103 @@ USER QUESTION: "What research opportunities match my CS background?"
      │
      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ STEP 1: Convert Question to Vector Embedding               │
-│ OpenAI API: text-embedding-3-small → [1536 numbers]        │
+│ STEP 1: Understand Your Question                           │
+│ We analyze what you're asking and what matters to you      │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ STEP 2: Semantic Search in Knowledge Base                  │
-│ • Query kb_chunks table with pgvector                      │
-│ • Find top 3-5 most similar content pieces                 │
-│ • Include: student profiles, opportunities, guidance       │
-│ • Cosine similarity: 1 - (embedding <=> query_embedding)   │
+│ STEP 2: Find Similar Students                              │
+│ Search our database for students with:                     │
+│ • Similar academic backgrounds (CS major, your GPA range)  │
+│ • Similar interests and activities                         │
+│ • Comparable test scores and achievements                  │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ STEP 3: Build Context Block                                │
-│ • Similar student profiles with CS backgrounds             │
-│ • Relevant research opportunities                          │
-│ • Your profile data (GPA, activities, awards)              │
+│ STEP 3: Gather Real Data                                   │
+│ Collect information about what those students did:         │
+│ • Research programs they participated in                   │
+│ • Where they got accepted                                  │
+│ • What opportunities led to their success                  │
+│ • Your own profile details                                 │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ STEP 4: Generate Response with GPT-4o-mini                 │
-│ System Prompt + Context + User Question → Answer           │
+│ STEP 4: Generate Personalized Answer                       │
+│ AI creates a response based on:                            │
+│ • Real student outcomes (not guesses)                      │
+│ • Your specific profile and goals                          │
+│ • Proven pathways that worked for similar students        │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
-                    PERSONALIZED
-                    RECOMMENDATION
+          EVIDENCE-BASED, PERSONALIZED GUIDANCE
                 `}</pre>
               </div>
+              <p className="text-[12px] text-foreground/70 leading-relaxed">
+                This is why our responses feel different — they're based on what actually worked for real students, not generic internet advice.
+              </p>
             </section>
 
-            {/* Vector Embeddings */}
+            {/* Real Example */}
             <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">Vector Embeddings & Semantic Search</h3>
-              <p className="text-[12px] text-foreground/70 leading-relaxed mb-3">
-                Traditional keyword search fails to understand <em>meaning</em>. Vector embeddings convert text into mathematical representations that capture semantic similarity.
-              </p>
-              
-              <div className="bg-card/50 border border-border/50 rounded-lg p-4 mb-4">
-                <div className="text-[12px] space-y-2">
-                  <div className="flex items-start gap-2">
-                    <span className="text-foreground/60 font-mono">→</span>
-                    <div>
-                      <p className="text-foreground font-medium">Example Query:</p>
-                      <p className="text-foreground/70">"Student interested in AI research with strong math background"</p>
-                    </div>
+              <h3 className="text-base font-semibold text-foreground mb-3">A Real Example</h3>
+              <div className="bg-card/50 border border-border/50 rounded-lg p-4 mb-3">
+                <p className="text-[12px] text-foreground/70 leading-relaxed mb-3">
+                  Let's say you're a CS student with a 3.8 GPA and 1450 SAT who does robotics and math club. You ask: <em>"What research opportunities should I pursue?"</em>
+                </p>
+                <div className="space-y-3 text-[12px]">
+                  <div className="pl-3 border-l-2 border-red-300">
+                    <p className="text-foreground font-medium mb-1">Generic LLM Response:</p>
+                    <p className="text-foreground/70 italic">"Consider applying to university research programs. Look for REUs (Research Experience for Undergraduates) in computer science. Network with professors..."</p>
+                    <p className="text-red-600 text-[11px] mt-2">❌ Vague, generic, could apply to anyone</p>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-foreground/60 font-mono">→</span>
-                    <div>
-                      <p className="text-foreground font-medium">Gets Converted To:</p>
-                      <p className="text-foreground/70 font-mono text-[10px]">[0.023, -0.891, 0.445, ..., 0.112] (1536 numbers)</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-foreground/60 font-mono">→</span>
-                    <div>
-                      <p className="text-foreground font-medium">Finds Similar Profiles:</p>
-                      <p className="text-foreground/70">"CS major with math olympiad background" - 94% match</p>
-                      <p className="text-foreground/70">"Data science student with research experience" - 87% match</p>
-                    </div>
+                  
+                  <div className="pl-3 border-l-2 border-green-500">
+                    <p className="text-foreground font-medium mb-1">BluePrint Response:</p>
+                    <p className="text-foreground/70 italic">"Students with profiles similar to yours (like Ethan Zhang with a 3.96 GPA and robotics background who got into UC Berkeley) succeeded by pursuing AI research internships at their state level and participating in competitive programming. Based on your robotics experience, I recommend looking at the NASA SEES program and local university CS labs. Ethan's pathway shows that combining research with national-level coding competitions strengthened his CS narrative significantly."</p>
+                    <p className="text-green-600 text-[11px] mt-2">✓ Specific, evidence-based, shows proven pathway</p>
                   </div>
                 </div>
               </div>
-
-              <p className="text-[12px] text-foreground/70 leading-relaxed">
-                Our system uses <strong>pgvector</strong> in PostgreSQL to perform ultra-fast cosine similarity searches across thousands of student profiles and opportunities in milliseconds.
-              </p>
             </section>
 
-            {/* Student Profile Matching */}
+            {/* What Data We Use */}
             <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">Intelligent Profile Matching</h3>
-              <p className="text-[12px] text-foreground/70 leading-relaxed mb-3">
-                When you enter your profile information, we find students with similar backgrounds, interests, and achievements to show you realistic outcomes and opportunities.
-              </p>
-              
-              <div className="bg-card/50 border border-border/50 rounded-lg p-4 mb-4 font-mono text-[10px] leading-relaxed overflow-x-auto">
-                <pre className="text-foreground/80">{`
-YOUR PROFILE                      MATCHING ALGORITHM
-┌──────────────────┐             ┌────────────────────────────┐
-│ • GPA: 3.8       │             │ 1. Convert profile to      │
-│ • SAT: 1450      │────────────▶│    natural language query  │
-│ • Major: CS      │             │                            │
-│ • Activities:    │             │ 2. Generate embedding      │
-│   - Robotics     │             │                            │
-│   - Math club    │             │ 3. Search kb_chunks where  │
-│ • Awards:        │             │    kind='student_profile'  │
-│   - State math   │             │                            │
-└──────────────────┘             │ 4. Return top 3-5 matches  │
-                                 │    sorted by similarity    │
-                                 └────────────┬───────────────┘
-                                              │
-                                              ▼
-                                 ┌────────────────────────────┐
-                                 │   SIMILAR STUDENTS FOUND   │
-                                 │ • Ethan Zhang (UC Berkeley)│
-                                 │   GPA: 3.96, SAT: 1560     │
-                                 │   Similar: CS + Robotics   │
-                                 │                            │
-                                 │ • Noah Smith (Georgia Tech)│
-                                 │   GPA: 3.89, SAT: 1510     │
-                                 │   Similar: Engineering +   │
-                                 │   Math competitions        │
-                                 └────────────────────────────┘
-                `}</pre>
-              </div>
-            </section>
-
-            {/* Data Storage */}
-            <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">Knowledge Base Structure</h3>
-              <p className="text-[12px] text-foreground/70 leading-relaxed mb-3">
-                Our knowledge base stores different types of content, all searchable through vector embeddings:
-              </p>
-              
+              <h3 className="text-base font-semibold text-foreground mb-3">What Data Powers BluePrint</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-1">Student Profiles</h4>
-                  <p className="text-[11px] text-foreground/70">20+ admitted student profiles with academics, activities, and college decisions</p>
+                  <h4 className="text-[12px] font-semibold text-foreground mb-1">📊 Complete Student Profiles</h4>
+                  <p className="text-[11px] text-foreground/70">GPA, test scores, coursework rigor, activities with impact levels, awards with competition scope, and demographic context</p>
                 </div>
                 <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-1">Opportunities</h4>
-                  <p className="text-[11px] text-foreground/70">Internships, research programs, competitions, and service opportunities</p>
+                  <h4 className="text-[12px] font-semibold text-foreground mb-1">🎓 College Decisions</h4>
+                  <p className="text-[11px] text-foreground/70">Where students got accepted, rejected, and waitlisted — showing realistic outcomes for different profile types</p>
                 </div>
                 <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-1">Guidance Content</h4>
-                  <p className="text-[11px] text-foreground/70">Expert advice, application tips, and best practices</p>
+                  <h4 className="text-[12px] font-semibold text-foreground mb-1">💡 Opportunity Pathways</h4>
+                  <p className="text-[11px] text-foreground/70">What programs, internships, and competitions students pursued and how they contributed to admissions success</p>
                 </div>
                 <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-1">Yale Podcast Insights</h4>
-                  <p className="text-[11px] text-foreground/70">Curated admissions insights and success stories</p>
+                  <h4 className="text-[12px] font-semibold text-foreground mb-1">📝 Outcome Narratives</h4>
+                  <p className="text-[11px] text-foreground/70">Analysis of why certain profiles succeeded or struggled at different schools</p>
                 </div>
               </div>
             </section>
 
-            {/* Tech Stack */}
+            {/* Bottom Line */}
             <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">Technology Stack</h3>
-              <div className="space-y-3">
-                <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-2">Frontend</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {['React 18', 'TypeScript', 'Vite', 'Tailwind CSS', 'shadcn/ui', 'Radix UI', 'React Query', 'React Router'].map(tech => (
-                      <span key={tech} className="px-2 py-0.5 bg-foreground/5 text-foreground/70 text-[11px] rounded">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-2">Backend & Database</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {['Supabase', 'PostgreSQL', 'pgvector', 'Row Level Security', 'Real-time Subscriptions'].map(tech => (
-                      <span key={tech} className="px-2 py-0.5 bg-foreground/5 text-foreground/70 text-[11px] rounded">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="bg-card/50 border border-border/50 rounded-lg p-3">
-                  <h4 className="text-[12px] font-semibold text-foreground mb-2">AI & Machine Learning</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {['OpenAI GPT-4o-mini', 'text-embedding-3-small', 'Vector Search', 'Cosine Similarity', 'RAG Architecture'].map(tech => (
-                      <span key={tech} className="px-2 py-0.5 bg-foreground/5 text-foreground/70 text-[11px] rounded">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Why This Approach */}
-            <section>
-              <h3 className="text-base font-semibold text-foreground mb-3">Why This Approach Works</h3>
-              <div className="space-y-2 text-[12px]">
-                <div className="flex items-start gap-2">
-                  <span className="text-foreground/60 mt-0.5">✓</span>
-                  <p className="text-foreground/70"><strong className="text-foreground">Personalized:</strong> Every recommendation is tailored to your unique profile and goals</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-foreground/60 mt-0.5">✓</span>
-                  <p className="text-foreground/70"><strong className="text-foreground">Evidence-Based:</strong> Powered by real student profiles and actual admission outcomes</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-foreground/60 mt-0.5">✓</span>
-                  <p className="text-foreground/70"><strong className="text-foreground">Fast:</strong> Vector search returns results in milliseconds, not minutes</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-foreground/60 mt-0.5">✓</span>
-                  <p className="text-foreground/70"><strong className="text-foreground">Accurate:</strong> RAG ensures AI responses are grounded in real data, not hallucinations</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-foreground/60 mt-0.5">✓</span>
-                  <p className="text-foreground/70"><strong className="text-foreground">Scalable:</strong> Our architecture handles thousands of profiles and queries efficiently</p>
-                </div>
+              <h3 className="text-base font-semibold text-foreground mb-3">The Bottom Line</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-[12px] text-foreground/80 leading-relaxed mb-3">
+                  BluePrint doesn't replace your counselor or college advisor. Instead, it gives you instant access to data-driven insights that would normally take hours of research to find.
+                </p>
+                <p className="text-[12px] text-foreground/80 leading-relaxed">
+                  Every answer is grounded in what actually worked for real students with profiles like yours. No hallucinations. No generic advice. Just evidence-based guidance to help you make informed decisions about your college journey.
+                </p>
               </div>
             </section>
           </div>
