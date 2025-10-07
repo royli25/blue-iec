@@ -6,9 +6,10 @@ type ProfileCardProps = {
   role: string;
   blurb?: string;
   avatarUrl?: string;
+  onView?: () => void;
 };
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ name, role, blurb, avatarUrl }) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ name, role, blurb, avatarUrl, onView }) => {
   return (
     <div
       className="rounded-2xl border border-border/70 bg-card/80 backdrop-blur-md px-5 py-4 shadow-[8px_8px_24px_rgba(2,6,23,0.06),-8px_-8px_24px_rgba(255,255,255,0.85)]"
@@ -27,7 +28,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ name, role, blurb, avatarUrl 
           <div className="text-xs text-muted-foreground truncate">{role}</div>
         </div>
         <div className="ml-auto">
-          <button className="rounded-md px-3 py-1 text-xs font-medium shadow-sm hover:opacity-90" style={{ backgroundColor: '#B4530A', color: '#FFFFFF', opacity: 0.8 }}>
+          <button 
+            onClick={onView}
+            className="rounded-md px-3 py-1 text-xs font-medium shadow-sm hover:opacity-90" 
+            style={{ backgroundColor: '#B4530A', color: '#FFFFFF', opacity: 0.8 }}
+          >
             View
           </button>
         </div>
