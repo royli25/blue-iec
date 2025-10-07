@@ -9,7 +9,7 @@ import OrbGraphic from "@/components/OrbGraphic";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 import { useProfileContext } from "@/hooks/useProfileContext";
-import { buildKbContextBlock } from "@/integrations/supabase/search";
+import { buildKbContextBlock, buildSimilarProfilesBlock } from "@/integrations/supabase/search";
 
 interface Message {
   id: number;
@@ -29,7 +29,7 @@ const ChatBot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
-  const { getContextualSystemPrompt } = useProfileContext();
+  const { getContextualSystemPrompt, profileData } = useProfileContext();
 
   // Hydrate persisted state so UI remains across reloads
   useEffect(() => {
@@ -76,10 +76,30 @@ const ChatBot = () => {
     try {
       setIsThinking(true);
       const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_CHATBOT);
-      const { block: kbBlock } = await buildKbContextBlock(text, { k: 5, maxCharsPerChunk: 500, maxTotalChars: 1800, header: "KB Context", includeMetadata: true });
+      
+      // Fetch similar student profiles based on user's profile
+      const { block: profilesBlock } = profileData 
+        ? await buildSimilarProfilesBlock(profileData, { k: 3, maxTotalChars: 2000 })
+        : { block: '' };
+      
+      // Fetch relevant KB content based on the question
+      // Note: This might include some student profiles if they match the query,
+      // but typically will find other relevant content since it's searching by question text
+      const { block: kbBlock } = await buildKbContextBlock(text, { 
+        k: 3, 
+        maxCharsPerChunk: 500, 
+        maxTotalChars: 1500, 
+        header: "Relevant Knowledge Base Content", 
+        includeMetadata: true
+      });
 
-      const systemWithContext = kbBlock
-        ? `${contextualSystemPrompt}\n\n---\n${kbBlock}`
+      // Combine all context blocks
+      const contextBlocks: string[] = [];
+      if (profilesBlock) contextBlocks.push(profilesBlock);
+      if (kbBlock) contextBlocks.push(kbBlock);
+      
+      const systemWithContext = contextBlocks.length > 0
+        ? `${contextualSystemPrompt}\n\n---\n${contextBlocks.join('\n\n---\n')}`
         : contextualSystemPrompt;
 
       const content = await createChatCompletion([
@@ -93,7 +113,7 @@ const ChatBot = () => {
 
       const botResponse: Message = {
         id: Date.now() + 1,
-        text: kbBlock ? `${content}\n\n---\nKB Context Used\n${kbBlock}` : content,
+        text: content,
         isUser: false,
         timestamp: new Date(),
       };
