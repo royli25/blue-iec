@@ -220,5 +220,32 @@ export async function buildSimilarProfilesBlock(
   return { block, matches };
 }
 
+/**
+ * Fetch all student profiles from kb_chunks
+ */
+export async function fetchAllStudentProfiles(): Promise<KbMatch[]> {
+  // Cast to any to avoid strict typing on generated types (kb_chunks not in local types)
+  const { data, error } = await (supabase as any)
+    .from('kb_chunks')
+    .select('id, kind, title, body, metadata')
+    .eq('kind', 'student_profile')
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error('Error fetching student profiles:', error);
+    return [];
+  }
+  
+  // Format to match KbMatch type
+  return (data || []).map((row: any) => ({
+    id: row.id,
+    kind: row.kind,
+    title: row.title,
+    body: row.body,
+    metadata: row.metadata,
+    similarity: 1, // Not applicable for direct fetch
+  }));
+}
+
 
 
