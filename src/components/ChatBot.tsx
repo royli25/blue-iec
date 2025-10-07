@@ -9,6 +9,7 @@ import OrbGraphic from "@/components/OrbGraphic";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 import { useProfileContext } from "@/hooks/useProfileContext";
+import { buildKbContextBlock, buildSimilarProfilesBlock } from "@/integrations/supabase/search";
 
 interface Message {
   id: number;
@@ -28,7 +29,24 @@ const ChatBot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
-  const { getContextualSystemPrompt } = useProfileContext();
+  const { getContextualSystemPrompt, profileData } = useProfileContext();
+
+  // Hydrate persisted state so UI remains across reloads
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('bot.messages.v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      }
+      const rawInput = sessionStorage.getItem('bot.input.v1');
+      if (rawInput) setInputValue(rawInput);
+    } catch {}
+  }, []);
+  useEffect(() => { try { sessionStorage.setItem('bot.messages.v1', JSON.stringify(messages)); } catch {} }, [messages]);
+  useEffect(() => { try { sessionStorage.setItem('bot.input.v1', inputValue); } catch {} }, [inputValue]);
 
   // Auto-scroll to bottom when messages change or when thinking
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -58,10 +76,39 @@ const ChatBot = () => {
     try {
       setIsThinking(true);
       const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_CHATBOT);
+      
+      // Fetch similar student profiles based on user's profile
+      const { block: profilesBlock } = profileData 
+        ? await buildSimilarProfilesBlock(profileData, { k: 3, maxTotalChars: 2000 })
+        : { block: '' };
+      
+      // Fetch relevant KB content based on the question
+      // Note: This might include some student profiles if they match the query,
+      // but typically will find other relevant content since it's searching by question text
+      const { block: kbBlock } = await buildKbContextBlock(text, { 
+        k: 3, 
+        maxCharsPerChunk: 500, 
+        maxTotalChars: 1500, 
+        header: "Relevant Knowledge Base Content", 
+        includeMetadata: true
+      });
+
+      // Combine all context blocks
+      const contextBlocks: string[] = [];
+      if (profilesBlock) contextBlocks.push(profilesBlock);
+      if (kbBlock) contextBlocks.push(kbBlock);
+      
+      const systemWithContext = contextBlocks.length > 0
+        ? `${contextualSystemPrompt}\n\n---\n${contextBlocks.join('\n\n---\n')}`
+        : contextualSystemPrompt;
+
       const content = await createChatCompletion([
-        { role: "system", content: contextualSystemPrompt },
-        ...messages.map((m) => ({ role: m.isUser ? "user" : "assistant", content: m.text })),
-        { role: "user", content: text },
+        { role: "system", content: systemWithContext } as import("@/integrations/openai/client").ChatMessage,
+        ...messages.map((m): import("@/integrations/openai/client").ChatMessage => ({
+          role: (m.isUser ? "user" : "assistant"),
+          content: m.text,
+        })),
+        { role: "user", content: text } as import("@/integrations/openai/client").ChatMessage,
       ]);
 
       const botResponse: Message = {
@@ -156,12 +203,12 @@ const ChatBot = () => {
                                       rel="noopener noreferrer"
                                       className={`block rounded-xl border border-border/50 px-4 py-3 transition-colors hover:border-border/80`}
                                       style={{ 
-                                        backgroundColor: '#F1E9DA', 
+                                        backgroundColor: '#F2EEE9', 
                                         cursor: href ? 'pointer' as const : 'default',
-                                        background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
+                                        background: 'linear-gradient(135deg, #F2EEE9 0%, #F5F0E8 100%)'
                                       }}
                                     >
-                                      <div className="space-y-1.5 text-[14px] leading-snug">
+                                      <div className="space-y-1.5 text-[15px] leading-8 text-[#606060]">
                                         {card.split('\n').map((line, lineIdx) => {
                                           const trimmedLine = line.trim();
                                           if (!trimmedLine) return null;
@@ -182,7 +229,7 @@ const ChatBot = () => {
                                           return (
                                             <div 
                                               key={lineIdx}
-                                              className="prose prose-sm prose-neutral max-w-none prose-p:my-0.5 prose-strong:font-bold prose-strong:text-gray-900"
+                                              className="prose prose-sm prose-neutral max-w-none text-[15px] leading-8 prose-p:my-2 prose-a:text-blue-700 prose-strong:font-semibold prose-strong:text-foreground"
                                               dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(trimmedLine) }}
                                             />
                                           );
