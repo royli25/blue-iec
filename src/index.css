@@ -38,7 +38,8 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Match page bg hsl(45 52% 97%) but slightly darker for contrast */
+    --sidebar-background: 45 52% 95%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
 
