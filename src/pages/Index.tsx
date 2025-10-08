@@ -1,4 +1,4 @@
-import { ChevronRight, ChevronDown, Clipboard, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, ThumbsUp, ThumbsDown, MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -9,8 +9,20 @@ import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { extractFirstUrl, parseCardSections } from "@/lib/utils";
 import { useProfileContext } from '@/hooks/useProfileContext';
-import HamburgerMenu from "@/components/HamburgerMenu";
 import { buildKbContextBlock } from "@/integrations/supabase/search";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -34,6 +46,25 @@ const Index = () => {
   const [retryingIndex, setRetryingIndex] = useState<number | null>(null);
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [disliked, setDisliked] = useState<Set<number>>(new Set());
+
+  // Persist chat state so edits and HMR don't reset the UI during development
+  useEffect(() => {
+    try {
+      const rawMessages = sessionStorage.getItem('home.messages.v1');
+      if (rawMessages) {
+        const parsed: ChatMessage[] = JSON.parse(rawMessages);
+        if (Array.isArray(parsed)) setMessages(parsed);
+      }
+      const rawQuery = sessionStorage.getItem('home.query.v1');
+      if (rawQuery) setQuery(rawQuery);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try { sessionStorage.setItem('home.messages.v1', JSON.stringify(messages)); } catch {}
+  }, [messages]);
+  useEffect(() => {
+    try { sessionStorage.setItem('home.query.v1', query); } catch {}
+  }, [query]);
   useEffect(() => {
     if (isFocused || query.length > 0) return; // pause rotation while typing or when text exists
     const interval = setInterval(() => {
@@ -120,9 +151,52 @@ const Index = () => {
       setLoading(false);
     }
   };
+  const handleNewChat = () => {
+    setMessages([]);
+    setQuery("");
+  };
+
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
-      <HamburgerMenu />
+    <SidebarProvider defaultOpen={false}>
+      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
+        <SidebarHeader className="h-8 flex flex-row items-center justify-end p-1 group-data-[state=collapsed]:justify-center">
+          <SidebarTrigger className="h-4 w-4" />
+        </SidebarHeader>
+        <SidebarSeparator />
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleNewChat} tooltip="New chat" className="pr-4">
+                  <MessageSquarePlus className="h-4 w-4" />
+                  <span>New chat</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-4">
+                  <UsersRound className="h-4 w-4" />
+                  <span>Admitted Profiles</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-4">
+                  <NotebookText className="h-4 w-4" />
+                  <span>My Blueprint</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-4">
+                  <Info className="h-4 w-4" />
+                  <span>About</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+
+      <div className="relative h-screen w-screen overflow-hidden">
       {/* top-right auth button / email */}
       <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
         {user ? (
@@ -349,7 +423,8 @@ const Index = () => {
       )}
 
       {/* floating chat removed per request */}
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
