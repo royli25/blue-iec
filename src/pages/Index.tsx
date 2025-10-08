@@ -14,7 +14,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -165,7 +164,7 @@ const Index = () => {
         <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel className="px-3">Menu</SidebarGroupLabel>
+            <div className="h-3" aria-hidden />
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleNewChat} tooltip="New chat" className="pr-3">
