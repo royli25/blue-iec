@@ -159,34 +159,34 @@ const Index = () => {
   return (
     <SidebarProvider defaultOpen={false}>
       <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-8 flex flex-row items-center justify-end p-1 group-data-[state=collapsed]:justify-center">
+        <SidebarHeader className="h-7 flex flex-row items-center justify-end p-1 group-data-[state=collapsed]:justify-center">
           <SidebarTrigger className="h-4 w-4" />
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarGroupLabel className="px-3">Menu</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleNewChat} tooltip="New chat" className="pr-4">
+                <SidebarMenuButton onClick={handleNewChat} tooltip="New chat" className="pr-3">
                   <MessageSquarePlus className="h-4 w-4" />
                   <span>New chat</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-4">
+                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
                   <UsersRound className="h-4 w-4" />
                   <span>Admitted Profiles</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-4">
+                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
                   <NotebookText className="h-4 w-4" />
                   <span>My Blueprint</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-4">
+                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
                   <Info className="h-4 w-4" />
                   <span>About</span>
                 </SidebarMenuButton>
