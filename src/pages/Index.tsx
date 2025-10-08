@@ -169,25 +169,25 @@ const Index = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleNewChat} tooltip="New chat" className="pr-3">
-                  <MessageSquarePlus className="h-4 w-4" />
+                  <MessageSquarePlus className="h-[18px] w-[18px]" />
                   <span>New chat</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
-                  <UsersRound className="h-4 w-4" />
+                  <UsersRound className="h-[18px] w-[18px]" />
                   <span>Admitted Profiles</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
-                  <NotebookText className="h-4 w-4" />
+                  <NotebookText className="h-[18px] w-[18px]" />
                   <span>My Blueprint</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
-                  <Info className="h-4 w-4" />
+                  <Info className="h-[18px] w-[18px]" />
                   <span>About</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
