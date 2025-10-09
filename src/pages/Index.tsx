@@ -160,7 +160,7 @@ const Index = () => {
   return (
     <SidebarProvider defaultOpen={false}>
       <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-10 flex flex-row items-center justify-end p-2 group-data-[state=collapsed]:justify-center">
+        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
           <SidebarTrigger className="h-5 w-5" />
         </SidebarHeader>
         <SidebarSeparator />
