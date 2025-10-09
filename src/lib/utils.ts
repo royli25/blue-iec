@@ -72,3 +72,20 @@ export function extractFirstUrl(markdown: string): string | null {
   }
   return null;
 }
+
+export function parseCardWithDropdown(cardContent: string): {
+  preview: string;
+  dropdown: string;
+  url: string | null;
+} {
+  // Split by ^^^ marker to separate preview from dropdown content
+  const parts = cardContent.split(/\^\^\^/);
+  
+  const preview = parts[0]?.trim() || '';
+  const dropdown = parts.length > 1 ? parts.slice(1).join('^^^').trim() : '';
+  
+  // Extract URL from the entire content
+  const url = extractFirstUrl(cardContent);
+  
+  return { preview, dropdown, url };
+}

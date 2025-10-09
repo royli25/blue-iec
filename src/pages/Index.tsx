@@ -7,7 +7,7 @@ import { SYSTEM_HOME_CHAT } from "@/config/prompts";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
-import { extractFirstUrl, parseCardSections } from "@/lib/utils";
+import { parseCardSections, parseCardWithDropdown } from "@/lib/utils";
 import { useProfileContext } from '@/hooks/useProfileContext';
 import { buildKbContextBlock } from "@/integrations/supabase/search";
 import {
@@ -46,6 +46,7 @@ const Index = () => {
   const [retryingIndex, setRetryingIndex] = useState<number | null>(null);
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [disliked, setDisliked] = useState<Set<number>>(new Set());
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // Persist chat state so edits and HMR don't reset the UI during development
   useEffect(() => {
@@ -317,36 +318,77 @@ const Index = () => {
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
                           />
                         )}
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {cards.map((card, idx) => {
-                            const href = extractFirstUrl(card);
+                            const cardId = `card-${i}-${idx}`;
+                            const isExpanded = expandedCards.has(cardId);
+                            const { preview, dropdown, url } = parseCardWithDropdown(card);
                             const bubbleBg = '#F1E9DA';
+                            
                             return (
-                              <a
-                                key={idx}
-                                href={href || undefined}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`block rounded-xl border border-border/50 px-4 py-3 transition-colors hover:border-border/80`}
-                                style={{ 
-                                  backgroundColor: bubbleBg, 
-                                  cursor: href ? 'pointer' as const : 'default',
-                                  background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
-                                }}
-                              >
-                                <div
-                                  className="prose prose-sm prose-neutral max-w-none leading-snug text-[15px] prose-headings:mt-0 prose-headings:mb-1 prose-h3:text-[17px] prose-h3:font-semibold prose-h3:text-gray-900 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold prose-strong:text-gray-800"
-                                  dangerouslySetInnerHTML={{ __html: renderMarkdown(card) }}
-                                />
-                                {href && (
-                                  <div className="mt-2 flex items-center text-[11px] text-gray-500">
-                                    <span>Click to visit</span>
-                                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
+                              <div key={idx} className="overflow-hidden">
+                                <button
+                                  onClick={() => {
+                                    setExpandedCards(prev => {
+                                      const next = new Set(prev);
+                                      if (next.has(cardId)) {
+                                        next.delete(cardId);
+                                      } else {
+                                        next.add(cardId);
+                                      }
+                                      return next;
+                                    });
+                                  }}
+                                  className={`w-full text-left border border-border/50 px-4 py-2 transition-all duration-300 hover:border-border/80 cursor-pointer ${
+                                    isExpanded ? 'rounded-t-xl' : 'rounded-xl'
+                                  }`}
+                                  style={{ 
+                                    backgroundColor: bubbleBg, 
+                                    background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
+                                  }}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div
+                                      className="flex-1 prose prose-sm prose-neutral max-w-none leading-snug text-[15px] prose-headings:mt-0 prose-headings:mb-0 prose-h3:text-[17px] prose-h3:font-semibold prose-h3:text-gray-900 prose-p:my-0.5 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline prose-strong:font-semibold prose-strong:text-gray-800"
+                                      dangerouslySetInnerHTML={{ __html: renderMarkdown(preview) }}
+                                    />
+                                    <ChevronDown 
+                                      className={`h-4 w-4 text-gray-600 transition-transform duration-300 flex-shrink-0 mt-1 ${isExpanded ? 'rotate-180' : ''}`}
+                                    />
                                   </div>
-                                )}
-                              </a>
+                                </button>
+                                <div 
+                                  className={`border-x border-b border-border/50 rounded-b-xl transition-all duration-300 origin-top ${
+                                    isExpanded ? 'opacity-100 max-h-[2000px]' : 'opacity-0 max-h-0 border-transparent'
+                                  }`}
+                                  style={{ 
+                                    backgroundColor: bubbleBg,
+                                    background: 'linear-gradient(135deg, #F1E9DA 0%, #F5F0E8 100%)'
+                                  }}
+                                >
+                                  {dropdown && (
+                                    <div className={`px-4 py-3 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
+                                      <div
+                                        className="prose prose-sm prose-neutral max-w-none leading-snug text-[15px] prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-a:text-blue-600 prose-a:font-medium prose-strong:font-semibold prose-strong:text-gray-800"
+                                        dangerouslySetInnerHTML={{ __html: renderMarkdown(dropdown) }}
+                                      />
+                                      {url && (
+                                        <a
+                                          href={url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="mt-3 inline-flex items-center gap-1 text-[12px] text-blue-600 hover:text-blue-700 font-medium"
+                                        >
+                                          Visit Resource
+                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                          </svg>
+                                        </a>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             );
                           })}
                         </div>
