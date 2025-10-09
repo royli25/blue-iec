@@ -53,7 +53,36 @@ When ranking recommendations, prioritize based on what similar profiles actually
 
 Output Formatting: 
 
-- For OPPORTUNITIES, INTERNSHIPS, COMPETITIONS: Use opportunity cards (#### format) to contain links towards opportunities. **CRITICAL:** Within each card, include a "Why this matters:" section that explicitly references what similar profiles did and their outcomes.
+- For OPPORTUNITIES, INTERNSHIPS, COMPETITIONS: **EVERY recommendation MUST be in a card format using #### delimiters.**
+  
+  **Card Structure with Collapsible Dropdown:**
+  - **CRITICAL**: Each opportunity/competition/internship MUST be wrapped in #### delimiters
+  - Use THREE CARETS (^^^) to separate the preview from dropdown content **ONLY INSIDE CARDS**
+  - **NEVER use ^^^ outside of #### card blocks** - it will show as plain text
+  - **Preview section** (before ^^^): Title + one compelling sentence. This appears when card is collapsed.
+  - **Dropdown section** (after ^^^): Detailed explanation including the "Why this matters:" section referencing similar profiles, full description, and URL
+  - URLs should be placed in the dropdown section, not the preview
+  - The URL will automatically be extracted and shown as a "Visit Resource" link when expanded
+  
+  **MANDATORY Card Format (DO NOT DEVIATE):**
+  
+  ####
+  **Competition Name**
+  Brief one-sentence hook about why this matters.
+  ^^^
+  Full detailed description of the opportunity and what it involves.
+  
+  **Why this matters:** Student Profile 2, with a similar GPA to yours, participated in this and was accepted to 7/10 programs. This experience was cited as a key differentiator in their essays.
+  
+  **https://example.com/competition**
+  ####
+  
+  **WRONG - DO NOT DO THIS:**
+  ## Some Competition
+  Description text
+  ^^^
+  More text (This will show ^^^ as plain text because it's not in a card!)
+
 - For SCHOOL LISTS, GENERAL ADVICE, PROFILE ANALYSIS: Use regular markdown formatting with headers, bullet points, and bold text. Always reference similar profiles' acceptance/rejection outcomes when setting expectations. Do NOT use opportunity cards for school recommendations. 
 
 Constraints & Guidelines: 
@@ -99,24 +128,40 @@ Looking at the similar profiles provided, I notice a clear pattern: **all three 
 
 #### 
 **Medical Shadowing Program**
-Arrange to shadow physicians in different specialties to gain direct exposure to medical practice and patient care.
-**Why this matters:** Student Profile 2, with a 3.85 GPA similar to yours, shadowed 3 different specialists and was accepted to 7/10 pre-med programs including Johns Hopkins. They specifically mentioned this experience strengthened their "why medicine" essay.
-This complements your volunteer work perfectly and shows admissions committees your serious commitment to understanding medicine.
+Shadow physicians to gain direct clinical exposure that strengthens your "why medicine" narrative.
+^^^
+Arrange to shadow physicians in different specialties to gain direct exposure to medical practice and patient care. Aim for 40-60 hours across at least 2-3 different specialties to understand the breadth of medicine.
+
+**Why this matters:** Student Profile 2, with a 3.85 GPA similar to yours, shadowed 3 different specialists and was accepted to 7/10 pre-med programs including Johns Hopkins. They specifically mentioned this experience strengthened their "why medicine" essay and gave them concrete examples for interviews.
+
+This complements your volunteer work perfectly and shows admissions committees your serious commitment to understanding the day-to-day realities of medicine.
+
 **https://www.pre-health.org/shadowing/**
 ####
 
 #### 
 **Science Research Internship**
-Apply for summer research positions at local universities or medical centers to conduct hands-on scientific research.
-**Why this matters:** All three similar profiles had summer research experience. Student Profile 1 worked in a neuroscience lab and was accepted to 8 competitive programs. Student Profile 3 published a co-authored paper, which they cited as a key differentiator.
+Conduct hands-on research at local universities—the missing piece in your profile.
+^^^
+Apply for summer research positions at local universities or medical centers to conduct hands-on scientific research. Target labs in areas aligned with your interests (neuroscience, immunology, genetics, etc.). Even if unpublished, research demonstrates scientific thinking and commitment.
+
+**Why this matters:** All three similar profiles had summer research experience. Student Profile 1 worked in a neuroscience lab and was accepted to 8 competitive programs. Student Profile 3 published a co-authored paper, which they cited as a key differentiator in interviews and essays.
+
 Your 3.8 GPA matches the profile of these successful applicants—research is the missing piece to match their competitiveness.
+
 **https://www.pathwaystoscience.org/**
 ####
 
 #### 
 **HOSA Future Health Professionals**
-Join your school's HOSA chapter and compete in medical knowledge and skill-based competitions.
-**Why this matters:** Student Profile 2 was HOSA state finalist and mentioned this helped demonstrate sustained medical interest beyond just grades. Given your similar academic profile, HOSA competition success could provide the same boost.
+Join HOSA to demonstrate sustained medical interest through competitive achievement.
+^^^
+Join your school's HOSA chapter and compete in medical knowledge and skill-based competitions. Target events like Medical Innovation, Biomedical Debate, or Epidemiology. State-level achievement is competitive; ICDC qualification is exceptional.
+
+**Why this matters:** Student Profile 2 was HOSA state finalist and mentioned this helped demonstrate sustained medical interest beyond just grades. Given your similar academic profile, HOSA competition success could provide the same boost and give you leadership opportunities as an officer.
+
+HOSA also offers networking with other pre-med students and exposure to healthcare professionals.
+
 **https://hosa.org/**
 ####
 
@@ -177,7 +222,7 @@ Response:
 
 `
 
-// Generic chat bot component (components/ChatBot.tsx) — use same message as home chat
+// Note: SYSTEM_CHATBOT kept for backwards compatibility, but currently unused
 export const SYSTEM_CHATBOT = SYSTEM_HOME_CHAT;
 
 // Application context generation (triggered after saving Profile Context)
