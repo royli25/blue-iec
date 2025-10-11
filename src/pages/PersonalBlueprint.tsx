@@ -1,19 +1,91 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import QuarterlyTimeline from "@/components/QuarterlyTimeline";
 import { useProfileContext } from "@/hooks/useProfileContext";
 import { Layout } from "@/components/Layout";
 
+const BLUEPRINT_PASSWORD = "blueprint2025"; // Change this to your desired password
+
 const PersonalBlueprint = () => {
   const { user } = useAuth();
   const { profileData } = useProfileContext();
+  const [password, setPassword] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [error, setError] = useState('');
+
+  // Check if already unlocked in session storage
+  useEffect(() => {
+    const unlocked = sessionStorage.getItem('blueprint-page-unlocked');
+    if (unlocked === 'true') {
+      setIsUnlocked(true);
+    }
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password === BLUEPRINT_PASSWORD) {
+      setIsUnlocked(true);
+      sessionStorage.setItem('blueprint-page-unlocked', 'true');
+      setError('');
+    } else {
+      setError('Incorrect password. Please try again.');
+      setPassword('');
+    }
+  };
 
   return (
     <Layout showGrid={false}>
-      <div className="px-0 pt-4 pb-8">
-        <div className="mx-auto max-w-none w-full">
-          <div className="space-y-3" />
-          {/* Quarterly timeline with side gutters */}
-          <div className="mt-4 px-[7.5%]">
+      {!isUnlocked ? (
+        // Password Gate - Inline with page
+        <div className="relative min-h-[calc(100vh-64px)] w-full flex flex-col items-center justify-center">
+          {/* warm background */}
+          <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
+          <div className="absolute inset-0 grid-bg opacity-70" />
+          
+          <div className="relative z-10 flex flex-col items-center gap-6">
+            {/* Logo */}
+            <img src="/blueprint.png" alt="BluePrint" className="h-8 object-contain" />
+            
+            {/* Coming Soon Message */}
+            <div className="text-center space-y-2 max-w-lg">
+              <h2 className="text-[20px] font-semibold text-foreground/90">Personal Blueprint</h2>
+              <p className="text-[14px] text-foreground/70 leading-tight">
+                This feature is coming soon. Enter password to preview.
+              </p>
+            </div>
+            
+            {/* Password Input */}
+            <form onSubmit={handleSubmit} style={{ width: '400px', maxWidth: '90vw' }}>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-md border border-border bg-white/70 px-4 py-2 text-[14px] text-foreground/80 placeholder:text-foreground/50 focus:outline-none focus:border-border shadow-sm backdrop-blur-sm"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground/60 hover:text-foreground/80 text-sm"
+                >
+                  →
+                </button>
+              </div>
+              {error && (
+                <p className="text-red-500 text-xs mt-2 text-center">{error}</p>
+              )}
+            </form>
+          </div>
+        </div>
+      ) : (
+        // Actual content when unlocked
+        <div className="px-0 pt-4 pb-8">
+          <div className="mx-auto max-w-none w-full">
+            <div className="space-y-3" />
+            {/* Quarterly timeline with side gutters */}
+            <div className="mt-4 px-[7.5%]">
             {(() => {
               const now = new Date();
               const currentYear = now.getFullYear();
@@ -51,7 +123,8 @@ const PersonalBlueprint = () => {
             })()}
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </Layout>
   );
 };

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProfileCard from "@/components/ProfileCard";
 import { fetchAllStudentProfiles } from "@/integrations/supabase/search";
 import {
@@ -9,10 +10,12 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Layout } from "@/components/Layout";
+import { PageContainer } from "@/components/PageContainer";
 import { formatStudentProfile, getDecisionColor } from "@/lib/profile-utils";
 import type { StudentProfile } from "@/types/profile";
 
 const AdmittedProfiles = () => {
+  const [searchParams] = useSearchParams();
   const [profiles, setProfiles] = useState<StudentProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProfile, setSelectedProfile] = useState<StudentProfile | null>(null);
@@ -25,6 +28,20 @@ const AdmittedProfiles = () => {
         const studentProfiles = await fetchAllStudentProfiles();
         const formattedProfiles = studentProfiles.map(formatStudentProfile);
         setProfiles(formattedProfiles);
+        
+        // Check if there's a profile parameter in the URL
+        const profileName = searchParams.get('profile');
+        if (profileName) {
+          // Find and open the matching profile
+          const matchingProfile = formattedProfiles.find(p => 
+            p.name?.toLowerCase() === profileName.toLowerCase() ||
+            p.metadata?.name?.toLowerCase() === profileName.toLowerCase()
+          );
+          if (matchingProfile) {
+            setSelectedProfile(matchingProfile);
+            setIsModalOpen(true);
+          }
+        }
       } catch (error) {
         console.error('Error loading profiles:', error);
       } finally {
@@ -33,7 +50,7 @@ const AdmittedProfiles = () => {
     }
     
     loadProfiles();
-  }, []);
+  }, [searchParams]);
 
   const handleViewProfile = (profile: StudentProfile) => {
     setSelectedProfile(profile);
@@ -42,7 +59,7 @@ const AdmittedProfiles = () => {
 
   return (
     <Layout>
-      <div className="px-[7.5%] pt-12 pb-12">
+      <PageContainer maxWidth="4xl">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-foreground">Admitted Profiles</h1>
         </div>
@@ -252,7 +269,7 @@ const AdmittedProfiles = () => {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };
