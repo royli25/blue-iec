@@ -256,6 +256,17 @@ const Index = () => {
                         <div>
                           <div
                             className="prose prose-sm prose-neutral max-w-none leading-6 text-[15px] prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold prose-h1:text-[19px] prose-h2:text-[17px] prose-h3:text-[15px]"
+                            onClick={(e) => {
+                              // Intercept clicks on profile links
+                              const target = e.target as HTMLElement;
+                              if (target.tagName === 'A' && target.classList.contains('profile-link')) {
+                                e.preventDefault();
+                                const href = target.getAttribute('href');
+                                if (href) {
+                                  navigate(href);
+                                }
+                              }
+                            }}
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }}
                           />
                           <div className="mt-2 flex items-center justify-end gap-3 text-foreground/60 text-[12px]">
@@ -275,6 +286,14 @@ const Index = () => {
                         {preamble && (
                           <div
                             className="prose prose-sm prose-neutral max-w-none leading-6 text-[15px] prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            onClick={(e) => {
+                              const target = e.target as HTMLElement;
+                              if (target.tagName === 'A' && target.classList.contains('profile-link')) {
+                                e.preventDefault();
+                                const href = target.getAttribute('href');
+                                if (href) navigate(href);
+                              }
+                            }}
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(preamble) }}
                           />
                         )}
@@ -355,6 +374,14 @@ const Index = () => {
                         {postscript && (
                           <div
                             className="prose prose-sm prose-neutral max-w-none leading-6 text-[15px] prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-a:text-blue-700 prose-strong:font-semibold"
+                            onClick={(e) => {
+                              const target = e.target as HTMLElement;
+                              if (target.tagName === 'A' && target.classList.contains('profile-link')) {
+                                e.preventDefault();
+                                const href = target.getAttribute('href');
+                                if (href) navigate(href);
+                              }
+                            }}
                             dangerouslySetInnerHTML={{ __html: renderMarkdown(postscript) }}
                           />
                         )}
