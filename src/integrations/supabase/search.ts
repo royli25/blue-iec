@@ -163,8 +163,13 @@ function formatStudentProfile(match: KbMatch, index: number): string {
   if (meta.hook_context) lines.push(`Hook: ${meta.hook_context}`);
   if (meta.accept_count !== undefined) lines.push(`Results: ${meta.accept_count} accepted, ${meta.reject_count || 0} rejected`);
   
-  // Include the full profile body text
-  const bodySnippet = truncate(match.body.replace(/\s+/g, ' ').trim(), 400);
+  // CRITICAL: Include FULL decisions data - do NOT truncate this as it contains acceptance/rejection information
+  if (meta.decisions_compact) {
+    lines.push(`\nCollege Decisions (COMPLETE LIST):\n${meta.decisions_compact}`);
+  }
+  
+  // Include other profile information (can be truncated)
+  const bodySnippet = truncate(match.body.replace(/\s+/g, ' ').trim(), 600);
   lines.push(`\nProfile Summary:\n${bodySnippet}`);
   
   return lines.join('\n');
