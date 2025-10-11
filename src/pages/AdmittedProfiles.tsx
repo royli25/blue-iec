@@ -10,6 +10,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const AdmittedProfiles = () => {
   const navigate = useNavigate();
@@ -63,29 +76,53 @@ const AdmittedProfiles = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-screen overflow-x-hidden">
-      {/* subtle warm background with grid (match Index.tsx) */}
-      <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
-      <div className="absolute inset-0 grid-bg opacity-70" />
+    <SidebarProvider defaultOpen={false}>
+      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
+        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
+          <SidebarTrigger className="h-5 w-5" />
+        </SidebarHeader>
+        <SidebarSeparator />
+        <SidebarContent>
+          <SidebarGroup>
+            <div className="h-3" aria-hidden />
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/')} tooltip="New chat" className="pr-3">
+                  <MessageSquarePlus className="h-[18px] w-[18px]" />
+                  <span>New chat</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3" isActive={true}>
+                  <UsersRound className="h-[18px] w-[18px]" />
+                  <span>Admitted Profiles</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
+                  <NotebookText className="h-[18px] w-[18px]" />
+                  <span>My Blueprint</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
+                  <Info className="h-[18px] w-[18px]" />
+                  <span>About</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
 
-      {/* content */}
-      <div className="relative px-6 pt-12 pb-12">
+      <div className="relative min-h-screen w-screen overflow-x-hidden">
+        {/* subtle warm background with grid (match Index.tsx) */}
+        <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
+        <div className="absolute inset-0 grid-bg opacity-70" />
+
+        {/* content */}
+        <div className="relative px-6 pt-12 pb-12">
         <div className="mx-auto max-w-4xl">
-          {/* breadcrumb */}
-          <div className="pb-3">
-            <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
-              <ol className="flex items-center gap-2">
-                <li>
-                  <button onClick={() => navigate('/')} className="underline underline-offset-2 hover:opacity-80">Home</button>
-                </li>
-                <li className="text-foreground/60">/</li>
-                <li>
-                  <button onClick={() => navigate('/admitted-profiles')} className="underline underline-offset-2 hover:opacity-80">Admitted Profiles</button>
-                </li>
-              </ol>
-            </nav>
-          </div>
-
           {/* header */}
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold text-foreground">Admitted Profiles</h1>
@@ -304,7 +341,8 @@ const AdmittedProfiles = () => {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 

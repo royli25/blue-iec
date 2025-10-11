@@ -8,7 +8,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -26,35 +25,35 @@ const PersonalBlueprint = () => {
   return (
     <SidebarProvider defaultOpen={false}>
       <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-8 flex items-center justify-end p-1 group-data-[state=collapsed]:justify-center">
-          <SidebarTrigger className="h-4 w-4" />
+        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
+          <SidebarTrigger className="h-5 w-5" />
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <div className="h-3" aria-hidden />
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/')} tooltip="New chat" className="pr-4">
-                  <MessageSquarePlus className="h-4 w-4" />
+                <SidebarMenuButton onClick={() => navigate('/')} tooltip="New chat" className="pr-3">
+                  <MessageSquarePlus className="h-[18px] w-[18px]" />
                   <span>New chat</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-4">
-                  <UsersRound className="h-4 w-4" />
+                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
+                  <UsersRound className="h-[18px] w-[18px]" />
                   <span>Admitted Profiles</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-4" data-active={true}>
-                  <NotebookText className="h-4 w-4" />
+                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3" isActive={true}>
+                  <NotebookText className="h-[18px] w-[18px]" />
                   <span>My Blueprint</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-4">
-                  <Info className="h-4 w-4" />
+                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
+                  <Info className="h-[18px] w-[18px]" />
                   <span>About</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
