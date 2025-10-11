@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Layout } from "@/components/Layout";
-import { PageContainer } from "@/components/PageContainer";
 import { formatStudentProfile, getDecisionColor } from "@/lib/profile-utils";
 import type { StudentProfile } from "@/types/profile";
 
@@ -43,7 +42,7 @@ const AdmittedProfiles = () => {
 
   return (
     <Layout>
-      <PageContainer maxWidth="4xl">
+      <div className="px-[7.5%] pt-12 pb-12">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-foreground">Admitted Profiles</h1>
         </div>
@@ -253,7 +252,7 @@ const AdmittedProfiles = () => {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      </PageContainer>
+      </div>
     </Layout>
   );
 };
