@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
 import { fetchAllStudentProfiles } from "@/integrations/supabase/search";
@@ -10,22 +9,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarSeparator,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { Layout } from "@/components/Layout";
+import { PageContainer } from "@/components/PageContainer";
 
 const AdmittedProfiles = () => {
-  const navigate = useNavigate();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
@@ -76,79 +63,31 @@ const AdmittedProfiles = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={false}>
-      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
-          <SidebarTrigger className="h-5 w-5" />
-        </SidebarHeader>
-        <SidebarSeparator />
-        <SidebarContent>
-          <SidebarGroup>
-            <div className="h-3" aria-hidden />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/')} tooltip="New chat" className="pr-3">
-                  <MessageSquarePlus className="h-[18px] w-[18px]" />
-                  <span>New chat</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3" isActive={true}>
-                  <UsersRound className="h-[18px] w-[18px]" />
-                  <span>Admitted Profiles</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
-                  <NotebookText className="h-[18px] w-[18px]" />
-                  <span>My Blueprint</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
-                  <Info className="h-[18px] w-[18px]" />
-                  <span>About</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-
-      <div className="relative min-h-screen w-screen overflow-x-hidden">
-        {/* subtle warm background with grid (match Index.tsx) */}
-        <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
-        <div className="absolute inset-0 grid-bg opacity-70" />
-
-        {/* content */}
-        <div className="relative px-6 pt-12 pb-12">
-        <div className="mx-auto max-w-4xl">
-          {/* header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-foreground">Admitted Profiles</h1>
-          </div>
-
-          {/* grid of profile cards */}
-          {loading ? (
-            <div className="mt-8 text-center text-foreground/60">Loading profiles...</div>
-          ) : profiles.length === 0 ? (
-            <div className="mt-8 text-center text-foreground/60">No profiles found</div>
-          ) : (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {profiles.map((p, idx) => (
-                <ProfileCard
-                  key={`${p.name}-${idx}`}
-                  name={p.name}
-                  role={p.role}
-                  blurb={p.blurb}
-                  avatarUrl={p.avatarUrl}
-                  onView={() => handleViewProfile(p)}
-                />
-              ))}
-            </div>
-          )}
+    <Layout>
+      <PageContainer maxWidth="4xl">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold text-foreground">Admitted Profiles</h1>
         </div>
-      </div>
+
+        {/* grid of profile cards */}
+        {loading ? (
+          <div className="mt-8 text-center text-foreground/60">Loading profiles...</div>
+        ) : profiles.length === 0 ? (
+          <div className="mt-8 text-center text-foreground/60">No profiles found</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {profiles.map((p, idx) => (
+              <ProfileCard
+                key={`${p.name}-${idx}`}
+                name={p.name}
+                role={p.role}
+                blurb={p.blurb}
+                avatarUrl={p.avatarUrl}
+                onView={() => handleViewProfile(p)}
+              />
+            ))}
+          </div>
+        )}
 
       {/* Profile Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -341,8 +280,8 @@ const AdmittedProfiles = () => {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      </div>
-    </SidebarProvider>
+      </PageContainer>
+    </Layout>
   );
 };
 

@@ -1,28 +1,16 @@
-import { ChevronRight, ChevronDown, Clipboard, ThumbsUp, ThumbsDown, MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
+import { ChevronRight, ChevronDown, Clipboard, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { createChatCompletion, type ChatMessage } from "@/integrations/openai/client";
 import { SYSTEM_HOME_CHAT } from "@/config/prompts";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { parseCardSections, parseCardWithDropdown } from "@/lib/utils";
 import { useProfileContext } from '@/hooks/useProfileContext';
 import { buildKbContextBlock } from "@/integrations/supabase/search";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarSeparator,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -159,44 +147,7 @@ const Index = () => {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
-          <SidebarTrigger className="h-5 w-5" />
-        </SidebarHeader>
-        <SidebarSeparator />
-        <SidebarContent>
-          <SidebarGroup>
-            <div className="h-3" aria-hidden />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleNewChat} tooltip="New chat" className="pr-3">
-                  <MessageSquarePlus className="h-[18px] w-[18px]" />
-                  <span>New chat</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
-                  <UsersRound className="h-[18px] w-[18px]" />
-                  <span>Admitted Profiles</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
-                  <NotebookText className="h-[18px] w-[18px]" />
-                  <span>My Blueprint</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
-                  <Info className="h-[18px] w-[18px]" />
-                  <span>About</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-
+      <AppSidebar onNewChat={handleNewChat} />
       <div className="relative h-screen w-screen overflow-hidden">
       {/* top-right auth button / email */}
       <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
