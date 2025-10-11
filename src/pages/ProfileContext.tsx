@@ -8,6 +8,8 @@ import { Dialog } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import type { Activity, APExam, Award, ProfileData } from "@/types/profile";
+import { formatActivities, formatAPExams, formatAwards } from "@/lib/profile-utils";
 
 const ProfileContext = () => {
   const { user } = useAuth();
@@ -19,9 +21,9 @@ const ProfileContext = () => {
   const [school, setSchool] = useState("");
   const [gpa, setGpa] = useState("");
   const [sat, setSat] = useState("");
-  const [activities, setActivities] = useState<{name: string, description: string}[]>([{name: "", description: ""}]);
-  const [apExams, setApExams] = useState<{ exam: string; score: string }[]>([{ exam: "", score: "" }]);
-  const [awards, setAwards] = useState<{ name: string; level: string }[]>([{ name: "", level: "" }]);
+  const [activities, setActivities] = useState<Activity[]>([{name: "", description: ""}]);
+  const [apExams, setApExams] = useState<APExam[]>([{ exam: "", score: "" }]);
+  const [awards, setAwards] = useState<Award[]>([{ name: "", level: "" }]);
   const [saving, setSaving] = useState(false);
   // Unsaved-changes tracking
   const [isDirty, setIsDirty] = useState(false);
@@ -48,9 +50,15 @@ const ProfileContext = () => {
     if (school) lines.push(`School: ${school}`);
     if (gpa) lines.push(`GPA: ${gpa}`);
     if (sat) lines.push(`SAT: ${sat}`);
-    if (activities && activities.filter(a => a.name || a.description).length) lines.push(`Activities: ${activities.filter(a => a.name || a.description).map(a => `${a.name}${a.description ? ` - ${a.description}` : ''}`).join('; ')}`);
-    if (apExams && apExams.filter((a) => a.exam || a.score).length) lines.push(`AP Exams: ${apExams.filter((a)=>a.exam||a.score).map((a)=>`${a.exam}${a.score?` - ${a.score}`:""}`).join('; ')}`);
-    if (awards && awards.filter((a)=>a.name||a.level).length) lines.push(`Awards: ${awards.filter((a)=>a.name||a.level).map((a)=>`${a.name}${a.level?` (${a.level})`:""}`).join('; ')}`);
+    if (activities && activities.filter(a => a.name || a.description).length) {
+      lines.push(`Activities: ${formatActivities(activities)}`);
+    }
+    if (apExams && apExams.filter(a => a.exam || a.score).length) {
+      lines.push(`AP Exams: ${formatAPExams(apExams)}`);
+    }
+    if (awards && awards.filter(a => a.name || a.level).length) {
+      lines.push(`Awards: ${formatAwards(awards)}`);
+    }
     return `Application Context\n${lines.join('\n')}`;
   };
 
@@ -64,11 +72,11 @@ const ProfileContext = () => {
       school: school || null,
       gpa: gpa || null,
       sat: sat || null,
-      activities: activities && activities.filter(a => a.name || a.description).length ? activities.filter(a => a.name || a.description) : null,
-      ap_exams: apExams && apExams.filter(e => e.exam || e.score).length ? apExams.filter(e => e.exam || e.score) : null,
-      awards: awards && awards.filter(a => a.name || a.level).length ? awards.filter(a => a.name || a.level) : null,
+      activities: activities && activities.filter(a => a.name || a.description).length ? activities.filter(a => a.name || a.description) as any : null,
+      ap_exams: apExams && apExams.filter(e => e.exam || e.score).length ? apExams.filter(e => e.exam || e.score) as any : null,
+      awards: awards && awards.filter(a => a.name || a.level).length ? awards.filter(a => a.name || a.level) as any : null,
     };
-    const { error } = await supabase.from('profile_details').upsert(payload, { onConflict: 'user_id' });
+    const { error } = await supabase.from('profile_details').upsert(payload as any, { onConflict: 'user_id' });
     if (error) {
       setSaving(false);
       if (!silent) {

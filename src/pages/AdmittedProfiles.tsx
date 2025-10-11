@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
 import { fetchAllStudentProfiles } from "@/integrations/supabase/search";
-import type { KbMatch } from "@/integrations/supabase/search";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +10,13 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Layout } from "@/components/Layout";
 import { PageContainer } from "@/components/PageContainer";
+import { formatStudentProfile, getDecisionColor } from "@/lib/profile-utils";
+import type { StudentProfile } from "@/types/profile";
 
 const AdmittedProfiles = () => {
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<StudentProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<StudentProfile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -23,29 +24,7 @@ const AdmittedProfiles = () => {
       setLoading(true);
       try {
         const studentProfiles = await fetchAllStudentProfiles();
-        
-        // Transform KB matches into profile card format
-        const formattedProfiles = studentProfiles.map((profile: KbMatch) => {
-          const meta = profile.metadata || {};
-          
-          // Extract school info - get the first decision if available
-          const decisionsText = meta.decisions_compact || '';
-          const firstAcceptance = decisionsText.split('|')
-            .find((d: string) => d.includes('Accepted'))
-            ?.split('[')[0]
-            ?.trim();
-          
-          const school = firstAcceptance || 'Various Universities';
-          const major = meta.intended_major || 'Undecided';
-          
-          return {
-            name: meta.name || 'Student',
-            role: `${school} '28 — ${major}`,
-            blurb: meta.narrative_summary || profile.body.substring(0, 200) + '...',
-            metadata: meta,
-          };
-        });
-        
+        const formattedProfiles = studentProfiles.map(formatStudentProfile);
         setProfiles(formattedProfiles);
       } catch (error) {
         console.error('Error loading profiles:', error);
@@ -57,7 +36,7 @@ const AdmittedProfiles = () => {
     loadProfiles();
   }, []);
 
-  const handleViewProfile = (profile: any) => {
+  const handleViewProfile = (profile: StudentProfile) => {
     setSelectedProfile(profile);
     setIsModalOpen(true);
   };
@@ -244,18 +223,12 @@ const AdmittedProfiles = () => {
                       )}
                       <div className="space-y-1">
                         {selectedProfile.metadata.decisions_compact.split('|').map((decision: string, idx: number) => {
-                          const isAccepted = decision.includes('Accepted');
-                          const isRejected = decision.includes('Rejected');
-                          const isWaitlisted = decision.includes('Waitlisted');
+                          const colors = getDecisionColor(decision);
                           
                           return (
                             <div 
                               key={idx} 
-                              className={`p-2 rounded border ${
-                                isAccepted ? 'bg-green-50 border-green-200' : 
-                                isRejected ? 'bg-red-50 border-red-200' : 
-                                'bg-orange-50 border-orange-200'
-                              }`}
+                              className={`p-2 rounded border ${colors.bg} ${colors.border}`}
                             >
                               <span className="text-foreground/80">{decision.trim()}</span>
                             </div>
