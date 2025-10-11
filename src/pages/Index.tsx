@@ -126,7 +126,6 @@ const Index = () => {
       let schoolNames: string[] = [];
       try {
         schoolNames = await extractSchoolNames(text);
-        console.log('Extracted school names:', schoolNames);
       } catch (error) {
         console.error('Error extracting school names:', error);
       }
@@ -461,13 +460,18 @@ const Index = () => {
                 </button>
               </div>
             </div>
-            <div className="mx-auto w-full max-w-2xl mt-2">
+            <div className="mx-auto w-full max-w-2xl mt-2 space-y-1">
               <button
                 onClick={() => navigate(user ? '/profile' : '/auth')}
                 className="w-full rounded-md border border-border bg-white px-4 py-1 text-[12px] text-foreground/70 shadow-sm hover:bg-white"
               >
-                Add Profile Context
+                {profileData ? '✓ Profile Loaded - Edit Context' : 'Add Profile Context'}
               </button>
+              {profileData && (
+                <div className="text-center text-[10px] text-foreground/50">
+                  Profile active: {profileData.gpa ? `GPA ${profileData.gpa}` : ''} {profileData.sat ? `SAT ${profileData.sat}` : ''} {profileData.activities?.filter(a => a.name || a.description).length || 0} activities
+                </div>
+              )}
             </div>
           </div>
         </div>
