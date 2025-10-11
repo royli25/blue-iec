@@ -7,6 +7,16 @@ All colors MUST be HSL.
 */
 
 @layer base {
+  /* Profile link styling */
+  .profile-link {
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  
+  .profile-link:hover {
+    text-decoration: underline;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;

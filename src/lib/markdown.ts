@@ -8,8 +8,18 @@ function escapeHtml(input: string): string {
   );
 }
 
-function renderInline(md: string): string {
+function renderInline(md: string, linkifyProfiles = false): string {
   let text = escapeHtml(md);
+  
+  // Convert student profile references to clickable links
+  // Matches: **Student Profile N (Name)** at start of line
+  if (linkifyProfiles) {
+    text = text.replace(/\*\*Student Profile \d+ \(([^)]+)\)\*\*/g, (match, name) => {
+      const encodedName = encodeURIComponent(name);
+      return `<a href="/admitted-profiles?profile=${encodedName}" class="profile-link font-semibold text-blue-700 hover:text-blue-800 hover:underline">${match.replace(/\*\*/g, '')}</a>`;
+    });
+  }
+  
   // links: [text](http...)
   text = text.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1<\/a>');
   // autolink bare URLs (http/https or www.)
@@ -17,8 +27,13 @@ function renderInline(md: string): string {
     const href = url.startsWith('http') ? url : `https://${url}`;
     return `${pre}<a href="${href}" target="_blank" rel="noreferrer">${url}<\/a>`;
   });
-  // bold: **text**
-  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
+  // bold: **text** (skip if already processed as profile link)
+  if (!linkifyProfiles) {
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1<\/strong>');
+  } else {
+    // Only boldify if not a student profile reference
+    text = text.replace(/\*\*(?!Student Profile \d+)([^*]+)\*\*/g, '<strong>$1<\/strong>');
+  }
   // inline code: `code`
   text = text.replace(/`([^`]+)`/g, '<code>$1<\/code>');
   // italic: *text* (not part of bold)
@@ -26,7 +41,7 @@ function renderInline(md: string): string {
   return text;
 }
 
-export function renderMarkdownToHtml(markdown: string): string {
+export function renderMarkdownToHtml(markdown: string, linkifyProfiles = false): string {
   const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
   let html = '';
   // Top-level list states
@@ -63,7 +78,7 @@ export function renderMarkdownToHtml(markdown: string): string {
     if (heading) {
       closeAllLists();
       const level = heading[0].startsWith('###') ? 3 : heading[0].startsWith('##') ? 2 : 1;
-      html += `<h${level}>${renderInline(heading[1])}<\/h${level}>`;
+      html += `<h${level}>${renderInline(heading[1], linkifyProfiles)}<\/h${level}>`;
       continue;
     }
 
@@ -75,7 +90,7 @@ export function renderMarkdownToHtml(markdown: string): string {
       // Close previous LI if any
       closeOlLi();
       // Open new LI and keep it open to group following lines
-      html += `<li><div>${renderInline(ordered[1])}<\/div>`;
+      html += `<li><div>${renderInline(ordered[1], linkifyProfiles)}<\/div>`;
       inOlLi = true;
       continue;
     }
@@ -86,12 +101,12 @@ export function renderMarkdownToHtml(markdown: string): string {
       // If we are inside an open ordered-list item, treat this as a nested UL
       if (inOl && inOlLi) {
         if (!inNestedUl) { html += '<ul>'; inNestedUl = true; }
-        html += `<li>${renderInline(unordered[1])}<\/li>`;
+        html += `<li>${renderInline(unordered[1], linkifyProfiles)}<\/li>`;
         continue;
       }
       // Otherwise, it's a top-level UL
       if (!inUl) { closeAllLists(); html += '<ul>'; inUl = true; }
-      html += `<li>${renderInline(unordered[1])}<\/li>`;
+      html += `<li>${renderInline(unordered[1], linkifyProfiles)}<\/li>`;
       continue;
     }
 
@@ -105,13 +120,13 @@ export function renderMarkdownToHtml(markdown: string): string {
     // Regular paragraph lines
     if (inOl && inOlLi) {
       // Paragraph inside an ordered-list item
-      html += `<p>${renderInline(line)}<\/p>`;
+      html += `<p>${renderInline(line, linkifyProfiles)}<\/p>`;
       continue;
     }
 
     // Outside of any OL item
     closeAllLists();
-    html += `<p>${renderInline(line)}<\/p>`;
+    html += `<p>${renderInline(line, linkifyProfiles)}<\/p>`;
   }
 
   closeAllLists();

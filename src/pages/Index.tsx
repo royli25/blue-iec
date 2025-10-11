@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { parseCardSections, parseCardWithDropdown } from "@/lib/utils";
 import { useProfileContext } from '@/hooks/useProfileContext';
-import { buildKbContextBlock } from "@/integrations/supabase/search";
+import { buildKbContextBlock, buildSimilarProfilesBlock } from "@/integrations/supabase/search";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -16,7 +16,7 @@ const Index = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { getContextualSystemPrompt, isLoading: profileLoading } = useProfileContext();
+  const { getContextualSystemPrompt, profileData, isLoading: profileLoading } = useProfileContext();
   // Rotating placeholder prompts focused on opportunities and stories
   const PROMPTS: string[] = [
     "Help me find opportunities in the Bay Area for a Psychology major.",
@@ -68,7 +68,7 @@ const Index = () => {
   const rotatingPlaceholder = PROMPTS[promptIndex];
   const placeholderClass = query.length > 0 ? '' : (phase === 'in' ? 'placeholder-in' : 'placeholder-out');
   // Markdown renderer for assistant messages
-  const renderMarkdown = useMemo(() => (md: string) => renderMarkdownToHtml(md), []);
+  const renderMarkdown = useMemo(() => (md: string, linkifyProfiles = false) => renderMarkdownToHtml(md, linkifyProfiles), []);
 
   const handleCopy = async (content: string) => {
     try {
@@ -122,18 +122,27 @@ const Index = () => {
       // Use the profile context to enhance the system prompt
       const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_HOME_CHAT);
 
+      // Fetch similar profiles based on the user's profile data
+      const { block: similarProfilesBlock } = profileData 
+        ? await buildSimilarProfilesBlock(profileData, { k: 5, maxTotalChars: 4000 })
+        : { block: '' };
+
       const { block: kbBlock } = await buildKbContextBlock(text, { k: 5, maxCharsPerChunk: 500, maxTotalChars: 1800, header: 'KB Context', includeMetadata: true });
 
-      const systemWithContext = kbBlock
-        ? `${contextualSystemPrompt}\n\n---\n${kbBlock}`
-        : contextualSystemPrompt;
+      // Build system prompt with similar profiles first, then KB context
+      let systemWithContext = contextualSystemPrompt;
+      if (similarProfilesBlock) {
+        systemWithContext += `\n\n---\n${similarProfilesBlock}`;
+      }
+      if (kbBlock) {
+        systemWithContext += `\n\n---\n${kbBlock}`;
+      }
 
       const content = await createChatCompletion([
         { role: 'system', content: systemWithContext },
         ...nextMessages,
       ]);
-      const contentWithKb = kbBlock ? `${content}\n\n---\nKB Context Used\n${kbBlock}` : content;
-      setMessages((prev) => [...prev, { role: 'assistant', content: contentWithKb }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content }]);
     } catch (err: any) {
       toast({ title: 'Search failed', description: err?.message || 'Please try again.', variant: 'destructive' });
     } finally {
@@ -318,24 +327,24 @@ const Index = () => {
                                   }}
                                 >
                                   {dropdown && (
-                                    <div className={`px-4 py-3 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
+                                    <div 
+                                      className={`px-4 py-3 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
+                                      onClick={(e) => {
+                                        // Intercept clicks on profile links
+                                        const target = e.target as HTMLElement;
+                                        if (target.classList.contains('profile-link')) {
+                                          e.preventDefault();
+                                          const href = target.getAttribute('href');
+                                          if (href) {
+                                            navigate(href);
+                                          }
+                                        }
+                                      }}
+                                    >
                                       <div
                                         className="prose prose-sm prose-neutral max-w-none leading-snug text-[15px] prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-a:text-blue-600 prose-a:font-medium prose-strong:font-semibold prose-strong:text-gray-800"
-                                        dangerouslySetInnerHTML={{ __html: renderMarkdown(dropdown) }}
+                                        dangerouslySetInnerHTML={{ __html: renderMarkdown(dropdown, true) }}
                                       />
-                                      {url && (
-                                        <a
-                                          href={url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="mt-3 inline-flex items-center gap-1 text-[12px] text-blue-600 hover:text-blue-700 font-medium"
-                                        >
-                                          Visit Resource
-                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                          </svg>
-                                        </a>
-                                      )}
                                     </div>
                                   )}
                                 </div>
