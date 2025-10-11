@@ -20,8 +20,15 @@ function renderInline(md: string, linkifyProfiles = false): string {
     });
   }
   
-  // links: [text](http...)
-  text = text.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1<\/a>');
+  // links: [text](http...) or [text](/path)
+  text = text.replace(/\[([^\]]+)\]\(((?:https?:|\/)[^)]+)\)/g, (match, linkText, url) => {
+    // Internal links (starting with /) should not open in new tab
+    if (url.startsWith('/')) {
+      return `<a href="${url}" class="profile-link font-semibold text-blue-700 hover:text-blue-800 hover:underline">${linkText}<\/a>`;
+    }
+    // External links (http/https) open in new tab
+    return `<a href="${url}" target="_blank" rel="noreferrer">${linkText}<\/a>`;
+  });
   // autolink bare URLs (http/https or www.)
   text = text.replace(/(^|[\s(])((https?:\/\/|www\.)[^\s)]+)(?=$|[\s)])/g, (_m, pre: string, url: string) => {
     const href = url.startsWith('http') ? url : `https://${url}`;
