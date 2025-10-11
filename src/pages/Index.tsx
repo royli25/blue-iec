@@ -35,6 +35,7 @@ const Index = () => {
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [disliked, setDisliked] = useState<Set<number>>(new Set());
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [debugContexts, setDebugContexts] = useState<Map<number, string>>(new Map());
 
   // Persist chat state so edits and HMR don't reset the UI during development
   useEffect(() => {
@@ -163,6 +164,15 @@ const Index = () => {
         { role: 'system', content: systemWithContext },
         ...nextMessages,
       ]);
+      
+      // Store debug context for this message
+      const messageIndex = nextMessages.length; // This will be the index of the new assistant message
+      setDebugContexts((prev) => {
+        const next = new Map(prev);
+        next.set(messageIndex, studentProfilesBlock || 'No student profiles retrieved');
+        return next;
+      });
+      
       setMessages((prev) => [...prev, { role: 'assistant', content }]);
     } catch (err: any) {
       toast({ title: 'Search failed', description: err?.message || 'Please try again.', variant: 'destructive' });
@@ -299,6 +309,12 @@ const Index = () => {
                               <ChevronDown className="h-3 w-3" />
                             </button>
                           </div>
+                          {debugContexts.has(i) && (
+                            <details className="mt-3 rounded-md border border-red-300 bg-red-50 p-3">
+                              <summary className="cursor-pointer text-[11px] font-semibold text-red-700">🐛 DEBUG: Profile Context Sent to AI</summary>
+                              <pre className="mt-2 overflow-x-auto text-[10px] text-red-900 whitespace-pre-wrap">{debugContexts.get(i)}</pre>
+                            </details>
+                          )}
                         </div>
                       );
                     }
@@ -415,6 +431,12 @@ const Index = () => {
                             <ChevronDown className="h-3 w-3" />
                           </button>
                         </div>
+                        {debugContexts.has(i) && (
+                          <details className="mt-3 rounded-md border border-red-300 bg-red-50 p-3">
+                            <summary className="cursor-pointer text-[11px] font-semibold text-red-700">🐛 DEBUG: Profile Context Sent to AI</summary>
+                            <pre className="mt-2 overflow-x-auto text-[10px] text-red-900 whitespace-pre-wrap">{debugContexts.get(i)}</pre>
+                          </details>
+                        )}
                       </div>
                     );
                   })()}
