@@ -6,6 +6,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const ProfileContext = () => {
   const { user } = useAuth();
@@ -247,9 +260,48 @@ const ProfileContext = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-screen overflow-x-hidden">
-      {/* top-right auth button / email */}
-      <div className="absolute top-4 right-4 z-10 text-[12px]">
+    <SidebarProvider defaultOpen={false}>
+      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
+        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
+          <SidebarTrigger className="h-5 w-5" />
+        </SidebarHeader>
+        <SidebarSeparator />
+        <SidebarContent>
+          <SidebarGroup>
+            <div className="h-3" aria-hidden />
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => requestNavigate('/')} tooltip="New chat" className="pr-3">
+                  <MessageSquarePlus className="h-[18px] w-[18px]" />
+                  <span>New chat</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => requestNavigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
+                  <UsersRound className="h-[18px] w-[18px]" />
+                  <span>Admitted Profiles</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => requestNavigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
+                  <NotebookText className="h-[18px] w-[18px]" />
+                  <span>My Blueprint</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => requestNavigate('/technology')} tooltip="About" className="pr-3">
+                  <Info className="h-[18px] w-[18px]" />
+                  <span>About</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+
+      <div className="relative min-h-screen w-screen overflow-x-hidden">
+        {/* top-right auth button / email */}
+        <div className="absolute top-4 right-4 z-10 text-[12px]">
         {user ? (
           <span className="rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm">
             {user.email}
@@ -271,20 +323,7 @@ const ProfileContext = () => {
       {/* content */}
       <div className="relative px-6 pt-12 pb-8">
         <div className="mx-auto max-w-2xl flex flex-col">
-          <div className="pb-3">
-            <nav aria-label="Breadcrumb" className="text-[12px] text-foreground/70">
-              <ol className="flex items-center gap-2">
-                <li>
-                  <button onClick={() => requestNavigate('/')} className="underline underline-offset-2 hover:opacity-80">Home</button>
-                </li>
-                <li className="text-foreground/60">/</li>
-                <li>
-                  <button onClick={() => requestNavigate('/profile')} className="underline underline-offset-2 hover:opacity-80">Profile Context</button>
-                </li>
-              </ol>
-            </nav>
-          </div>
-          <div className="grid grid-cols-1 gap-1.5 text-[12px] mt-2">
+          <div className="grid grid-cols-1 gap-1.5 text-[12px]">
             <div className="space-y-0.5">
               <label htmlFor="grad-year" className="text-foreground/80">Graduation Year</label>
               <Select value={gradeLevel} onValueChange={(v) => setGradeLevel(v)}>
@@ -490,7 +529,8 @@ const ProfileContext = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
