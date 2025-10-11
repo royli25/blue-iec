@@ -1,74 +1,15 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
-// Removed Timeline and GenerateLink per request
 import QuarterlyTimeline from "@/components/QuarterlyTimeline";
 import { useProfileContext } from "@/hooks/useProfileContext";
-import { MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarSeparator,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { Layout } from "@/components/Layout";
 
 const PersonalBlueprint = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { profileData } = useProfileContext();
 
   return (
-    <SidebarProvider defaultOpen={false}>
-      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
-          <SidebarTrigger className="h-5 w-5" />
-        </SidebarHeader>
-        <SidebarSeparator />
-        <SidebarContent>
-          <SidebarGroup>
-            <div className="h-3" aria-hidden />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/')} tooltip="New chat" className="pr-3">
-                  <MessageSquarePlus className="h-[18px] w-[18px]" />
-                  <span>New chat</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
-                  <UsersRound className="h-[18px] w-[18px]" />
-                  <span>Admitted Profiles</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3" isActive={true}>
-                  <NotebookText className="h-[18px] w-[18px]" />
-                  <span>My Blueprint</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3">
-                  <Info className="h-[18px] w-[18px]" />
-                  <span>About</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-
-      <div className="relative min-h-screen w-screen overflow-x-hidden">
-
-      {/* subtle warm background (no global grid) */}
-      <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
-
-      {/* content */}
-      <div className="relative px-0 pt-4 pb-8">
+    <Layout showGrid={false}>
+      <div className="px-0 pt-4 pb-8">
         <div className="mx-auto max-w-none w-full">
           <div className="space-y-3" />
           {/* Quarterly timeline with side gutters */}
@@ -111,8 +52,7 @@ const PersonalBlueprint = () => {
           </div>
         </div>
       </div>
-      </div>
-    </SidebarProvider>
+    </Layout>
   );
 };
 

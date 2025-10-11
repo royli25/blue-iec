@@ -1,70 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import { MessageSquarePlus, NotebookText, UsersRound, Info } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarSeparator,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { Layout } from "@/components/Layout";
+import { PageContainer } from "@/components/PageContainer";
 
 const Technology = () => {
-  const navigate = useNavigate();
-
   return (
-    <SidebarProvider defaultOpen={false}>
-      <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-        <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
-          <SidebarTrigger className="h-5 w-5" />
-        </SidebarHeader>
-        <SidebarSeparator />
-        <SidebarContent>
-          <SidebarGroup>
-            <div className="h-3" aria-hidden />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/')} tooltip="New chat" className="pr-3">
-                  <MessageSquarePlus className="h-[18px] w-[18px]" />
-                  <span>New chat</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/admitted-profiles')} tooltip="Admitted Profiles" className="pr-3">
-                  <UsersRound className="h-[18px] w-[18px]" />
-                  <span>Admitted Profiles</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/personal-blueprint')} tooltip="My Blueprint" className="pr-3">
-                  <NotebookText className="h-[18px] w-[18px]" />
-                  <span>My Blueprint</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => navigate('/technology')} tooltip="About" className="pr-3" isActive={true}>
-                  <Info className="h-[18px] w-[18px]" />
-                  <span>About</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-
-      <div className="relative min-h-screen w-screen overflow-x-hidden">
-        {/* subtle warm background with grid */}
-        <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
-        <div className="absolute inset-0 grid-bg opacity-70" />
-
-      <div className="relative px-6 pt-12 pb-12">
-        <div className="mx-auto max-w-3xl">
-          {/* content */}
-          <div className="space-y-8">
+    <Layout>
+      <PageContainer maxWidth="3xl">
+        <div className="space-y-8">
             {/* 1. RAG Retrieval */}
             <section>
               <h2 className="text-lg font-semibold text-foreground mb-3">1. RAG Retrieval</h2>
@@ -224,10 +165,8 @@ YOUR PROFILE                      MATCHING ALGORITHM
               </div>
             </section>
           </div>
-        </div>
-      </div>
-      </div>
-    </SidebarProvider>
+      </PageContainer>
+    </Layout>
   );
 };
 
