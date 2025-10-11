@@ -247,5 +247,64 @@ export async function fetchAllStudentProfiles(): Promise<KbMatch[]> {
   }));
 }
 
+/**
+ * Search for students who applied to specific schools
+ * This uses text search in the body field to find mentions of school names
+ */
+export async function fetchStudentsBySchool(
+  schoolNames: string[],
+  options: { k?: number; maxTotalChars?: number } = {}
+): Promise<{ block: string; matches: KbMatch[] }> {
+  const { k = 10, maxTotalChars = 4000 } = options;
+
+  if (schoolNames.length === 0) {
+    return { block: '', matches: [] };
+  }
+
+  try {
+    // Fetch all student profiles
+    const allProfiles = await fetchAllStudentProfiles();
+    
+    // Filter profiles that mention any of the school names
+    const matchingProfiles = allProfiles.filter(profile => {
+      const bodyLower = profile.body.toLowerCase();
+      return schoolNames.some(school => 
+        bodyLower.includes(school.toLowerCase())
+      );
+    });
+
+    // Limit to k profiles
+    const limitedProfiles = matchingProfiles.slice(0, k);
+
+    if (limitedProfiles.length === 0) {
+      return { block: '', matches: [] };
+    }
+
+    // Build the context block
+    const parts: string[] = [];
+    parts.push(`Student Profiles - Applied to ${schoolNames.join(', ')}`);
+    parts.push(`These are profiles of students who applied to the mentioned school(s):`);
+    parts.push('');
+
+    let total = 0;
+    for (let i = 0; i < limitedProfiles.length; i++) {
+      const formatted = formatStudentProfile(limitedProfiles[i], i + 1);
+      if (total + formatted.length > maxTotalChars) break;
+      parts.push(formatted);
+      parts.push('---');
+      total += formatted.length;
+    }
+
+    // Remove trailing separator
+    if (parts[parts.length - 1] === '---') parts.pop();
+
+    const block = parts.join('\n');
+    return { block, matches: limitedProfiles };
+  } catch (error) {
+    console.error('Error fetching students by school:', error);
+    return { block: '', matches: [] };
+  }
+}
+
 
 

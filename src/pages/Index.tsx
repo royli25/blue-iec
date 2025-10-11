@@ -2,13 +2,13 @@ import { ChevronRight, ChevronDown, Clipboard, ThumbsUp, ThumbsDown } from "luci
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { createChatCompletion, type ChatMessage } from "@/integrations/openai/client";
+import { createChatCompletion, extractSchoolNames, type ChatMessage } from "@/integrations/openai/client";
 import { SYSTEM_HOME_CHAT } from "@/config/prompts";
 import { useNavigate } from "react-router-dom";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { parseCardSections, parseCardWithDropdown } from "@/lib/utils";
 import { useProfileContext } from '@/hooks/useProfileContext';
-import { buildKbContextBlock, buildSimilarProfilesBlock } from "@/integrations/supabase/search";
+import { buildKbContextBlock, buildSimilarProfilesBlock, fetchStudentsBySchool } from "@/integrations/supabase/search";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -122,20 +122,42 @@ const Index = () => {
       // Use the profile context to enhance the system prompt
       const contextualSystemPrompt = getContextualSystemPrompt(SYSTEM_HOME_CHAT);
 
-      // Fetch similar profiles based on the user's profile data
-      const { block: similarProfilesBlock } = profileData 
-        ? await buildSimilarProfilesBlock(profileData, { k: 5, maxTotalChars: 4000 })
-        : { block: '' };
+      // STEP 1: Extract school names from the query using AI
+      let schoolNames: string[] = [];
+      try {
+        schoolNames = await extractSchoolNames(text);
+        console.log('Extracted school names:', schoolNames);
+      } catch (error) {
+        console.error('Error extracting school names:', error);
+      }
 
+      // STEP 2: Choose retrieval strategy based on whether schools were mentioned
+      let studentProfilesBlock = '';
+      if (schoolNames.length > 0) {
+        // If schools are mentioned, fetch students who applied to those schools
+        const { block } = await fetchStudentsBySchool(schoolNames, { k: 10, maxTotalChars: 4000 });
+        studentProfilesBlock = block;
+      } else if (profileData) {
+        // Otherwise, fetch similar profiles based on the user's profile
+        const { block } = await buildSimilarProfilesBlock(profileData, { k: 5, maxTotalChars: 4000 });
+        studentProfilesBlock = block;
+      }
+
+      // STEP 3: Fetch knowledge base context
       const { block: kbBlock } = await buildKbContextBlock(text, { k: 5, maxCharsPerChunk: 500, maxTotalChars: 1800, header: 'KB Context', includeMetadata: true });
 
-      // Build system prompt with similar profiles first, then KB context
+      // STEP 4: Build system prompt with student profiles first, then KB context
       let systemWithContext = contextualSystemPrompt;
-      if (similarProfilesBlock) {
-        systemWithContext += `\n\n---\n${similarProfilesBlock}`;
+      if (studentProfilesBlock) {
+        systemWithContext += `\n\n---\n${studentProfilesBlock}`;
       }
       if (kbBlock) {
         systemWithContext += `\n\n---\n${kbBlock}`;
+      }
+
+      // Add context note about retrieval strategy
+      if (schoolNames.length > 0) {
+        systemWithContext += `\n\n---\nNOTE: The student profiles above were specifically retrieved because they applied to ${schoolNames.join(', ')}. Use these profiles to help the user understand their chances and compare their profile to students who applied to these schools.`;
       }
 
       const content = await createChatCompletion([
