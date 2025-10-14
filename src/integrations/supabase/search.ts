@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { normalizeSchoolName } from '@/integrations/openai/client';
 
 async function embedQuery(query: string): Promise<number[]> {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
@@ -253,53 +254,9 @@ export async function fetchAllStudentProfiles(): Promise<KbMatch[]> {
 }
 
 /**
- * Map of school name variations and abbreviations
- * Each school maps to an array of possible names/abbreviations
- */
-const SCHOOL_NAME_VARIATIONS: Record<string, string[]> = {
-  'MIT': ['MIT', 'Massachusetts Institute of Technology', 'M.I.T.'],
-  'USC': ['USC', 'University of Southern California', 'U.S.C.'],
-  'UCLA': ['UCLA', 'University of California, Los Angeles', 'UC Los Angeles', 'U.C.L.A.'],
-  'UC Berkeley': ['UC Berkeley', 'University of California, Berkeley', 'Berkeley', 'UCB', 'Cal'],
-  'Stanford': ['Stanford', 'Stanford University'],
-  'Harvard': ['Harvard', 'Harvard University'],
-  'Yale': ['Yale', 'Yale University'],
-  'Princeton': ['Princeton', 'Princeton University'],
-  'Columbia': ['Columbia', 'Columbia University'],
-  'UPenn': ['UPenn', 'University of Pennsylvania', 'Penn', 'U Penn'],
-  'Cornell': ['Cornell', 'Cornell University'],
-  'Brown': ['Brown', 'Brown University'],
-  'Dartmouth': ['Dartmouth', 'Dartmouth College'],
-  'Caltech': ['Caltech', 'California Institute of Technology', 'CIT'],
-  'Northwestern': ['Northwestern', 'Northwestern University'],
-  'Duke': ['Duke', 'Duke University'],
-  'Johns Hopkins': ['Johns Hopkins', 'Johns Hopkins University', 'JHU'],
-  'UChicago': ['UChicago', 'University of Chicago', 'Chicago'],
-  'NYU': ['NYU', 'New York University', 'N.Y.U.'],
-  'Carnegie Mellon': ['Carnegie Mellon', 'Carnegie Mellon University', 'CMU'],
-};
-
-/**
- * Get all possible variations for a school name
- */
-function getSchoolVariations(schoolName: string): string[] {
-  const normalized = schoolName.trim();
-  
-  // Check if this exact name is a key in our variations map
-  for (const [key, variations] of Object.entries(SCHOOL_NAME_VARIATIONS)) {
-    if (variations.some(v => v.toLowerCase() === normalized.toLowerCase())) {
-      return variations;
-    }
-  }
-  
-  // If no match found, return the original name
-  return [normalized];
-}
-
-/**
  * Search for students who applied to specific schools
- * This uses text search in the body field to find mentions of school names
- * Handles common abbreviations and variations (MIT ↔ Massachusetts Institute of Technology)
+ * Uses AI to normalize school names for accurate matching
+ * Handles any abbreviation: MIT ↔ Massachusetts Institute of Technology, etc.
  */
 export async function fetchStudentsBySchool(
   schoolNames: string[],
@@ -312,18 +269,54 @@ export async function fetchStudentsBySchool(
   }
 
   try {
+    // Normalize all input school names using AI (in parallel for speed)
+    const normalizedSchoolNames = await Promise.all(
+      schoolNames.map(name => normalizeSchoolName(name))
+    );
+
+    console.log('Original school names:', schoolNames);
+    console.log('Normalized school names:', normalizedSchoolNames);
+
     // Fetch all student profiles
     const allProfiles = await fetchAllStudentProfiles();
     
-    // Get all variations for each school name
-    const allVariations = schoolNames.flatMap(school => getSchoolVariations(school));
-    
-    // Filter profiles that mention any variation of the school names
+    // Filter profiles that mention any of the normalized school names
+    // Also check for common abbreviations
     const matchingProfiles = allProfiles.filter(profile => {
       const bodyLower = profile.body.toLowerCase();
-      return allVariations.some(variation => 
-        bodyLower.includes(variation.toLowerCase())
-      );
+      
+      return normalizedSchoolNames.some(normalizedName => {
+        const normalizedLower = normalizedName.toLowerCase();
+        
+        // Check if the full normalized name appears
+        if (bodyLower.includes(normalizedLower)) {
+          return true;
+        }
+        
+        // Also check for abbreviation (e.g., "MIT" from "Massachusetts Institute of Technology")
+        // Get first letter of each significant word
+        const words = normalizedName.split(' ').filter(w => 
+          w.length > 2 && !['of', 'the', 'and', 'at'].includes(w.toLowerCase())
+        );
+        
+        if (words.length >= 2) {
+          const abbrev = words.map(w => w[0]).join('').toLowerCase();
+          if (bodyLower.includes(abbrev)) {
+            return true;
+          }
+        }
+        
+        // Check for the original input name too (in case it's already an abbreviation)
+        const originalIdx = normalizedSchoolNames.indexOf(normalizedName);
+        if (originalIdx >= 0) {
+          const originalName = schoolNames[originalIdx].toLowerCase();
+          if (originalName !== normalizedLower && bodyLower.includes(originalName)) {
+            return true;
+          }
+        }
+        
+        return false;
+      });
     });
 
     // Limit to k profiles

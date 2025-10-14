@@ -109,4 +109,90 @@ California Institute of Technology`;
     .filter(s => s.length > 0 && s !== "NONE");
 }
 
+/**
+ * Cache for normalized school names to avoid repeated AI calls
+ */
+const schoolNameCache = new Map<string, string>();
+
+/**
+ * Normalize a school name to its canonical/official form using AI
+ * Examples:
+ * - "MIT" → "Massachusetts Institute of Technology"
+ * - "USC" → "University of Southern California"
+ * - "Berkeley" → "University of California, Berkeley"
+ */
+export async function normalizeSchoolName(schoolName: string): Promise<string> {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+
+  if (!apiKey) {
+    return schoolName; // Fallback to original
+  }
+
+  // Check cache first
+  const cacheKey = schoolName.toLowerCase().trim();
+  if (schoolNameCache.has(cacheKey)) {
+    return schoolNameCache.get(cacheKey)!;
+  }
+
+  const systemPrompt = `You are a school name normalizer. Convert any school name or abbreviation to its full, official name.
+
+Rules:
+1. Return ONLY the official name, nothing else
+2. Use the full formal name (e.g., "Massachusetts Institute of Technology" not "MIT")
+3. Be consistent - same input should always give same output
+4. If it's already the official name, return it unchanged
+5. If you're not sure, return the input unchanged
+
+Examples:
+Input: MIT
+Output: Massachusetts Institute of Technology
+
+Input: USC
+Output: University of Southern California
+
+Input: Berkeley
+Output: University of California, Berkeley
+
+Input: Harvard
+Output: Harvard University
+
+Input: Stanford University
+Output: Stanford University`;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: schoolName }
+        ],
+        temperature: 0, // Deterministic
+        max_tokens: 50,
+      }),
+    });
+
+    if (!response.ok) {
+      return schoolName; // Fallback
+    }
+
+    const data = await response.json();
+    const normalized = data?.choices?.[0]?.message?.content?.trim();
+    const result = normalized || schoolName;
+    
+    // Cache the result
+    schoolNameCache.set(cacheKey, result);
+    
+    return result;
+  } catch (error) {
+    console.error('Error normalizing school name:', error);
+    return schoolName; // Fallback
+  }
+}
+
 
