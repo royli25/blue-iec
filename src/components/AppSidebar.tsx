@@ -20,9 +20,10 @@ interface AppSidebarProps {
   onNavigate?: (path: string) => void;
   onLoadChat?: (session: ChatSession) => void;
   currentChatId?: string | null;
+  refreshTrigger?: number; // Add this to force refresh when a chat is saved
 }
 
-export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId }: AppSidebarProps = {}) {
+export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, refreshTrigger }: AppSidebarProps = {}) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -50,11 +51,12 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId }:
     if (user && location.pathname === "/") {
       loadRecentChats();
     }
-  }, [user, location.pathname]);
+  }, [user, location.pathname, refreshTrigger]);
 
   const loadRecentChats = async () => {
     setIsLoadingChats(true);
     const sessions = await fetchChatSessions();
+    console.log('Loaded chat sessions:', sessions.length, sessions);
     setRecentChats(sessions.slice(0, 10)); // Show only 10 most recent
     setIsLoadingChats(false);
   };
@@ -131,6 +133,15 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId }:
         </SidebarGroup>
 
         {/* Recent Chats Section */}
+        {(() => {
+          console.log('Sidebar render check:', {
+            pathname: location.pathname,
+            hasUser: !!user,
+            recentChatsCount: recentChats.length,
+            shouldShow: location.pathname === "/" && user && recentChats.length > 0
+          });
+          return null;
+        })()}
         {location.pathname === "/" && user && recentChats.length > 0 && (
           <>
             <SidebarSeparator />

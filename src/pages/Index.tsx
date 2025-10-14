@@ -38,6 +38,7 @@ const Index = () => {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [debugContexts, setDebugContexts] = useState<Map<number, string>>(new Map());
   const [currentChatSession, setCurrentChatSession] = useState<ChatSession | null>(null);
+  const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
   // Persist chat state so edits and HMR don't reset the UI during development
   useEffect(() => {
@@ -188,6 +189,7 @@ const Index = () => {
           const newSession = await createChatSession(updatedMessages);
           if (newSession) {
             setCurrentChatSession(newSession);
+            setSidebarRefreshTrigger(prev => prev + 1); // Trigger sidebar refresh
           }
         }
       }
@@ -218,6 +220,7 @@ const Index = () => {
         onNewChat={handleNewChat} 
         onLoadChat={handleLoadChat}
         currentChatId={currentChatSession?.id}
+        refreshTrigger={sidebarRefreshTrigger}
       />
       <div className="relative h-screen w-screen overflow-hidden">
       {/* top-right auth button / email */}
