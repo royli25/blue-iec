@@ -36,12 +36,12 @@ export const PROSE_CLASSES =
   // Headings - Clear hierarchy with bigger differences
   "prose-headings:font-bold prose-headings:tracking-tight " +
   "prose-h1:text-[23px] prose-h1:leading-tight prose-h1:mt-0 prose-h1:mb-2 prose-h1:text-gray-950 " +
-  "prose-h2:text-[18px] prose-h2:leading-snug prose-h2:mt-2.5 prose-h2:mb-1 prose-h2:text-gray-800 " +
+  "prose-h2:text-[18px] prose-h2:leading-snug prose-h2:mt-2.5 prose-h2:mb-0.5 prose-h2:text-gray-800 " +
   "prose-h3:text-[16px] prose-h3:leading-snug prose-h3:mt-2 prose-h3:mb-0.5 prose-h3:text-gray-700 " +
-  // Paragraphs and lists - more compact
+  // Paragraphs and lists - more compact, tighter to headings
   "prose-p:my-1 prose-p:leading-relaxed prose-p:text-gray-600 " +
-  "prose-ul:my-1 prose-ul:space-y-0.5 " +
-  "prose-ol:my-1 prose-ol:space-y-0.5 " +
+  "prose-ul:my-0.5 prose-ul:space-y-0.5 " +
+  "prose-ol:my-0.5 prose-ol:space-y-0.5 " +
   "prose-li:my-0 prose-li:text-gray-600 " +
   // Links and emphasis
   "prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700 " +
