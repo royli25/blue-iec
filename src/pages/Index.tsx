@@ -11,6 +11,7 @@ import { useProfileContext } from '@/hooks/useProfileContext';
 import { buildKbContextBlock, buildSimilarProfilesBlock, fetchStudentsBySchool } from "@/integrations/supabase/search";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { createChatSession, updateChatSession, type ChatSession } from "@/lib/chat-utils";
 
 const Index = () => {
   const { user, signOut } = useAuth();
@@ -36,6 +37,7 @@ const Index = () => {
   const [disliked, setDisliked] = useState<Set<number>>(new Set());
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [debugContexts, setDebugContexts] = useState<Map<number, string>>(new Map());
+  const [currentChatSession, setCurrentChatSession] = useState<ChatSession | null>(null);
 
   // Persist chat state so edits and HMR don't reset the UI during development
   useEffect(() => {
@@ -173,7 +175,22 @@ const Index = () => {
         return next;
       });
       
-      setMessages((prev) => [...prev, { role: 'assistant', content }]);
+      const updatedMessages = [...nextMessages, { role: 'assistant', content }];
+      setMessages(updatedMessages);
+      
+      // Auto-save chat to database if user is logged in
+      if (user) {
+        if (currentChatSession) {
+          // Update existing session
+          await updateChatSession(currentChatSession.id, updatedMessages);
+        } else {
+          // Create new session
+          const newSession = await createChatSession(updatedMessages);
+          if (newSession) {
+            setCurrentChatSession(newSession);
+          }
+        }
+      }
     } catch (err: any) {
       toast({ title: 'Search failed', description: err?.message || 'Please try again.', variant: 'destructive' });
     } finally {
@@ -183,11 +200,25 @@ const Index = () => {
   const handleNewChat = () => {
     setMessages([]);
     setQuery("");
+    setCurrentChatSession(null);
+    // Clear sessionStorage too
+    sessionStorage.removeItem('home.messages.v1');
+    sessionStorage.removeItem('home.query.v1');
+  };
+
+  const handleLoadChat = (session: ChatSession) => {
+    setMessages(session.messages);
+    setCurrentChatSession(session);
+    setQuery("");
   };
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <AppSidebar onNewChat={handleNewChat} />
+      <AppSidebar 
+        onNewChat={handleNewChat} 
+        onLoadChat={handleLoadChat}
+        currentChatId={currentChatSession?.id}
+      />
       <div className="relative h-screen w-screen overflow-hidden">
       {/* top-right auth button / email */}
       <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
