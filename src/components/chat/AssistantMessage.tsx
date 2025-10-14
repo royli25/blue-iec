@@ -1,8 +1,6 @@
 import { PROSE_CLASSES } from "@/lib/chat-constants";
 import { parseCardSections, parseCardWithDropdown } from "@/lib/utils";
 import renderMarkdownToHtml from "@/lib/markdown";
-import { parseStudentProfiles } from "@/lib/student-card-parser";
-import { StudentCard } from "./StudentCard";
 import { CollapsibleCard } from "./CollapsibleCard";
 import { MessageActions } from "./MessageActions";
 
@@ -37,80 +35,6 @@ export function AssistantMessage({
   isRetrying,
   debugContext,
 }: AssistantMessageProps) {
-  // First, check if content contains student profiles
-  const { hasProfiles, profiles, remainingContent } = parseStudentProfiles(content);
-  
-  // If we have student profiles, render them as cards
-  if (hasProfiles) {
-    // Split content by card placeholders
-    const parts = remainingContent.split(/__STUDENT_CARD_(\d+)__/);
-    
-    return (
-      <div className="space-y-3">
-        {parts.map((part, index) => {
-          // Even indices are text content
-          if (index % 2 === 0) {
-            if (part.trim()) {
-              return (
-                <div
-                  key={`text-${index}`}
-                  className={PROSE_CLASSES}
-                  onClick={(e) => {
-                    const target = e.target as HTMLElement;
-                    if (target.tagName === 'A' && target.classList.contains('profile-link')) {
-                      e.preventDefault();
-                      const href = target.getAttribute('href');
-                      if (href) onProfileLinkClick(href);
-                    }
-                  }}
-                  dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(part) }}
-                />
-              );
-            }
-            return null;
-          }
-          
-          // Odd indices are card indices
-          const cardIndex = parseInt(part);
-          const profile = profiles[cardIndex];
-          
-          if (!profile) return null;
-          
-          return (
-            <StudentCard
-              key={`card-${index}`}
-              name={profile.name}
-              gpa={profile.gpa}
-              testScore={profile.testScore}
-              result={profile.result}
-              profileUrl={profile.profileUrl}
-            />
-          );
-        })}
-        <MessageActions
-          onCopy={onCopy}
-          onLike={onLike}
-          onDislike={onDislike}
-          onRetry={onRetry}
-          isLiked={isLiked}
-          isDisliked={isDisliked}
-          isRetrying={isRetrying}
-        />
-        {debugContext && (
-          <details className="mt-3 rounded-md border border-red-300 bg-red-50 p-3">
-            <summary className="cursor-pointer text-[11px] font-semibold text-red-700">
-              🐛 DEBUG: Profile Context Sent to AI
-            </summary>
-            <pre className="mt-2 overflow-x-auto text-[10px] text-red-900 whitespace-pre-wrap">
-              {debugContext}
-            </pre>
-          </details>
-        )}
-      </div>
-    );
-  }
-  
-  // Original logic for non-student-profile content
   const { preamble, cards, postscript } = parseCardSections(content);
 
   // If there are no card sections, render directly without card wrapper
