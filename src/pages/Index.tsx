@@ -297,8 +297,8 @@ const Index = () => {
           </div>
         </div>
       ) : (
-        <div className="absolute inset-0 px-6 flex flex-col">
-          <div className="flex-1 overflow-y-auto pt-6 pb-[200px]">
+        <div className="absolute inset-0 flex flex-col">
+          <div className="flex-1 overflow-y-auto pt-6 pb-[200px] px-6">
             <div className="mx-auto max-w-2xl space-y-2">
               {messages.map((m, i) => (
                 <div key={i} className={`${m.role === 'user' ? 'text-foreground/90' : 'text-foreground'} `}>
@@ -489,7 +489,7 @@ const Index = () => {
               )}
             </div>
           </div>
-          <div className="fixed left-1/2 -translate-x-1/2 bottom-4 w-full px-6 z-20">
+          <div className="px-6 pb-4 z-20">
             <div className="mx-auto w-full max-w-2xl rounded-xl border border-white/80 bg-white/80 shadow-[0_10px_20px_rgba(2,6,23,0.08)] backdrop-blur-lg">
               <div className="relative">
                 <textarea

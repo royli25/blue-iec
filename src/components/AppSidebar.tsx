@@ -56,7 +56,6 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
   const loadRecentChats = async () => {
     setIsLoadingChats(true);
     const sessions = await fetchChatSessions();
-    console.log('Loaded chat sessions:', sessions.length, sessions);
     setRecentChats(sessions.slice(0, 10)); // Show only 10 most recent
     setIsLoadingChats(false);
   };
@@ -133,15 +132,6 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
         </SidebarGroup>
 
         {/* Recent Chats Section */}
-        {(() => {
-          console.log('Sidebar render check:', {
-            pathname: location.pathname,
-            hasUser: !!user,
-            recentChatsCount: recentChats.length,
-            shouldShow: location.pathname === "/" && user && recentChats.length > 0
-          });
-          return null;
-        })()}
         {location.pathname === "/" && user && recentChats.length > 0 && (
           <>
             <SidebarSeparator />
