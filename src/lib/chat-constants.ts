@@ -32,19 +32,50 @@ export const PLACEHOLDER_PROMPTS = [
 ] as const;
 
 export const PROSE_CLASSES = 
-  "prose prose-sm prose-neutral max-w-none leading-6 text-[15px] " +
-  "prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 " +
-  "prose-a:text-blue-700 prose-strong:font-semibold prose-h1:text-[19px] prose-h2:text-[17px] prose-h3:text-[15px]";
+  "prose prose-neutral max-w-none text-[15px] leading-relaxed " +
+  // Headings - Clear hierarchy
+  "prose-headings:font-bold prose-headings:tracking-tight " +
+  "prose-h1:text-[22px] prose-h1:leading-tight prose-h1:mt-0 prose-h1:mb-3 prose-h1:text-gray-900 " +
+  "prose-h2:text-[18px] prose-h2:leading-snug prose-h2:mt-4 prose-h2:mb-2 prose-h2:text-gray-800 " +
+  "prose-h3:text-[16px] prose-h3:leading-snug prose-h3:mt-3 prose-h3:mb-1.5 prose-h3:text-gray-800 " +
+  // Paragraphs and lists
+  "prose-p:my-2 prose-p:leading-relaxed prose-p:text-gray-700 " +
+  "prose-ul:my-2 prose-ul:space-y-1 " +
+  "prose-ol:my-2 prose-ol:space-y-1 " +
+  "prose-li:my-0.5 prose-li:text-gray-700 " +
+  // Links and emphasis
+  "prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700 " +
+  "prose-strong:font-semibold prose-strong:text-gray-900";
 
 export const CARD_PROSE_CLASSES =
-  "prose prose-sm prose-neutral max-w-none leading-snug text-[15px] " +
-  "prose-headings:mt-0 prose-headings:mb-0 prose-h3:text-[17px] prose-h3:font-semibold prose-h3:text-gray-900 " +
-  "prose-p:my-0.5 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 " +
-  "prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline " +
-  "prose-strong:font-semibold prose-strong:text-gray-800";
+  "prose prose-neutral max-w-none text-[15px] leading-snug " +
+  // Card headings - More compact but still clear
+  "prose-headings:font-bold prose-headings:tracking-tight " +
+  "prose-h1:text-[20px] prose-h1:mt-0 prose-h1:mb-2 prose-h1:text-gray-900 " +
+  "prose-h2:text-[17px] prose-h2:mt-0 prose-h2:mb-1.5 prose-h2:text-gray-800 " +
+  "prose-h3:text-[16px] prose-h3:mt-0 prose-h3:mb-1 prose-h3:text-gray-800 " +
+  // Compact spacing for cards
+  "prose-p:my-0.5 prose-p:text-gray-700 " +
+  "prose-ul:my-0.5 prose-ul:space-y-0.5 " +
+  "prose-ol:my-0.5 prose-ol:space-y-0.5 " +
+  "prose-li:my-0 prose-li:text-gray-700 " +
+  // Links and emphasis
+  "prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700 " +
+  "prose-strong:font-semibold prose-strong:text-gray-900";
 
 export const DROPDOWN_PROSE_CLASSES =
-  "prose prose-sm prose-neutral max-w-none leading-snug text-[15px] " +
-  "prose-headings:mt-0 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 " +
-  "prose-a:text-blue-600 prose-a:font-medium prose-strong:font-semibold prose-strong:text-gray-800";
+  "prose prose-neutral max-w-none text-[15px] leading-relaxed " +
+  // Dropdown headings
+  "prose-headings:font-semibold prose-headings:tracking-tight " +
+  "prose-h1:text-[18px] prose-h1:mt-0 prose-h1:mb-2 prose-h1:text-gray-900 " +
+  "prose-h2:text-[16px] prose-h2:mt-2 prose-h2:mb-1.5 prose-h2:text-gray-800 " +
+  "prose-h3:text-[15px] prose-h3:mt-2 prose-h3:mb-1 prose-h3:text-gray-700 " +
+  // Standard spacing
+  "prose-p:my-1.5 prose-p:text-gray-700 " +
+  "prose-ul:my-1.5 prose-ul:space-y-1 " +
+  "prose-ol:my-1.5 prose-ol:space-y-1 " +
+  "prose-li:my-0.5 prose-li:text-gray-700 " +
+  // Links and emphasis
+  "prose-a:text-blue-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-700 " +
+  "prose-strong:font-semibold prose-strong:text-gray-900";
 
