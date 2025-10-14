@@ -136,8 +136,7 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
           <>
             <SidebarSeparator />
             <SidebarGroup>
-              <div className="px-3 py-2 text-[11px] font-semibold text-sidebar-foreground/70 flex items-center gap-2">
-                <Clock className="h-3 w-3" />
+              <div className="px-3 py-2 text-[11px] font-semibold text-sidebar-foreground/70">
                 <span className="group-data-[collapsible=icon]:hidden">Recent</span>
               </div>
               <SidebarMenu>
@@ -153,7 +152,6 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                           isActive={isActive}
                           tooltip={chat.title}
                         >
-                          <MessageSquarePlus className="h-[18px] w-[18px]" />
                           <span className="truncate">{chat.title}</span>
                         </SidebarMenuButton>
                         <button
