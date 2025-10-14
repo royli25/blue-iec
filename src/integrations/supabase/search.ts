@@ -274,9 +274,6 @@ export async function fetchStudentsBySchool(
       schoolNames.map(name => normalizeSchoolName(name))
     );
 
-    console.log('Original school names:', schoolNames);
-    console.log('Normalized school names:', normalizedSchoolNames);
-
     // Fetch all student profiles
     const allProfiles = await fetchAllStudentProfiles();
     
