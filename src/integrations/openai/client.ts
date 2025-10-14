@@ -50,7 +50,7 @@ export async function extractSchoolNames(query: string): Promise<string[]> {
 
 Rules:
 1. Return ONLY the school names, one per line
-2. Use the full, official name of the school (e.g., "Stanford University" not "Stanford")
+2. Preserve the name EXACTLY as the user wrote it (keep abbreviations like MIT, USC, etc.)
 3. If multiple schools are mentioned, list them all
 4. If NO schools are mentioned, return "NONE"
 5. Do not include any explanation or extra text
@@ -58,7 +58,7 @@ Rules:
 Examples:
 Query: "Should I apply to Stanford?"
 Output:
-Stanford University
+Stanford
 
 Query: "Help me build a school list"
 Output:
@@ -66,13 +66,18 @@ NONE
 
 Query: "Compare Harvard and Yale for economics"
 Output:
-Harvard University
-Yale University
+Harvard
+Yale
 
 Query: "What are my chances at MIT and Caltech?"
 Output:
-Massachusetts Institute of Technology
-California Institute of Technology`;
+MIT
+Caltech
+
+Query: "Thinking about Berkeley and USC"
+Output:
+Berkeley
+USC`;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
