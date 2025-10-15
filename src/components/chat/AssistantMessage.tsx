@@ -1,8 +1,9 @@
 import { PROSE_CLASSES } from "@/lib/chat-constants";
-import { parseCardSections, parseCardWithDropdown } from "@/lib/utils";
+import { parseCardSections, parseCardWithDropdown, parseProfileCard } from "@/lib/utils";
 import renderMarkdownToHtml from "@/lib/markdown";
 import { CollapsibleCard } from "./CollapsibleCard";
 import { MessageActions } from "./MessageActions";
+import { ChatProfileCard } from "./ProfileCard";
 
 interface AssistantMessageProps {
   content: string;
@@ -93,7 +94,7 @@ export function AssistantMessage({
           dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(preamble) }}
         />
       )}
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {cards.map((card, idx) => {
           const cardId = `card-${messageIndex}-${idx}`;
           const isExpanded = expandedCards.has(cardId);

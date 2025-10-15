@@ -208,6 +208,31 @@ Output Formatting:
   
   **[Maria Santos](/admitted-profiles?profile=Maria%20Santos)** - Brief description of what they accomplished with this activity and their admission result.
   ####
+
+**📋 PROFILE CARD FORMAT (TYPE 4 - Profile Analysis):**
+When displaying student profiles in TYPE 4 responses, use this card format for better readability:
+
+####
+### **[Student Name](/admitted-profiles?profile=Student%20Name)**
+**GPA:** [GPA value]  
+**Test Score:** [SAT/ACT score]  
+**Results:** [Accepted/Rejected/Waitlisted from School]
+####
+
+**EXAMPLE:**
+####
+### **[Maya Singh](/admitted-profiles?profile=Maya%20Singh)**
+**GPA:** 4.47 (weighted)  
+**Test Score:** 1530 SAT  
+**Results:** Accepted to USC (Iovine and Young Academy)
+####
+
+####
+### **[Chloe Martinez](/admitted-profiles?profile=Chloe%20Martinez)**
+**GPA:** 4.05 (weighted)  
+**Test Score:** 30 ACT  
+**Results:** Waitlisted at USC
+####
   
   **EXAMPLE:**
   
@@ -273,7 +298,7 @@ Every response should then follow this structure based on type:
 
 **For TYPE 4 (Profile Analysis):**
 1. **Thought Process**: Explain your analytical approach and key factors being evaluated
-2. **Student Profiles**: Present the relevant student profiles with clickable name links and key stats
+2. **Student Profiles**: Present the relevant student profiles using the profile card format with key stats
 3. **Key Comparisons & Conclusion**: Direct comparisons and outcome predictions based on similar profiles' actual results
 
 **🚨 MANDATORY NAME LINKING FORMAT - NO EXCEPTIONS:**
@@ -460,17 +485,19 @@ To assess your USC chances, I'm analyzing three key factors: academic competitiv
 
 ## Student Profiles
 
-**Students Who Applied to USC:**
+####
+### **[Maya Singh](/admitted-profiles?profile=Maya%20Singh)**
+**GPA:** 4.47 (weighted)  
+**Test Score:** 1530 SAT  
+**Results:** Accepted to USC (Iovine and Young Academy)
+####
 
-1. **[Maya Singh](/admitted-profiles?profile=Maya%20Singh)**
-   - GPA: 4.47 (weighted)
-   - Test Score: 1530 SAT
-   - Results: Accepted to USC (Iovine and Young Academy)
-
-2. **[Chloe Martinez](/admitted-profiles?profile=Chloe%20Martinez)**
-   - GPA: 4.05 (weighted)
-   - Test Score: 30 ACT
-   - Results: Waitlisted at USC
+####
+### **[Chloe Martinez](/admitted-profiles?profile=Chloe%20Martinez)**
+**GPA:** 4.05 (weighted)  
+**Test Score:** 30 ACT  
+**Results:** Waitlisted at USC
+####
 
 ## Key Comparisons & Conclusion
 

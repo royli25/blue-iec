@@ -89,3 +89,59 @@ export function parseCardWithDropdown(cardContent: string): {
   
   return { preview, dropdown, url };
 }
+
+export function parseProfileCard(cardContent: string): {
+  name: string;
+  gpa?: string;
+  testScore?: string;
+  results?: string;
+  profileUrl?: string;
+} {
+  const lines = cardContent.trim().split('\n');
+  let name = '';
+  let gpa = '';
+  let testScore = '';
+  let results = '';
+  let profileUrl = '';
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Extract name from heading (### **[Name](/admitted-profiles?profile=Name)**)
+    const nameMatch = trimmed.match(/^### \*\*\[([^\]]+)\]\(([^)]+)\)\*\*$/);
+    if (nameMatch) {
+      name = nameMatch[1];
+      profileUrl = nameMatch[2];
+      continue;
+    }
+    
+    // Extract GPA
+    const gpaMatch = trimmed.match(/^\*\*GPA:\*\*\s*(.+)$/);
+    if (gpaMatch) {
+      gpa = gpaMatch[1];
+      continue;
+    }
+    
+    // Extract Test Score
+    const testMatch = trimmed.match(/^\*\*Test Score:\*\*\s*(.+)$/);
+    if (testMatch) {
+      testScore = testMatch[1];
+      continue;
+    }
+    
+    // Extract Results
+    const resultsMatch = trimmed.match(/^\*\*Results:\*\*\s*(.+)$/);
+    if (resultsMatch) {
+      results = resultsMatch[1];
+      continue;
+    }
+  }
+
+  return {
+    name,
+    gpa: gpa || undefined,
+    testScore: testScore || undefined,
+    results: results || undefined,
+    profileUrl: profileUrl || undefined,
+  };
+}
