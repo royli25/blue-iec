@@ -47,7 +47,7 @@ const PasswordGate = ({ children, correctPassword }: PasswordGateProps) => {
       
       <div className="relative z-10 flex flex-col items-center gap-6">
         {/* Logo */}
-        <img src="/blueprint.png" alt="BluePrint" className="h-8 object-contain" />
+        <img src="/long_logo.svg" alt="BluePrint" className="h-8 object-contain" />
         
         {/* Tagline */}
         <div className="text-center space-y-1 max-w-lg">

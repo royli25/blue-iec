@@ -47,7 +47,7 @@ const PersonalBlueprint = () => {
           
           <div className="relative z-10 flex flex-col items-center gap-6">
             {/* Logo */}
-            <img src="/blueprint.png" alt="BluePrint" className="h-8 object-contain" />
+            <img src="/long_logo.svg" alt="BluePrint" className="h-8 object-contain" />
             
             {/* Coming Soon Message */}
             <div className="text-center space-y-2 max-w-lg">
