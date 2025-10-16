@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog } from "@/components/ui/dialog";
@@ -15,6 +16,7 @@ const ProfileContext = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [gradeLevel, setGradeLevel] = useState("");
   const [demographic, setDemographic] = useState("");
@@ -271,7 +273,7 @@ const ProfileContext = () => {
             onClick={() => requestNavigate('/auth')}
             className="rounded-md border border-border bg-white/70 px-4 py-0 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white h-[24px] min-h-0 leading-none"
           >
-            Log in
+{t('auth.logIn')}
           </button>
         )}
       </div>
@@ -285,7 +287,7 @@ const ProfileContext = () => {
         <div className="mx-auto max-w-2xl flex flex-col">
           <div className="grid grid-cols-1 gap-1.5 text-[12px]">
             <div className="space-y-0.5">
-              <label htmlFor="grad-year" className="text-foreground/80">Graduation Year</label>
+              <label htmlFor="grad-year" className="text-foreground/80">{t('profile.graduationYear')}</label>
               <Select value={gradeLevel} onValueChange={(v) => setGradeLevel(v)}>
                 <SelectTrigger id="grad-year" className="w-full rounded-md border border-border bg-white/70 px-3 py-0 text-[12px] text-foreground/80 h-[24px] min-h-0 leading-none">
                   <SelectValue placeholder="Select year" />
@@ -303,32 +305,32 @@ const ProfileContext = () => {
               </Select>
             </div>
             <div className="space-y-0.5">
-              <label htmlFor="demographic" className="text-foreground/80">Demographic (Race)</label>
+              <label htmlFor="demographic" className="text-foreground/80">{t('profile.demographic')}</label>
               <input id="demographic" className="w-full rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80" placeholder="e.g., Latino, Black, Asian, White, etc." value={demographic} onChange={(e) => setDemographic(e.target.value)} />
             </div>
             <div className="space-y-0.5">
-              <label htmlFor="school" className="text-foreground/80">School You Attend</label>
+              <label htmlFor="school" className="text-foreground/80">{t('profile.school')}</label>
               <input id="school" className="w-full rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80" placeholder="High school / college name" value={school} onChange={(e) => setSchool(e.target.value)} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               <div className="space-y-0.5">
-                <label htmlFor="gpa" className="text-foreground/80">GPA</label>
+                <label htmlFor="gpa" className="text-foreground/80">{t('profile.gpa')}</label>
                 <input id="gpa" className="w-full rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80" placeholder="3.8 UW / 4.2 W" value={gpa} onChange={(e) => setGpa(e.target.value)} />
               </div>
               <div className="space-y-0.5">
-                <label htmlFor="sat" className="text-foreground/80">SAT</label>
+                <label htmlFor="sat" className="text-foreground/80">{t('profile.sat')}</label>
                 <input id="sat" className="w-full rounded-md border border-border bg-white/70 px-3 py-0.5 text-[12px] text-foreground/80" placeholder="e.g., 1520 (760 EBRW / 760 Math)" value={sat} onChange={(e) => setSat(e.target.value)} />
               </div>
             </div>
             {/* Activities list (up to 10) */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between">
-                <label className="text-foreground/80">Activities</label>
+                <label className="text-foreground/80">{t('profile.activities')}</label>
                 <button
                   onClick={() => activities.length < 10 && setActivities([...activities, {name: "", description: ""}])}
                   className="rounded-md border border-border/70 bg-white/50 px-2.5 py-0 text-[11px] text-foreground/70 backdrop-blur-sm hover:bg-white/70 h-[24px] min-h-0 leading-none"
                   type="button"
-                >Add</button>
+                >{t('profile.add')}</button>
               </div>
               <div className="grid gap-0.5">
                 {activities.map((act, idx) => (
@@ -351,7 +353,7 @@ const ProfileContext = () => {
                         type="button"
                         onClick={() => setActivities(activities.filter((_, i) => i !== idx))}
                       className="rounded-md border border-border/70 bg-white/70 px-2.5 py-0 text-[12px] text-foreground/70 h-[24px] min-h-0 leading-none hover:bg-white"
-                      >Remove</button>
+                      >{t('profile.remove')}</button>
                     )}
                   </div>
                 ))}
@@ -360,12 +362,12 @@ const ProfileContext = () => {
             {/* AP Scores */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between">
-                <label className="text-foreground/80">AP Scores</label>
+                <label className="text-foreground/80">{t('profile.apScores')}</label>
                 <button
                   onClick={() => setApExams([...apExams, { exam: "", score: "" }])}
                   className="rounded-md border border-border/70 bg-white/50 px-2.5 py-0 text-[11px] text-foreground/70 backdrop-blur-sm hover:bg-white/70 h-[24px] min-h-0 leading-none"
                   type="button"
-                >Add</button>
+                >{t('profile.add')}</button>
               </div>
               <div className="grid gap-0.5">
                 {apExams.map((row, idx) => (
@@ -395,7 +397,7 @@ const ProfileContext = () => {
                       type="button"
                       onClick={() => setApExams(apExams.filter((_, i) => i !== idx))}
                       className="rounded-md border border-border/70 bg-white/70 px-2.5 py-0 text-[12px] text-foreground/70 h-[24px] min-h-0 leading-none hover:bg-white"
-                    >Remove</button>
+                    >{t('profile.remove')}</button>
                   </div>
                 ))}
               </div>
@@ -403,12 +405,12 @@ const ProfileContext = () => {
             {/* Awards */}
             <div className="space-y-0.5">
               <div className="flex items-center justify-between">
-                <label className="text-foreground/80">Awards</label>
+                <label className="text-foreground/80">{t('profile.awards')}</label>
                 <button
                   onClick={() => setAwards([...awards, { name: "", level: "" }])}
                   className="rounded-md border border-border/70 bg-white/50 px-2.5 py-0 text-[11px] text-foreground/70 backdrop-blur-sm hover:bg-white/70 h-[24px] min-h-0 leading-none"
                   type="button"
-                >Add</button>
+                >{t('profile.add')}</button>
               </div>
               <div className="grid gap-0.5">
                 {awards.map((row, idx) => (
@@ -437,7 +439,7 @@ const ProfileContext = () => {
                       type="button"
                       onClick={() => setAwards(awards.filter((_, i) => i !== idx))}
                       className="rounded-md border border-border/70 bg-white/70 px-2.5 py-0 text-[12px] text-foreground/70 h-[24px] min-h-0 leading-none hover:bg-white"
-                    >Remove</button>
+                    >{t('profile.remove')}</button>
                   </div>
                 ))}
               </div>

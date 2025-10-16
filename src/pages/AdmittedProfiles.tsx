@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProfileCard from "@/components/ProfileCard";
-import { fetchAllStudentProfiles } from "@/integrations/supabase/search";
+import { fetchAllStudentProfiles, matchKb } from "@/integrations/supabase/search";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +13,19 @@ import { Layout } from "@/components/Layout";
 import { PageContainer } from "@/components/PageContainer";
 import { formatStudentProfile, getDecisionColor } from "@/lib/profile-utils";
 import type { StudentProfile } from "@/types/profile";
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const AdmittedProfiles = () => {
   const [searchParams] = useSearchParams();
   const [profiles, setProfiles] = useState<StudentProfile[]>([]);
+  const [filteredProfiles, setFilteredProfiles] = useState<StudentProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<StudentProfile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function loadProfiles() {
@@ -28,6 +34,7 @@ const AdmittedProfiles = () => {
         const studentProfiles = await fetchAllStudentProfiles();
         const formattedProfiles = studentProfiles.map(formatStudentProfile);
         setProfiles(formattedProfiles);
+        setFilteredProfiles(formattedProfiles);
         
         // Check if there's a profile parameter in the URL
         const profileName = searchParams.get('profile');
@@ -52,6 +59,143 @@ const AdmittedProfiles = () => {
     loadProfiles();
   }, [searchParams]);
 
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    
+    if (!query.trim()) {
+      setFilteredProfiles(profiles);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      // Use semantic search to find similar profiles
+      const matches = await matchKb(query, { kind: 'student_profile' }, 20);
+      
+      // Convert matches back to StudentProfile format
+      const searchResults = matches.map(match => formatStudentProfile(match));
+      
+      // Apply additional text filtering to make search more precise
+      const queryLower = query.toLowerCase();
+      const filtered = searchResults.filter(profile => {
+        const major = profile.metadata?.intended_major?.toLowerCase() || '';
+        const role = profile.role?.toLowerCase() || '';
+        const blurb = profile.blurb?.toLowerCase() || '';
+        const activities = profile.metadata?.activities?.toLowerCase() || '';
+        const name = profile.name?.toLowerCase() || '';
+        
+        // Check for specific major-related terms
+        if (queryLower.includes('computer science') || queryLower.includes('cs')) {
+          return major.includes('computer science') || major.includes('cs') || 
+                 role.includes('computer science') || role.includes('cs') ||
+                 blurb.includes('computer science') || blurb.includes('cs') ||
+                 activities.includes('computer science') || activities.includes('cs');
+        }
+        
+        if (queryLower.includes('engineering')) {
+          return major.includes('engineering') || role.includes('engineering') ||
+                 blurb.includes('engineering') || activities.includes('engineering');
+        }
+        
+        if (queryLower.includes('business')) {
+          return major.includes('business') || major.includes('economics') ||
+                 role.includes('business') || role.includes('economics') ||
+                 blurb.includes('business') || blurb.includes('economics') ||
+                 activities.includes('business') || activities.includes('economics');
+        }
+        
+        if (queryLower.includes('medicine') || queryLower.includes('pre-med')) {
+          return major.includes('biology') || major.includes('medicine') || major.includes('pre-med') ||
+                 role.includes('biology') || role.includes('medicine') || role.includes('pre-med') ||
+                 blurb.includes('medicine') || blurb.includes('pre-med') ||
+                 activities.includes('medicine') || activities.includes('pre-med');
+        }
+        
+        if (queryLower.includes('design')) {
+          return major.includes('design') || role.includes('design') ||
+                 blurb.includes('design') || activities.includes('design');
+        }
+        
+        if (queryLower.includes('statistics') || queryLower.includes('stats')) {
+          return major.includes('statistics') || major.includes('stats') ||
+                 role.includes('statistics') || role.includes('stats') ||
+                 blurb.includes('statistics') || blurb.includes('stats') ||
+                 activities.includes('statistics') || activities.includes('stats');
+        }
+        
+        // For other queries, use general text matching
+        return major.includes(queryLower) || role.includes(queryLower) || 
+               blurb.includes(queryLower) || activities.includes(queryLower) ||
+               name.includes(queryLower);
+      });
+      
+      setFilteredProfiles(filtered);
+    } catch (error) {
+      console.error('Error searching profiles:', error);
+      // Enhanced fallback to text search
+      const queryLower = query.toLowerCase();
+      const filtered = profiles.filter(profile => {
+        const major = profile.metadata?.intended_major?.toLowerCase() || '';
+        const role = profile.role?.toLowerCase() || '';
+        const blurb = profile.blurb?.toLowerCase() || '';
+        const activities = profile.metadata?.activities?.toLowerCase() || '';
+        const name = profile.name?.toLowerCase() || '';
+        
+        // Check for specific major-related terms
+        if (queryLower.includes('computer science') || queryLower.includes('cs')) {
+          return major.includes('computer science') || major.includes('cs') || 
+                 role.includes('computer science') || role.includes('cs') ||
+                 blurb.includes('computer science') || blurb.includes('cs') ||
+                 activities.includes('computer science') || activities.includes('cs');
+        }
+        
+        if (queryLower.includes('engineering')) {
+          return major.includes('engineering') || role.includes('engineering') ||
+                 blurb.includes('engineering') || activities.includes('engineering');
+        }
+        
+        if (queryLower.includes('business')) {
+          return major.includes('business') || major.includes('economics') ||
+                 role.includes('business') || role.includes('economics') ||
+                 blurb.includes('business') || blurb.includes('economics') ||
+                 activities.includes('business') || activities.includes('economics');
+        }
+        
+        if (queryLower.includes('medicine') || queryLower.includes('pre-med')) {
+          return major.includes('biology') || major.includes('medicine') || major.includes('pre-med') ||
+                 role.includes('biology') || role.includes('medicine') || role.includes('pre-med') ||
+                 blurb.includes('medicine') || blurb.includes('pre-med') ||
+                 activities.includes('medicine') || activities.includes('pre-med');
+        }
+        
+        if (queryLower.includes('design')) {
+          return major.includes('design') || role.includes('design') ||
+                 blurb.includes('design') || activities.includes('design');
+        }
+        
+        if (queryLower.includes('statistics') || queryLower.includes('stats')) {
+          return major.includes('statistics') || major.includes('stats') ||
+                 role.includes('statistics') || role.includes('stats') ||
+                 blurb.includes('statistics') || blurb.includes('stats') ||
+                 activities.includes('statistics') || activities.includes('stats');
+        }
+        
+        // For other queries, use general text matching
+        return major.includes(queryLower) || role.includes(queryLower) || 
+               blurb.includes(queryLower) || activities.includes(queryLower) ||
+               name.includes(queryLower);
+      });
+      setFilteredProfiles(filtered);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setFilteredProfiles(profiles);
+  };
+
   const handleViewProfile = (profile: StudentProfile) => {
     setSelectedProfile(profile);
     setIsModalOpen(true);
@@ -64,14 +208,45 @@ const AdmittedProfiles = () => {
           <h1 className="text-xl font-semibold text-foreground">Admitted Profiles</h1>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search for similar profiles... (e.g., 'computer science student with high GPA', 'international student from Asia', 'student interested in business')"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10 pr-10 h-12 text-sm"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          {searchQuery && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {searchLoading ? "Searching..." : `Found ${filteredProfiles.length} profile${filteredProfiles.length !== 1 ? 's' : ''}`}
+            </p>
+          )}
+        </div>
+
         {/* grid of profile cards */}
         {loading ? (
           <div className="mt-8 text-center text-foreground/60">Loading profiles...</div>
-        ) : profiles.length === 0 ? (
-          <div className="mt-8 text-center text-foreground/60">No profiles found</div>
+        ) : filteredProfiles.length === 0 ? (
+          <div className="mt-8 text-center text-foreground/60">
+            {searchQuery ? "No profiles found matching your search" : "No profiles found"}
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {profiles.map((p, idx) => (
+            {filteredProfiles.map((p, idx) => (
               <ProfileCard
                 key={`${p.name}-${idx}`}
                 name={p.name}

@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/lib/i18n";
 import { createChatCompletion, type ChatMessage } from "@/integrations/openai/client";
 import { SYSTEM_HOME_CHAT } from "@/config/prompts";
 import { useNavigate } from "react-router-dom";
@@ -12,13 +13,14 @@ import { createChatSession, updateChatSession, type ChatSession } from "@/lib/ch
 import { retrieveChatContext, buildSystemPromptWithContext } from "@/lib/chat-retrieval";
 import { UserMessage } from "@/components/chat/UserMessage";
 import { AssistantMessage } from "@/components/chat/AssistantMessage";
-import { PLACEHOLDER_PROMPTS, CHAT_CONFIG, CHAT_COLORS } from "@/lib/chat-constants";
+import { PLACEHOLDER_PROMPTS, CHINESE_PLACEHOLDER_PROMPTS, CHAT_CONFIG, CHAT_COLORS } from "@/lib/chat-constants";
 
 const Index = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { getContextualSystemPrompt, profileData } = useProfileContext();
+  const { language, t } = useTranslation();
   
   // State
   const [promptIndex, setPromptIndex] = useState(0);
@@ -53,20 +55,22 @@ const Index = () => {
   useEffect(() => {
     try { sessionStorage.setItem('home.query.v1', query); } catch {}
   }, [query]);
+  // Rotating placeholder text - dynamic based on language
+  const currentPlaceholders = language === 'zh' ? CHINESE_PLACEHOLDER_PROMPTS : PLACEHOLDER_PROMPTS;
+  
   // Rotate placeholder prompts
   useEffect(() => {
     if (isFocused || query.length > 0) return;
     const interval = setInterval(() => {
       setPhase('out');
       setTimeout(() => {
-        setPromptIndex((i) => (i + 1) % PLACEHOLDER_PROMPTS.length);
+        setPromptIndex((i) => (i + 1) % currentPlaceholders.length);
         setPhase('in');
       }, CHAT_CONFIG.placeholderTransitionDuration);
     }, CHAT_CONFIG.placeholderRotationInterval);
     return () => clearInterval(interval);
-  }, [isFocused, query.length]);
-  
-  const rotatingPlaceholder = PLACEHOLDER_PROMPTS[promptIndex];
+  }, [isFocused, query.length, currentPlaceholders.length]);
+  const rotatingPlaceholder = currentPlaceholders[promptIndex];
   const placeholderClass = query.length > 0 ? '' : (phase === 'in' ? 'placeholder-in' : 'placeholder-out');
 
   const handleCopy = async (content: string) => {
@@ -131,7 +135,8 @@ const Index = () => {
         contextualSystemPrompt,
         studentProfilesBlock,
         kbBlock,
-        schoolNames
+        schoolNames,
+        language
       );
 
       // Generate AI response
@@ -256,7 +261,7 @@ const Index = () => {
                 onClick={handleSend}
                 disabled={loading}
                 className="absolute right-3 bottom-3 h-8 w-8 flex items-center justify-center rounded-md border border-border bg-white/80 text-foreground/70 disabled:opacity-50 disabled:pointer-events-none"
-                title={loading ? 'Sending...' : 'Send'}
+                title={loading ? t('home.sending') : t('home.send')}
               >
                 <ChevronRight className={`h-4 w-4 ${loading ? 'animate-pulse' : ''}`} />
               </button>
@@ -264,9 +269,9 @@ const Index = () => {
           </div>
           {/* two wide option boxes (50% width each) */}
           <div className="mx-auto mt-3 max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-3 text-[12px]">
-            <button onClick={() => navigate(user ? '/profile' : '/auth')} className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white">Provide Profile Context</button>
+            <button onClick={() => navigate(user ? '/profile' : '/auth')} className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white">{t('home.provideProfileContext')}</button>
             <button onClick={() => navigate('/technology')} className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white">
-              Understand our Technology
+              {t('home.understandTechnology')}
             </button>
           </div>
         </div>

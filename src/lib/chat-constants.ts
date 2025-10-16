@@ -31,6 +31,14 @@ export const PLACEHOLDER_PROMPTS = [
   "Recommend clubs and projects to build a compelling CS transfer story.",
 ] as const;
 
+export const CHINESE_PLACEHOLDER_PROMPTS = [
+  "帮我为心理学专业在湾区寻找机会。",
+  "为对神经科学感兴趣的大三学生推荐暑期研究或实习。",
+  "为对气候政策充满热情的学生寻找社区服务角色。",
+  "起草一个连接机器人技术、创业和领导力的连贯故事。",
+  "推荐俱乐部和项目来构建引人注目的计算机科学转学故事。",
+] as const;
+
 export const PROSE_CLASSES = 
   "prose prose-neutral max-w-none text-[15px] leading-relaxed " +
   // Headings - Clear hierarchy with bigger differences

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/lib/i18n';
 
 interface PasswordGateProps {
   children: React.ReactNode;
@@ -8,6 +9,7 @@ interface PasswordGateProps {
 }
 
 const PasswordGate = ({ children, correctPassword }: PasswordGateProps) => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [error, setError] = useState('');
@@ -28,7 +30,7 @@ const PasswordGate = ({ children, correctPassword }: PasswordGateProps) => {
       sessionStorage.setItem('site-unlocked', 'true');
       setError('');
     } else {
-      setError('Incorrect password. Please try again.');
+      setError(t('password.incorrectPassword'));
       setPassword('');
     }
   };
@@ -50,10 +52,10 @@ const PasswordGate = ({ children, correctPassword }: PasswordGateProps) => {
         {/* Tagline */}
         <div className="text-center space-y-1 max-w-lg">
           <p className="text-[14px] text-foreground/70 leading-tight">
-            Using data & AI to change the college consulting landscape.
+            {t('password.tagline')}
           </p>
           <p className="text-[12px] text-foreground/60 leading-tight">
-            In beta test mode. Email <a href="mailto:royli@usc.edu" className="text-blue-600 hover:underline">royli@usc.edu</a> to request for beta access.
+            {t('password.betaMessage')}
           </p>
         </div>
         
@@ -62,7 +64,7 @@ const PasswordGate = ({ children, correctPassword }: PasswordGateProps) => {
           <div className="relative">
             <input
               type="password"
-              placeholder="Enter password"
+              placeholder={t('password.enterPassword')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-md border border-border bg-white/70 px-4 py-2 text-[14px] text-foreground/80 placeholder:text-foreground/50 focus:outline-none focus:border-border shadow-sm backdrop-blur-sm"

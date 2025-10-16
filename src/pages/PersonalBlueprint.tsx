@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import QuarterlyTimeline from "@/components/QuarterlyTimeline";
 import { useProfileContext } from "@/hooks/useProfileContext";
+import { useTranslation } from "@/lib/i18n";
 import { Layout } from "@/components/Layout";
 
 const BLUEPRINT_PASSWORD = "blueprint2025"; // Change this to your desired password
@@ -9,6 +10,7 @@ const BLUEPRINT_PASSWORD = "blueprint2025"; // Change this to your desired passw
 const PersonalBlueprint = () => {
   const { user } = useAuth();
   const { profileData } = useProfileContext();
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +31,7 @@ const PersonalBlueprint = () => {
       sessionStorage.setItem('blueprint-page-unlocked', 'true');
       setError('');
     } else {
-      setError('Incorrect password. Please try again.');
+      setError(t('blueprint.incorrectPassword'));
       setPassword('');
     }
   };
@@ -49,9 +51,9 @@ const PersonalBlueprint = () => {
             
             {/* Coming Soon Message */}
             <div className="text-center space-y-2 max-w-lg">
-              <h2 className="text-[20px] font-semibold text-foreground/90">Personal Blueprint</h2>
+              <h2 className="text-[20px] font-semibold text-foreground/90">{t('blueprint.title')}</h2>
               <p className="text-[14px] text-foreground/70 leading-tight">
-                This feature is coming soon. Enter password to preview.
+                {t('blueprint.comingSoon')}
               </p>
             </div>
             
@@ -60,7 +62,7 @@ const PersonalBlueprint = () => {
               <div className="relative">
                 <input
                   type="password"
-                  placeholder="Enter password"
+                  placeholder={t('blueprint.enterPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-md border border-border bg-white/70 px-4 py-2 text-[14px] text-foreground/80 placeholder:text-foreground/50 focus:outline-none focus:border-border shadow-sm backdrop-blur-sm"

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { TranslationProvider } from "@/lib/i18n";
 import PasswordGate from "@/components/PasswordGate";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -21,27 +22,29 @@ const SITE_PASSWORD = "blueprint2024";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <PasswordGate correctPassword={SITE_PASSWORD}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<ProfileContext />} />
-              <Route path="/personal-blueprint" element={<PersonalBlueprint />} />
-              <Route path="/technology" element={<Technology />} />
-              <Route path="/context" element={<ApplicationContext />} />
-              <Route path="/admitted-profiles" element={<AdmittedProfiles />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </PasswordGate>
+    <TranslationProvider>
+      <PasswordGate correctPassword={SITE_PASSWORD}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/profile" element={<ProfileContext />} />
+                <Route path="/personal-blueprint" element={<PersonalBlueprint />} />
+                <Route path="/technology" element={<Technology />} />
+                <Route path="/context" element={<ApplicationContext />} />
+                <Route path="/admitted-profiles" element={<AdmittedProfiles />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </PasswordGate>
+    </TranslationProvider>
   </QueryClientProvider>
 );
 

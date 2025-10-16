@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/sidebar";
 import { fetchChatSessions, deleteChatSession, type ChatSession } from "@/lib/chat-utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "@/lib/i18n";
+import { LanguageToggle } from "./LanguageToggle";
 
 interface AppSidebarProps {
   onNewChat?: () => void;
@@ -27,6 +29,7 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [recentChats, setRecentChats] = useState<ChatSession[]>([]);
   const [isLoadingChats, setIsLoadingChats] = useState(false);
 
@@ -75,27 +78,27 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
   const menuItems = [
     {
       icon: MessageSquarePlus,
-      label: "New chat",
-      tooltip: "New chat",
+      labelKey: "sidebar.newChat",
+      tooltipKey: "sidebar.newChat",
       action: handleNewChatClick,
       path: "/",
     },
     {
       icon: UsersRound,
-      label: "Admitted Profiles",
-      tooltip: "Admitted Profiles",
+      labelKey: "sidebar.admittedProfiles",
+      tooltipKey: "sidebar.admittedProfiles",
       path: "/admitted-profiles",
     },
     {
       icon: NotebookText,
-      label: "My Blueprint",
-      tooltip: "My Blueprint",
+      labelKey: "sidebar.myBlueprint",
+      tooltipKey: "sidebar.myBlueprint",
       path: "/personal-blueprint",
     },
     {
       icon: Info,
-      label: "About",
-      tooltip: "About",
+      labelKey: "sidebar.about",
+      tooltipKey: "sidebar.about",
       path: "/technology",
     },
   ];
@@ -118,12 +121,12 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     onClick={item.action ? item.action : () => handleNavigation(item.path)}
-                    tooltip={item.tooltip}
+                    tooltip={t(item.tooltipKey)}
                     className="pr-3"
                     isActive={isActive}
                   >
                     <Icon className="h-[18px] w-[18px]" />
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
@@ -137,7 +140,7 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
             <SidebarSeparator />
             <SidebarGroup>
               <div className="px-3 py-2 text-[11px] font-semibold text-sidebar-foreground/70">
-                <span className="group-data-[collapsible=icon]:hidden">Recent</span>
+                <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.recent')}</span>
               </div>
               <SidebarMenu>
                 {recentChats.map((chat) => {
@@ -157,7 +160,7 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                         <button
                           onClick={(e) => handleDeleteChat(e, chat.id)}
                           className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-sidebar-accent rounded-md group-data-[collapsible=icon]:hidden"
-                          title="Delete chat"
+                          title={t('sidebar.deleteChat')}
                         >
                           <Trash2 className="h-3 w-3 text-destructive" />
                         </button>
@@ -169,6 +172,14 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
             </SidebarGroup>
           </>
         )}
+
+        {/* Language Toggle - Bottom of Sidebar */}
+        <SidebarSeparator />
+        <SidebarGroup className="mt-auto">
+          <div className="px-3 py-2">
+            <LanguageToggle />
+          </div>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

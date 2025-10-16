@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/lib/i18n';
 import { ArrowLeft } from 'lucide-react';
 
 const Auth = () => {
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,14 +36,14 @@ const Auth = () => {
     
     if (error) {
       toast({
-        title: 'Sign in failed',
+        title: t('auth.signInFailed'),
         description: error.message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Welcome back!',
-        description: 'You have been signed in successfully.',
+        title: t('auth.welcomeBack'),
+        description: t('auth.verifyEmail'),
       });
       navigate('/');
     }
@@ -57,14 +59,14 @@ const Auth = () => {
     
     if (error) {
       toast({
-        title: 'Sign up failed',
+        title: t('auth.signUpFailed'),
         description: error.message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Account created!',
-        description: 'Please check your email to verify your account.',
+        title: t('auth.accountCreated'),
+        description: t('auth.verifyEmail'),
       });
     }
     
@@ -82,7 +84,7 @@ const Auth = () => {
           onClick={() => navigate('/')}
         >
           <ArrowLeft className="h-4 w-4 mr-2 inline" />
-          Back to Home
+          {t('auth.logIn')}
         </button>
 
         <Card className="border border-border bg-white/80 backdrop-blur-md shadow-[0_30px_60px_-20px_rgba(2,6,23,0.12),0_12px_24px_rgba(2,6,23,0.06)]">
@@ -95,14 +97,14 @@ const Auth = () => {
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2 h-8 text-[12px] p-0.5">
-                <TabsTrigger value="signin" className="py-1 text-[12px]">Sign In</TabsTrigger>
-                <TabsTrigger value="signup" className="py-1 text-[12px]">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin" className="py-1 text-[12px]">{t('auth.signIn')}</TabsTrigger>
+                <TabsTrigger value="signup" className="py-1 text-[12px]">{t('auth.signUp')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin" className="space-y-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -113,7 +115,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
                     <Input
                       id="signin-password"
                       type="password"
@@ -128,7 +130,7 @@ const Auth = () => {
                     className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white disabled:opacity-50 disabled:pointer-events-none"
                     disabled={loading}
                   >
-                    {loading ? 'Signing in...' : 'Sign In'}
+                    {loading ? t('auth.sending') : t('auth.signIn')}
                   </button>
                 </form>
               </TabsContent>
@@ -136,7 +138,7 @@ const Auth = () => {
               <TabsContent value="signup" className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Display Name</Label>
+                    <Label htmlFor="signup-name">{t('auth.displayName')}</Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -146,7 +148,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">{t('auth.email')}</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -157,7 +159,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">{t('auth.password')}</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -172,7 +174,7 @@ const Auth = () => {
                     className="w-full rounded-md border border-border bg-white/70 px-4 py-1 text-[12px] text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white disabled:opacity-50 disabled:pointer-events-none"
                     disabled={loading}
                   >
-                    {loading ? 'Creating account...' : 'Create Account'}
+                    {loading ? t('auth.saving') : t('auth.signUp')}
                   </button>
                 </form>
               </TabsContent>

@@ -78,9 +78,15 @@ export function buildSystemPromptWithContext(
   basePrompt: string,
   studentProfilesBlock: string,
   kbBlock: string,
-  schoolNames: string[]
+  schoolNames: string[],
+  language: 'en' | 'zh' = 'en'
 ): string {
   let systemWithContext = basePrompt;
+
+  // Add language instruction
+  if (language === 'zh') {
+    systemWithContext += `\n\n---\nIMPORTANT: Respond in Mandarin Chinese (简体中文). All your responses should be in Chinese. Use proper Chinese terminology for college application concepts.`;
+  }
 
   // Add student profiles context
   if (studentProfilesBlock) {
@@ -94,7 +100,10 @@ export function buildSystemPromptWithContext(
 
   // Add retrieval strategy note
   if (schoolNames.length > 0) {
-    systemWithContext += `\n\n---\nNOTE: The student profiles above were specifically retrieved because they applied to ${schoolNames.join(', ')}. Use these profiles to help the user understand their chances and compare their profile to students who applied to these schools.`;
+    const note = language === 'zh' 
+      ? `\n\n---\n注意：上述学生档案是专门检索的，因为他们申请了${schoolNames.join('、')}。使用这些档案帮助用户了解他们的机会，并将他们的档案与申请这些学校的学生进行比较。`
+      : `\n\n---\nNOTE: The student profiles above were specifically retrieved because they applied to ${schoolNames.join(', ')}. Use these profiles to help the user understand their chances and compare their profile to students who applied to these schools.`;
+    systemWithContext += note;
   }
 
   return systemWithContext;
