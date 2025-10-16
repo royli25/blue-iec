@@ -66,3 +66,4 @@ export function ChatProfileCard({
     </div>
   );
 }
+
