@@ -237,7 +237,7 @@ const Index = () => {
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-6">
           {/* logo above search */}
           <div className="mx-auto max-w-3xl mb-6 flex justify-center">
-            <img src="/blueprint.png" alt="BluePrint" className="h-8 object-contain" />
+            <img src="/long_logo.svg" alt="BluePrint" className="h-8 object-contain" />
           </div>
           <div className="mx-auto max-w-3xl rounded-xl border border-border/70 bg-white/80 shadow-[0_30px_60px_-20px_rgba(2,6,23,0.12),0_12px_24px_rgba(2,6,23,0.06)] backdrop-blur-md">
             <div className="relative">

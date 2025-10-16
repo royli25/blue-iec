@@ -105,7 +105,9 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
 
   return (
     <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-      <SidebarHeader className="h-10 flex flex-row items-center justify-end px-4 py-2 group-data-[state=collapsed]:justify-center">
+      <SidebarHeader className="h-10 flex flex-row items-center px-4 py-2 border-b border-border justify-between group-data-[state=collapsed]:justify-center">
+        {/* Blueprint Logo - Only visible when sidebar is open */}
+        <img src="/long_logo.svg" alt="Blueprint" className="h-4 w-auto group-data-[collapsible=icon]:hidden" />
         <SidebarTrigger className="h-5 w-5" />
       </SidebarHeader>
       <SidebarSeparator />
@@ -134,13 +136,13 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Recent Chats Section */}
+        {/* Recent Chats Section - Hidden when collapsed */}
         {location.pathname === "/" && user && recentChats.length > 0 && (
-          <>
+          <div className="group-data-[collapsible=icon]:hidden">
             <SidebarSeparator />
             <SidebarGroup>
               <div className="px-3 py-2 text-[11px] font-semibold text-sidebar-foreground/70">
-                <span className="group-data-[collapsible=icon]:hidden">{t('sidebar.recent')}</span>
+                {t('sidebar.recent')}
               </div>
               <SidebarMenu>
                 {recentChats.map((chat) => {
@@ -159,7 +161,7 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                         </SidebarMenuButton>
                         <button
                           onClick={(e) => handleDeleteChat(e, chat.id)}
-                          className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-sidebar-accent rounded-md group-data-[collapsible=icon]:hidden"
+                          className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-sidebar-accent rounded-md"
                           title={t('sidebar.deleteChat')}
                         >
                           <Trash2 className="h-3 w-3 text-destructive" />
@@ -170,13 +172,13 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                 })}
               </SidebarMenu>
             </SidebarGroup>
-          </>
+          </div>
         )}
 
         {/* Language Toggle - Bottom of Sidebar */}
         <SidebarSeparator />
         <SidebarGroup className="mt-auto">
-          <div className="px-3 py-2">
+          <div className="px-3 py-2 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
             <LanguageToggle />
           </div>
         </SidebarGroup>
