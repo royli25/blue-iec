@@ -26,7 +26,8 @@ interface RichTextEditorProps {
 
 export default function RichTextEditor({ value, onChange, saving, onMount }: RichTextEditorProps) {
   const { toast } = useToast();
-  const [generating, setGenerating] = useState(false);
+  const [generatingBlueprint, setGeneratingBlueprint] = useState(false);
+  const [generatingCalendar, setGeneratingCalendar] = useState(false);
   const { setEditor } = useEditorBridge();
   
   // Default skeleton when there is no existing content
@@ -153,7 +154,7 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
 
   const generateBlueprint = async () => {
     if (!editor) return;
-    setGenerating(true);
+    setGeneratingBlueprint(true);
     try {
       const systemPrompt = `You write the student's main blueprint. Output only plain paragraphs and simple dash bullets, no markdown styling or code fences. Keep it concise and practical.`;
       const response = await createChatCompletion([
@@ -164,13 +165,13 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     } catch (error: any) {
       toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });
     } finally {
-      setGenerating(false);
+      setGeneratingBlueprint(false);
     }
   };
 
   const generateCalendar = async () => {
     if (!editor) return;
-    setGenerating(true);
+    setGeneratingCalendar(true);
     try {
       const systemPrompt = `You write a month-by-month application prep calendar. Output plain paragraphs and simple dash bullets only, no markdown styling.`;
       const response = await createChatCompletion([
@@ -181,7 +182,7 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     } catch (error: any) {
       toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });
     } finally {
-      setGenerating(false);
+      setGeneratingCalendar(false);
     }
   };
 
@@ -250,11 +251,11 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
           <div className="absolute z-10" style={{ top: bpBtnPos.top, left: bpBtnPos.left }}>
             <Button
               onClick={generateBlueprint}
-              disabled={generating}
+              disabled={generatingBlueprint}
               className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
               style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
             >
-              <span>{generating ? 'Generating...' : 'Generate a base blueprint to get started'}</span>
+              <span>{generatingBlueprint ? 'Generating...' : 'Generate a base blueprint to get started'}</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -263,11 +264,11 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
           <div className="absolute z-10" style={{ top: calBtnPos.top, left: calBtnPos.left }}>
             <Button
               onClick={generateCalendar}
-              disabled={generating}
+              disabled={generatingCalendar}
               className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
               style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
             >
-              <span>{generating ? 'Generating...' : 'Generate a base calendar to get started'}</span>
+              <span>{generatingCalendar ? 'Generating...' : 'Generate a base calendar to get started'}</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
