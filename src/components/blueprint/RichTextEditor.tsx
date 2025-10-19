@@ -84,67 +84,102 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
 
   // Parent owns initialization/persistence of default content
 
+  // Helpers: replace content under a given H1 without touching the heading itself
+  const findSectionRange = (headingText: string): { from: number; to: number } | null => {
+    if (!editor) return null;
+    const { doc } = editor.state;
+    let headingPos: number | null = null;
+    let nextH1Pos: number | null = null;
+    doc.descendants((node: any, pos: number) => {
+      if (node.type?.name === 'heading' && node.attrs?.level === 1) {
+        const txt = (node.textContent || '').trim();
+        if (headingPos === null && txt === headingText) {
+          headingPos = pos;
+          return true;
+        }
+        if (headingPos !== null && nextH1Pos === null) {
+          nextH1Pos = pos;
+          return false; // we found the next section start
+        }
+      }
+      return true;
+    });
+    if (headingPos === null) return null;
+    const nodeAtHeading = doc.nodeAt(headingPos);
+    if (!nodeAtHeading) return null;
+    const from = headingPos + nodeAtHeading.nodeSize; // start right after the heading node
+    const to = nextH1Pos !== null ? nextH1Pos : doc.content.size - 1; // up to before doc end
+    return { from, to };
+  };
+
+  const parsePlainToNodes = (text: string): any[] => {
+    const lines = text.split('\n');
+    const nodes: any[] = [];
+    let bulletItems: string[] = [];
+    const flushBullets = () => {
+      if (bulletItems.length === 0) return;
+      nodes.push({
+        type: 'bulletList',
+        content: bulletItems.map((t) => ({ type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: t }] }] }))
+      });
+      bulletItems = [];
+    };
+    for (const raw of lines) {
+      const line = raw.trimEnd();
+      if (line.startsWith('- ')) {
+        bulletItems.push(line.slice(2));
+        continue;
+      }
+      if (line.trim() === '') {
+        flushBullets();
+        continue;
+      }
+      flushBullets();
+      nodes.push({ type: 'paragraph', content: [{ type: 'text', text: line }] });
+    }
+    flushBullets();
+    // Ensure at least one empty paragraph for cursor room
+    if (nodes.length === 0) nodes.push({ type: 'paragraph' });
+    return nodes;
+  };
+
+  const replaceSectionContent = (headingText: string, nodes: any[]) => {
+    if (!editor) return;
+    const range = findSectionRange(headingText);
+    if (!range) return;
+    editor.chain().focus().insertContentAt(range, nodes).run();
+    onChange(editor.getJSON());
+  };
+
   const generateBlueprint = async () => {
     if (!editor) return;
     setGenerating(true);
     try {
-      const systemPrompt = `You are a college planning assistant. Generate a comprehensive blueprint for a high school student's path to college applications.
-
-Content rules (critical):
-- Write in plain text paragraphs and simple dash bullet lines. Do NOT use inline markdown for styling (no **bold**, *italic*, backticks, or code blocks).
-- If you include headings, use only one level with '## ' for section titles (avoid '###').
-- Do not output raw markdown symbols like '###', '**', or '__'.
-- Keep writing specific, practical, and concise.
-
-Include sections for:
-1. Academic Planning (GPA, course selection, test prep)
-2. Extracurricular Activities (leadership, community service, clubs)
-3. Standardized Testing (SAT/ACT timeline and prep)
-4. College Research (target schools, reach schools, safety schools)
-5. Application Timeline (deadlines, essays, recommendations)
-6. Financial Planning (scholarships, FAFSA, costs)`;
-
+      const systemPrompt = `You write the student's main blueprint. Output only plain paragraphs and simple dash bullets, no markdown styling or code fences. Keep it concise and practical.`;
       const response = await createChatCompletion([
-        { role: "user", content: "Generate a comprehensive college planning blueprint for a high school student." }
+        { role: 'user', content: 'Generate a base college planning blueprint with sections like academic planning, activities, testing, research, timeline, and financial planning. Use short paragraphs and simple dash bullets.' }
       ], { system: systemPrompt });
-
-      // Convert the response to TipTap JSON format
-      const lines = response.split('\n');
-      const content = {
-        type: 'doc',
-        content: lines.map(line => {
-          if (line.startsWith('# ')) {
-            return {
-              type: 'heading',
-              attrs: { level: 1 },
-              content: [{ type: 'text', text: line.substring(2) }]
-            };
-          } else if (line.startsWith('## ')) {
-            return {
-              type: 'heading',
-              attrs: { level: 2 },
-              content: [{ type: 'text', text: line.substring(3) }]
-            };
-          } else if (line.startsWith('### ')) {
-            return {
-              type: 'heading',
-              attrs: { level: 3 },
-              content: [{ type: 'text', text: line.substring(4) }]
-            };
-          } else if (line.trim()) {
-            return {
-              type: 'paragraph',
-              content: [{ type: 'text', text: line }]
-            };
-          }
-          return null;
-        }).filter(Boolean)
-      };
-
-      editor.commands.setContent(content);
-      onChange(content);
+      const nodes = parsePlainToNodes(response);
+      replaceSectionContent('My Blueprint', nodes);
     } catch (error: any) {
-      toast({ title: "Generation failed", description: error.message, variant: "destructive" });
+      toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const generateCalendar = async () => {
+    if (!editor) return;
+    setGenerating(true);
+    try {
+      const systemPrompt = `You write a month-by-month application prep calendar. Output plain paragraphs and simple dash bullets only, no markdown styling.`;
+      const response = await createChatCompletion([
+        { role: 'user', content: 'Generate a base application planning calendar organized month-by-month with actionable tasks and milestones.' }
+      ], { system: systemPrompt });
+      const nodes = parsePlainToNodes(response);
+      replaceSectionContent('My Calendar', nodes);
+    } catch (error: any) {
+      toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });
     } finally {
       setGenerating(false);
     }
@@ -227,7 +262,7 @@ Include sections for:
         {isEmpty && calBtnPos && (
           <div className="absolute z-10" style={{ top: calBtnPos.top, left: calBtnPos.left }}>
             <Button
-              onClick={generateBlueprint}
+              onClick={generateCalendar}
               disabled={generating}
               className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
               style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
