@@ -163,26 +163,80 @@ Include sections for:
 
   if (!editor) return null;
 
+  // Button overlays below seeded headings when empty
+  const [bpBtnPos, setBpBtnPos] = useState<{ top: number; left: number } | null>(null);
+  const [calBtnPos, setCalBtnPos] = useState<{ top: number; left: number } | null>(null);
+
+  useEffect(() => {
+    if (!editor) return;
+    const updatePositions = () => {
+      const container = document.getElementById('editor-scroll');
+      if (!container) return;
+      const containerRect = container.getBoundingClientRect();
+      let blueprintPos: number | null = null;
+      let calendarPos: number | null = null;
+      editor.state.doc.descendants((node: any, pos: number) => {
+        if (node.type?.name === 'heading' && node.attrs?.level === 1) {
+          const txt = (node.textContent || '').trim();
+          if (txt === 'My Blueprint' && blueprintPos === null) blueprintPos = pos;
+          if (txt === 'My Calendar' && calendarPos === null) calendarPos = pos;
+        }
+        return true;
+      });
+      const getBelow = (pos: number | null) => {
+        if (pos == null) return null;
+        const el = editor.view.nodeDOM(pos) as HTMLElement | null;
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        return { top: rect.bottom - containerRect.top + 8, left: rect.left - containerRect.left };
+      };
+      setBpBtnPos(getBelow(blueprintPos));
+      setCalBtnPos(getBelow(calendarPos));
+    };
+    updatePositions();
+    const container = document.getElementById('editor-scroll');
+    const onScroll = () => updatePositions();
+    window.addEventListener('resize', updatePositions);
+    editor.on('update', updatePositions);
+    container?.addEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('resize', updatePositions);
+      editor.off('update', updatePositions as any);
+      container?.removeEventListener('scroll', onScroll);
+    };
+  }, [editor, isEmpty]);
+
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">
       <Toolbar editor={editor} saving={saving} />
       <div id="editor-scroll" className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem' }}>
-        {isEmpty && (
-          <div className="space-y-4">
-            <div className="left-3 right-3">
-              <Button 
-                onClick={generateBlueprint} 
-                disabled={generating}
-                className="text-xs h-7 px-3 pointer-events-auto w-full flex items-center justify-between"
-                style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
-              >
-                <span>{generating ? "Generating..." : "Generate a base blueprint to get started"}</span>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </div>
+        <EditorContent editor={editor} />
+        {isEmpty && bpBtnPos && (
+          <div className="absolute" style={{ top: bpBtnPos.top, left: bpBtnPos.left }}>
+            <Button
+              onClick={generateBlueprint}
+              disabled={generating}
+              className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
+              style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
+            >
+              <span>{generating ? 'Generating...' : 'Generate a base blueprint to get started'}</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         )}
-        <EditorContent editor={editor} />
+        {isEmpty && calBtnPos && (
+          <div className="absolute" style={{ top: calBtnPos.top, left: calBtnPos.left }}>
+            <Button
+              onClick={generateBlueprint}
+              disabled={generating}
+              className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
+              style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
+            >
+              <span>{generating ? 'Generating...' : 'Generate a base calendar to get started'}</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
         <TableDeleteButton editor={editor} container={typeof document !== 'undefined' ? document.getElementById('editor-scroll') : null} />
         {/* Review bar removed */}
       </div>
