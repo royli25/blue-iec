@@ -152,6 +152,19 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     onChange(editor.getJSON());
   };
 
+  // Determine whether a specific section has any non-whitespace content under it
+  const isSectionEmpty = (headingText: string): boolean => {
+    if (!editor) return true;
+    const range = findSectionRange(headingText);
+    if (!range) return true;
+    try {
+      const text = editor.state.doc.textBetween(range.from, range.to, ' ', ' ');
+      return text.trim().length === 0;
+    } catch {
+      return true;
+    }
+  };
+
   const generateBlueprint = async () => {
     if (!editor) return;
     setGeneratingBlueprint(true);
@@ -186,16 +199,9 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     }
   };
 
-  // Treat the editor as empty when it contains only whitespace OR just the seeded H1s
-  const isEmpty = useMemo(() => {
-    if (!editor) return true;
-    const text = editor.getText();
-    const normalize = (s: string) => s.replace(/\s+/g, ' ').trim();
-    const normalized = normalize(text);
-    if (normalized === '') return true;
-    const seedNormalized = normalize('My Blueprint My Calendar');
-    return normalized === seedNormalized;
-  }, [editor?.state]);
+  // Decide per-section whether to show generate overlays
+  const showBlueprintGenerate = useMemo(() => isSectionEmpty('My Blueprint'), [editor?.state]);
+  const showCalendarGenerate = useMemo(() => isSectionEmpty('My Calendar'), [editor?.state]);
 
   if (!editor) return null;
 
@@ -240,14 +246,14 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
       editor.off('update', updatePositions as any);
       container?.removeEventListener('scroll', onScroll);
     };
-  }, [editor, isEmpty]);
+  }, [editor, showBlueprintGenerate, showCalendarGenerate]);
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">
       <Toolbar editor={editor} saving={saving} />
-      <div id="editor-scroll" className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: isEmpty ? '6rem' : undefined }}>
+      <div id="editor-scroll" className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: (showBlueprintGenerate || showCalendarGenerate) ? '6rem' : undefined }}>
         <EditorContent editor={editor} />
-        {isEmpty && bpBtnPos && (
+        {showBlueprintGenerate && bpBtnPos && (
           <div className="absolute z-10" style={{ top: bpBtnPos.top, left: bpBtnPos.left }}>
             <Button
               onClick={generateBlueprint}
@@ -260,7 +266,7 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
             </Button>
           </div>
         )}
-        {isEmpty && calBtnPos && (
+        {showCalendarGenerate && calBtnPos && (
           <div className="absolute z-10" style={{ top: calBtnPos.top, left: calBtnPos.left }}>
             <Button
               onClick={generateCalendar}
