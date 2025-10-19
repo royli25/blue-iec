@@ -24,6 +24,17 @@ const PersonalBlueprint = () => {
   const [sidebarWidth, setSidebarWidth] = useState<number>(380);
   const isDraggingRef = useRef(false);
 
+  // Default document used when there is no existing row/content
+  const defaultDoc = useMemo(() => ({
+    type: 'doc',
+    content: [
+      { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'My Blueprint' }] },
+      { type: 'paragraph' },
+      { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'My Calendar' }] },
+      { type: 'paragraph' },
+    ],
+  }), []);
+
   useEffect(() => {
     if (!user) { navigate('/auth'); return; }
     (async () => {
@@ -33,13 +44,25 @@ const PersonalBlueprint = () => {
         .maybeSingle();
       if (error) {
         toast({ title: 'Load failed', description: error.message, variant: 'destructive' });
-      } else if (data && (data as any).content) {
-        setDoc((data as any).content);
-      } else {
-        setDoc(null);
+        return;
+      }
+      const existing = data && (data as any).content;
+      if (existing) {
+        setDoc(existing);
+        return;
+      }
+      // Seed defaults and persist so they never disappear
+      setDoc(defaultDoc);
+      try {
+        await (supabase as any)
+          .from('personal_blueprints')
+          .upsert({ user_id: user.id, content: defaultDoc }, { onConflict: 'user_id' });
+      } catch (e: any) {
+        // Non-fatal; autosave will persist on first change anyway
+        console.warn('Default doc upsert failed:', e?.message || e);
       }
     })();
-  }, [user]);
+  }, [user, navigate, toast, defaultDoc]);
 
   const handleDocChange = (value: any) => {
     setDoc(value);

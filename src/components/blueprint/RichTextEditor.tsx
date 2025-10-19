@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EditorContent, useEditor, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -82,16 +82,7 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     };
   }, [editor, value]);
 
-  // Ensure default content persists: when there is no value provided from parent
-  // (i.e., first-time doc), propagate the default content up so it gets saved.
-  const seededRef = useRef(false);
-  useEffect(() => {
-    if (!editor) return;
-    if (!value && !seededRef.current) {
-      seededRef.current = true;
-      onChange(editor.getJSON());
-    }
-  }, [editor, value]);
+  // Parent owns initialization/persistence of default content
 
   const generateBlueprint = async () => {
     if (!editor) return;
