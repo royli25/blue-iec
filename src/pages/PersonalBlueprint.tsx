@@ -35,6 +35,20 @@ const PersonalBlueprint = () => {
     ],
   }), []);
 
+  // Consider a stored doc "empty" if it has no headings and no non-whitespace text
+  const isDocEffectivelyEmpty = (json: any): boolean => {
+    if (!json || json.type !== 'doc' || !Array.isArray(json.content) || json.content.length === 0) return true;
+    let hasMeaningful = false;
+    const walk = (node: any) => {
+      if (!node || hasMeaningful) return;
+      if (node.type === 'heading') { hasMeaningful = true; return; }
+      if (node.type === 'text' && typeof node.text === 'string' && node.text.trim().length > 0) { hasMeaningful = true; return; }
+      if (Array.isArray(node.content)) node.content.forEach(walk);
+    };
+    json.content.forEach(walk);
+    return !hasMeaningful;
+  };
+
   useEffect(() => {
     if (!user) { navigate('/auth'); return; }
     (async () => {
@@ -47,11 +61,11 @@ const PersonalBlueprint = () => {
         return;
       }
       const existing = data && (data as any).content;
-      if (existing) {
+      if (existing && !isDocEffectivelyEmpty(existing)) {
         setDoc(existing);
         return;
       }
-      // Seed defaults and persist so they never disappear
+      // Seed defaults and persist so they never disappear (either no row or empty content)
       setDoc(defaultDoc);
       try {
         await (supabase as any)
