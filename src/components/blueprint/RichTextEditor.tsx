@@ -180,9 +180,6 @@ Include sections for:
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
-            <div className="text-foreground/60 text-sm">
-              Start planning your path to college...
-            </div>
           </div>
         )}
         <EditorContent editor={editor} />
