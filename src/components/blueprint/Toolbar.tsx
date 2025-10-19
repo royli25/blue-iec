@@ -104,6 +104,23 @@ export default function Toolbar({ editor, saving }: ToolbarProps) {
           isActive: editor.isActive('blockquote'),
           icon: Quote,
           title: 'Quote'
+        },
+        {
+          type: 'button' as const,
+          onClick: () => {
+            try {
+              const input = window.prompt("Enter table size (rows x cols), e.g., 3x4", "3x3");
+              if (!input) return;
+              const match = input.toLowerCase().replace(/\s+/g, '').match(/^(\d{1,2})x(\d{1,2})$/);
+              if (!match) return;
+              const rows = Math.max(1, Math.min(20, parseInt(match[1], 10)));
+              const cols = Math.max(1, Math.min(20, parseInt(match[2], 10)));
+              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+            } catch {}
+          },
+          isActive: editor.isActive('table'),
+          label: 'Tbl',
+          title: 'Insert Table'
         }
       ]
     },

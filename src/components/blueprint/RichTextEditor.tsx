@@ -2,12 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { EditorContent, useEditor, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
+// highlight removed
 import Code from "@tiptap/extension-code";
 import { Button } from "@/components/ui/button";
 import { createChatCompletion } from "@/integrations/openai/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
 import Toolbar from "./Toolbar";
+import { useEditorBridge } from "@/context/EditorBridge";
+import TableDeleteButton from "@/components/blueprint/TableDeleteButton";
+import { Table } from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+// highlight removed
 
 interface RichTextEditorProps {
   value: any;
@@ -19,19 +27,24 @@ interface RichTextEditorProps {
 export default function RichTextEditor({ value, onChange, saving, onMount }: RichTextEditorProps) {
   const { toast } = useToast();
   const [generating, setGenerating] = useState(false);
+  const { setEditor } = useEditorBridge();
   
   const extensions = useMemo(() => [
     StarterKit.configure({
       code: false, // We'll add it separately for better control
     }),
     Code,
+    Table.configure({ resizable: true }),
+    TableRow,
+    TableHeader,
+    TableCell,
     Placeholder.configure({ placeholder: "Start planning…" }),
   ], []);
 
   const editor = useEditor({
     extensions,
     content: value ?? undefined,
-    editorProps: { attributes: { class: "prose prose-neutral max-w-none focus:outline-none" } },
+    editorProps: { attributes: { class: "prose prose-neutral max-w-none focus:outline-none tiptap-compact" } },
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON());
     },
@@ -39,27 +52,36 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
 
   useEffect(() => {
     if (!editor) return;
+    setEditor(editor);
     if (onMount) onMount(editor);
     // If external value changes (e.g., after fetch), set content once
     if (value && JSON.stringify(editor.getJSON()) !== JSON.stringify(value)) {
       editor.commands.setContent(value);
     }
+    return () => {
+      setEditor(null);
+    };
   }, [editor, value]);
 
   const generateBlueprint = async () => {
     if (!editor) return;
     setGenerating(true);
     try {
-      const systemPrompt = `You are a college planning assistant. Generate a comprehensive blueprint for a high school student's path to college applications. Include sections for:
+      const systemPrompt = `You are a college planning assistant. Generate a comprehensive blueprint for a high school student's path to college applications.
 
+Content rules (critical):
+- Write in plain text paragraphs and simple dash bullet lines. Do NOT use inline markdown for styling (no **bold**, *italic*, backticks, or code blocks).
+- If you include headings, use only one level with '## ' for section titles (avoid '###').
+- Do not output raw markdown symbols like '###', '**', or '__'.
+- Keep writing specific, practical, and concise.
+
+Include sections for:
 1. Academic Planning (GPA, course selection, test prep)
 2. Extracurricular Activities (leadership, community service, clubs)
 3. Standardized Testing (SAT/ACT timeline and prep)
 4. College Research (target schools, reach schools, safety schools)
 5. Application Timeline (deadlines, essays, recommendations)
-6. Financial Planning (scholarships, FAFSA, costs)
-
-Format as a structured document with clear headings and actionable steps. Be specific and practical.`;
+6. Financial Planning (scholarships, FAFSA, costs)`;
 
       const response = await createChatCompletion([
         { role: "user", content: "Generate a comprehensive college planning blueprint for a high school student." }
@@ -81,6 +103,12 @@ Format as a structured document with clear headings and actionable steps. Be spe
               type: 'heading',
               attrs: { level: 2 },
               content: [{ type: 'text', text: line.substring(3) }]
+            };
+          } else if (line.startsWith('### ')) {
+            return {
+              type: 'heading',
+              attrs: { level: 3 },
+              content: [{ type: 'text', text: line.substring(4) }]
             };
           } else if (line.trim()) {
             return {
@@ -109,7 +137,7 @@ Format as a structured document with clear headings and actionable steps. Be spe
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">
       <Toolbar editor={editor} saving={saving} />
-      <div className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem' }}>
+      <div id="editor-scroll" className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem' }}>
         {isEmpty && (
           <div className="space-y-4">
             <div className="left-3 right-3">
@@ -129,6 +157,8 @@ Format as a structured document with clear headings and actionable steps. Be spe
           </div>
         )}
         <EditorContent editor={editor} />
+        <TableDeleteButton editor={editor} container={typeof document !== 'undefined' ? document.getElementById('editor-scroll') : null} />
+        {/* Review bar removed */}
       </div>
     </div>
   );
