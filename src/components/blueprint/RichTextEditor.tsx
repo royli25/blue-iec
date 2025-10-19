@@ -164,8 +164,8 @@ Include sections for:
   if (!editor) return null;
 
   // Button overlays below seeded headings when empty
-  const [bpBtnPos, setBpBtnPos] = useState<{ top: number; left: number } | null>(null);
-  const [calBtnPos, setCalBtnPos] = useState<{ top: number; left: number } | null>(null);
+  const [bpBtnPos, setBpBtnPos] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [calBtnPos, setCalBtnPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
   useEffect(() => {
     if (!editor) return;
@@ -188,7 +188,14 @@ Include sections for:
         const el = editor.view.nodeDOM(pos) as HTMLElement | null;
         if (!el) return null;
         const rect = el.getBoundingClientRect();
-        return { top: rect.bottom - containerRect.top + 8, left: rect.left - containerRect.left };
+        // Compute width so right edge aligns with toolbar's right boundary
+        const cs = getComputedStyle(container);
+        const qsWidth = parseFloat(cs.getPropertyValue('--qs-width') || '0');
+        const rightGutter = 8; // matches toolbar right offset
+        const left = rect.left - containerRect.left;
+        const availableRight = container.clientWidth - (qsWidth + rightGutter);
+        const width = Math.max(0, availableRight - left);
+        return { top: rect.bottom - containerRect.top + 8, left, width };
       };
       setBpBtnPos(getBelow(blueprintPos));
       setCalBtnPos(getBelow(calendarPos));
@@ -212,11 +219,11 @@ Include sections for:
       <div id="editor-scroll" className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem' }}>
         <EditorContent editor={editor} />
         {isEmpty && bpBtnPos && (
-          <div className="absolute" style={{ top: bpBtnPos.top, left: bpBtnPos.left }}>
+          <div className="absolute" style={{ top: bpBtnPos.top, left: bpBtnPos.left, width: bpBtnPos.width }}>
             <Button
               onClick={generateBlueprint}
               disabled={generating}
-              className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
+              className="text-xs h-7 px-3 w-full pointer-events-auto flex items-center justify-between"
               style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
             >
               <span>{generating ? 'Generating...' : 'Generate a base blueprint to get started'}</span>
@@ -225,11 +232,11 @@ Include sections for:
           </div>
         )}
         {isEmpty && calBtnPos && (
-          <div className="absolute" style={{ top: calBtnPos.top, left: calBtnPos.left }}>
+          <div className="absolute" style={{ top: calBtnPos.top, left: calBtnPos.left, width: calBtnPos.width }}>
             <Button
               onClick={generateBlueprint}
               disabled={generating}
-              className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
+              className="text-xs h-7 px-3 w-full pointer-events-auto flex items-center justify-between"
               style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
             >
               <span>{generating ? 'Generating...' : 'Generate a base calendar to get started'}</span>
