@@ -150,8 +150,16 @@ Include sections for:
     }
   };
 
-  // Treat the editor as empty when it contains only whitespace
-  const isEmpty = editor ? editor.getText().trim() === '' : true;
+  // Treat the editor as empty when it contains only whitespace OR just the seeded H1s
+  const isEmpty = useMemo(() => {
+    if (!editor) return true;
+    const text = editor.getText();
+    const normalize = (s: string) => s.replace(/\s+/g, ' ').trim();
+    const normalized = normalize(text);
+    if (normalized === '') return true;
+    const seedNormalized = normalize('My Blueprint My Calendar');
+    return normalized === seedNormalized;
+  }, [editor?.state]);
 
   if (!editor) return null;
 
