@@ -29,6 +29,25 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
   const [generating, setGenerating] = useState(false);
   const { setEditor } = useEditorBridge();
   
+  // Default skeleton when there is no existing content
+  const defaultContent = useMemo(() => ({
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 1 },
+        content: [{ type: 'text', text: 'My Blueprint' }],
+      },
+      { type: 'paragraph' },
+      {
+        type: 'heading',
+        attrs: { level: 1 },
+        content: [{ type: 'text', text: 'My Calendar' }],
+      },
+      { type: 'paragraph' },
+    ],
+  }), []);
+
   const extensions = useMemo(() => [
     StarterKit.configure({
       code: false, // We'll add it separately for better control
@@ -43,7 +62,7 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
 
   const editor = useEditor({
     extensions,
-    content: value ?? undefined,
+    content: value ?? defaultContent,
     editorProps: { attributes: { class: "prose prose-neutral max-w-none focus:outline-none tiptap-compact" } },
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON());
