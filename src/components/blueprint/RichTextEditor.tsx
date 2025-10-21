@@ -125,7 +125,19 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
       });
       bulletItems = [];
     };
-    for (const raw of lines) {
+    const isLikelySubheading = (line: string, next: string | undefined) => {
+      const trimmed = line.trim();
+      if (trimmed.length === 0) return false;
+      if (/^[-*]/.test(trimmed)) return false; // bullets
+      if (/^\d+\./.test(trimmed)) return false; // numbered list
+      if (/[:：]\s*$/.test(trimmed)) return true; // ends with colon
+      // If next line starts with a bullet, treat as subheading
+      if (next && next.trim().startsWith('- ')) return true;
+      return false;
+    };
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i];
+      const next = i + 1 < lines.length ? lines[i + 1] : undefined;
       const line = raw.trimEnd();
       if (line.startsWith('- ')) {
         bulletItems.push(line.slice(2));
@@ -135,11 +147,17 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
         flushBullets();
         continue;
       }
+      // Subheadings (no markdown): "Title" or "Title:" above bullets/paragraphs
+      if (isLikelySubheading(line, next)) {
+        flushBullets();
+        const textOnly = line.replace(/[:：]\s*$/, '');
+        nodes.push({ type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: textOnly }] });
+        continue;
+      }
       flushBullets();
       nodes.push({ type: 'paragraph', content: [{ type: 'text', text: line }] });
     }
     flushBullets();
-    // Ensure at least one empty paragraph for cursor room
     if (nodes.length === 0) nodes.push({ type: 'paragraph' });
     return nodes;
   };
@@ -165,11 +183,79 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     }
   };
 
+  // Convert month subheadings + bullets text into a TipTap table node
+  const parseCalendarToTable = (text: string): any[] => {
+    // Parse months like "September" or "September:" followed by dash bullets
+    const lines = text.split('\n');
+    type Row = { month: string; tasks: string[] };
+    const rows: Row[] = [];
+    const monthRegex = /^(January|February|March|April|May|June|July|August|September|October|November|December)\s*:?[\s]*$/i;
+    let current: Row | null = null;
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(monthRegex);
+      if (m) {
+        if (current) rows.push(current);
+        current = { month: m[1].replace(/\s*:/, ''), tasks: [] };
+        continue;
+      }
+      if (line.startsWith('- ')) {
+        if (!current) {
+          // If bullets appear before a month, bucket them under "General"
+          current = { month: 'General', tasks: [] };
+        }
+        current.tasks.push(line.slice(2));
+        continue;
+      }
+      // Non-bullet line under a month => treat as a task paragraph
+      if (current) {
+        current.tasks.push(line);
+      }
+    }
+    if (current) rows.push(current);
+
+    // If parsing failed (no months), return empty to allow fallback
+    if (rows.length === 0) return [];
+
+    const headerRow = {
+      type: 'tableRow',
+      content: [
+        { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Month' }] }] },
+        { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Tasks' }] }] },
+      ],
+    };
+
+    const toBulletList = (tasks: string[]) => ({
+      type: 'bulletList',
+      content: tasks.map(t => ({ type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: t }] }] })),
+    });
+
+    const bodyRows = rows.map(r => ({
+      type: 'tableRow',
+      content: [
+        { type: 'tableCell', content: [{ type: 'paragraph', content: [{ type: 'text', text: r.month }]}] },
+        { type: 'tableCell', content: r.tasks.length ? [toBulletList(r.tasks)] : [{ type: 'paragraph' }] },
+      ],
+    }));
+
+    const table = {
+      type: 'table',
+      content: [headerRow, ...bodyRows],
+    };
+    return [table];
+  };
+
   const generateBlueprint = async () => {
     if (!editor) return;
     setGeneratingBlueprint(true);
     try {
-      const systemPrompt = `You write the student's main blueprint. Output only plain paragraphs and simple dash bullets, no markdown styling or code fences. Keep it concise and practical.`;
+      const systemPrompt = `You write the student's main blueprint.
+Output format:
+- Use short subheadings as plain lines (no markdown) before related bullets, e.g., Academic Planning: or Academic Planning
+- Use simple dash bullets under each subheading
+- No markdown styling, no code fences
+- Keep it concise and practical.`;
       const response = await createChatCompletion([
         { role: 'user', content: 'Generate a base college planning blueprint with sections like academic planning, activities, testing, research, timeline, and financial planning. Use short paragraphs and simple dash bullets.' }
       ], { system: systemPrompt });
@@ -186,11 +272,16 @@ export default function RichTextEditor({ value, onChange, saving, onMount }: Ric
     if (!editor) return;
     setGeneratingCalendar(true);
     try {
-      const systemPrompt = `You write a month-by-month application prep calendar. Output plain paragraphs and simple dash bullets only, no markdown styling.`;
+      const systemPrompt = `You write a month-by-month application prep calendar.
+Output format:
+- Use month subheadings as plain lines (e.g., September:, October:)
+- Under each month, use simple dash bullets
+- No markdown styling or code fences.`;
       const response = await createChatCompletion([
         { role: 'user', content: 'Generate a base application planning calendar organized month-by-month with actionable tasks and milestones.' }
       ], { system: systemPrompt });
-      const nodes = parsePlainToNodes(response);
+      const tableNodes = parseCalendarToTable(response);
+      const nodes = tableNodes.length ? tableNodes : parsePlainToNodes(response);
       replaceSectionContent('My Calendar', nodes);
     } catch (error: any) {
       toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });

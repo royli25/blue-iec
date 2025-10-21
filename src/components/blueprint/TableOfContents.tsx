@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Editor } from "@tiptap/react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 type Heading = { id: string; level: number; text: string };
 
@@ -9,6 +10,7 @@ interface TableOfContentsProps {
 
 export default function TableOfContents({ editor }: TableOfContentsProps) {
   const [headings, setHeadings] = useState<Heading[]>([]);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!editor) return;
@@ -31,6 +33,18 @@ export default function TableOfContents({ editor }: TableOfContentsProps) {
     editor.on('update', update);
     return () => { editor.off('update', update); };
   }, [editor]);
+
+  const toggleCollapse = (headingId: string) => {
+    setCollapsed(prev => {
+      const next = new Set(prev);
+      if (next.has(headingId)) {
+        next.delete(headingId);
+      } else {
+        next.add(headingId);
+      }
+      return next;
+    });
+  };
 
   const handleClick = (h: Heading) => {
     if (!editor) return;
@@ -81,6 +95,24 @@ export default function TableOfContents({ editor }: TableOfContentsProps) {
     }
   };
 
+  // Group headings by H1 sections
+  const sections = useMemo(() => {
+    const result: Array<{ h1: Heading; children: Heading[] }> = [];
+    let currentSection: { h1: Heading; children: Heading[] } | null = null;
+    
+    for (const h of headings) {
+      if (h.level === 1) {
+        if (currentSection) result.push(currentSection);
+        currentSection = { h1: h, children: [] };
+      } else if (currentSection) {
+        currentSection.children.push(h);
+      }
+    }
+    if (currentSection) result.push(currentSection);
+    
+    return result;
+  }, [headings]);
+
   return (
     <div className="h-full overflow-auto">
       <div className="flex items-center px-2 py-1 border-b border-border text-sm font-medium h-8">Contents</div>
@@ -88,17 +120,50 @@ export default function TableOfContents({ editor }: TableOfContentsProps) {
         {headings.length === 0 && (
           <li className="text-foreground/60 text-xs px-1">No headings yet</li>
         )}
-        {headings.map(h => (
-          <li key={h.id}>
-            <button
-              className="w-full text-left hover:bg-muted/40 rounded px-2 py-1"
-              style={{ paddingLeft: h.level === 1 ? 8 : h.level === 2 ? 16 : 24 }}
-              onClick={() => handleClick(h)}
-            >
-              {h.text || (h.level === 1 ? 'Untitled' : 'Heading')}
-            </button>
-          </li>
-        ))}
+        {sections.map(section => {
+          const isCollapsed = collapsed.has(section.h1.id);
+          return (
+            <li key={section.h1.id}>
+              <div className="flex items-center">
+                <button
+                  className="p-1 hover:bg-muted/40 rounded mr-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleCollapse(section.h1.id);
+                  }}
+                  aria-label={isCollapsed ? "Expand section" : "Collapse section"}
+                >
+                  {isCollapsed ? (
+                    <ChevronRight className="h-3 w-3" />
+                  ) : (
+                    <ChevronDown className="h-3 w-3" />
+                  )}
+                </button>
+                <button
+                  className="flex-1 text-left hover:bg-muted/40 rounded px-2 py-1"
+                  onClick={() => handleClick(section.h1)}
+                >
+                  {section.h1.text || 'Untitled'}
+                </button>
+              </div>
+              {!isCollapsed && section.children.length > 0 && (
+                <ul className="ml-6 mt-1 space-y-1">
+                  {section.children.map(child => (
+                    <li key={child.id}>
+                      <button
+                        className="w-full text-left hover:bg-muted/40 rounded px-2 py-1"
+                        style={{ paddingLeft: child.level === 2 ? 8 : 16 }}
+                        onClick={() => handleClick(child)}
+                      >
+                        {child.text || 'Heading'}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
