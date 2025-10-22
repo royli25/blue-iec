@@ -3,12 +3,23 @@ export type ChatMessage = {
   content: string;
 };
 
-export async function createChatCompletion(messages: ChatMessage[]): Promise<string> {
+type ChatOptions = {
+  model?: string;
+  signal?: AbortSignal;
+  system?: string;
+  temperature?: number;
+};
+
+export async function createChatCompletion(messages: ChatMessage[], options: ChatOptions = {}): Promise<string> {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
 
   if (!apiKey) {
     throw new Error("Missing VITE_OPENAI_API_KEY. Add it to your .env file.");
   }
+
+  const { model = "gpt-4o-mini", signal, system, temperature } = options;
+
+  const finalMessages = system ? ([{ role: "system", content: system } as ChatMessage, ...messages]) : messages;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -17,9 +28,11 @@ export async function createChatCompletion(messages: ChatMessage[]): Promise<str
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages,
+      model,
+      messages: finalMessages,
+      temperature: typeof temperature === 'number' ? temperature : 0.7,
     }),
+    signal,
   });
 
   if (!response.ok) {

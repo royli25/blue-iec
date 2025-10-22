@@ -1,0 +1,380 @@
+import { useEffect, useMemo, useState } from "react";
+import { EditorContent, useEditor, Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
+// highlight removed
+import Code from "@tiptap/extension-code";
+import { Button } from "@/components/ui/button";
+import { createChatCompletion } from "@/integrations/openai/client";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowRight } from "lucide-react";
+import Toolbar from "./Toolbar";
+import { useEditorBridge } from "@/context/EditorBridge";
+import TableDeleteButton from "@/components/blueprint/TableDeleteButton";
+import { Table } from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+// highlight removed
+
+interface RichTextEditorProps {
+  value: any;
+  onChange: (value: any) => void;
+  saving?: boolean;
+  onMount?: (editor: Editor) => void;
+}
+
+export default function RichTextEditor({ value, onChange, saving, onMount }: RichTextEditorProps) {
+  const { toast } = useToast();
+  const [generatingBlueprint, setGeneratingBlueprint] = useState(false);
+  const [generatingCalendar, setGeneratingCalendar] = useState(false);
+  const { setEditor } = useEditorBridge();
+  
+  // Default skeleton when there is no existing content
+  const defaultContent = useMemo(() => ({
+    type: 'doc',
+    content: [
+      {
+        type: 'heading',
+        attrs: { level: 1 },
+        content: [{ type: 'text', text: 'My Blueprint' }],
+      },
+      { type: 'paragraph' },
+      {
+        type: 'heading',
+        attrs: { level: 1 },
+        content: [{ type: 'text', text: 'My Calendar' }],
+      },
+      { type: 'paragraph' },
+    ],
+  }), []);
+
+  const extensions = useMemo(() => [
+    StarterKit.configure({
+      code: false, // We'll add it separately for better control
+    }),
+    Code,
+    Table.configure({ resizable: true }),
+    TableRow,
+    TableHeader,
+    TableCell,
+    Placeholder.configure({ placeholder: "Start planning…" }),
+  ], []);
+
+  const editor = useEditor({
+    extensions,
+    content: value ?? defaultContent,
+    editorProps: { attributes: { class: "prose prose-neutral max-w-none focus:outline-none tiptap-compact" } },
+    onUpdate: ({ editor }) => {
+      onChange(editor.getJSON());
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    setEditor(editor);
+    if (onMount) onMount(editor);
+    // If external value changes (e.g., after fetch), set content once
+    if (value && JSON.stringify(editor.getJSON()) !== JSON.stringify(value)) {
+      editor.commands.setContent(value);
+    }
+    return () => {
+      setEditor(null);
+    };
+  }, [editor, value]);
+
+  // Parent owns initialization/persistence of default content
+
+  // Helpers: replace content under a given H1 without touching the heading itself
+  const findSectionRange = (headingText: string): { from: number; to: number } | null => {
+    if (!editor) return null;
+    const { doc } = editor.state;
+    let headingPos: number | null = null;
+    let nextH1Pos: number | null = null;
+    doc.descendants((node: any, pos: number) => {
+      if (node.type?.name === 'heading' && node.attrs?.level === 1) {
+        const txt = (node.textContent || '').trim();
+        if (headingPos === null && txt === headingText) {
+          headingPos = pos;
+          return true;
+        }
+        if (headingPos !== null && nextH1Pos === null) {
+          nextH1Pos = pos;
+          return false; // we found the next section start
+        }
+      }
+      return true;
+    });
+    if (headingPos === null) return null;
+    const nodeAtHeading = doc.nodeAt(headingPos);
+    if (!nodeAtHeading) return null;
+    const from = headingPos + nodeAtHeading.nodeSize; // start right after the heading node
+    const to = nextH1Pos !== null ? nextH1Pos : doc.content.size - 1; // up to before doc end
+    return { from, to };
+  };
+
+  const parsePlainToNodes = (text: string): any[] => {
+    const lines = text.split('\n');
+    const nodes: any[] = [];
+    let bulletItems: string[] = [];
+    const flushBullets = () => {
+      if (bulletItems.length === 0) return;
+      nodes.push({
+        type: 'bulletList',
+        content: bulletItems.map((t) => ({ type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: t }] }] }))
+      });
+      bulletItems = [];
+    };
+    const isLikelySubheading = (line: string, next: string | undefined) => {
+      const trimmed = line.trim();
+      if (trimmed.length === 0) return false;
+      if (/^[-*]/.test(trimmed)) return false; // bullets
+      if (/^\d+\./.test(trimmed)) return false; // numbered list
+      if (/[:：]\s*$/.test(trimmed)) return true; // ends with colon
+      // If next line starts with a bullet, treat as subheading
+      if (next && next.trim().startsWith('- ')) return true;
+      return false;
+    };
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i];
+      const next = i + 1 < lines.length ? lines[i + 1] : undefined;
+      const line = raw.trimEnd();
+      if (line.startsWith('- ')) {
+        bulletItems.push(line.slice(2));
+        continue;
+      }
+      if (line.trim() === '') {
+        flushBullets();
+        continue;
+      }
+      // Subheadings (no markdown): "Title" or "Title:" above bullets/paragraphs
+      if (isLikelySubheading(line, next)) {
+        flushBullets();
+        const textOnly = line.replace(/[:：]\s*$/, '');
+        nodes.push({ type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: textOnly }] });
+        continue;
+      }
+      flushBullets();
+      nodes.push({ type: 'paragraph', content: [{ type: 'text', text: line }] });
+    }
+    flushBullets();
+    if (nodes.length === 0) nodes.push({ type: 'paragraph' });
+    return nodes;
+  };
+
+  const replaceSectionContent = (headingText: string, nodes: any[]) => {
+    if (!editor) return;
+    const range = findSectionRange(headingText);
+    if (!range) return;
+    editor.chain().focus().insertContentAt(range, nodes).run();
+    onChange(editor.getJSON());
+  };
+
+  // Determine whether a specific section has any non-whitespace content under it
+  const isSectionEmpty = (headingText: string): boolean => {
+    if (!editor) return true;
+    const range = findSectionRange(headingText);
+    if (!range) return true;
+    try {
+      const text = editor.state.doc.textBetween(range.from, range.to, ' ', ' ');
+      return text.trim().length === 0;
+    } catch {
+      return true;
+    }
+  };
+
+  // Convert month subheadings + bullets text into a TipTap table node
+  const parseCalendarToTable = (text: string): any[] => {
+    // Parse months like "September" or "September:" followed by dash bullets
+    const lines = text.split('\n');
+    type Row = { month: string; tasks: string[] };
+    const rows: Row[] = [];
+    const monthRegex = /^(January|February|March|April|May|June|July|August|September|October|November|December)\s*:?[\s]*$/i;
+    let current: Row | null = null;
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(monthRegex);
+      if (m) {
+        if (current) rows.push(current);
+        current = { month: m[1].replace(/\s*:/, ''), tasks: [] };
+        continue;
+      }
+      if (line.startsWith('- ')) {
+        if (!current) {
+          // If bullets appear before a month, bucket them under "General"
+          current = { month: 'General', tasks: [] };
+        }
+        current.tasks.push(line.slice(2));
+        continue;
+      }
+      // Non-bullet line under a month => treat as a task paragraph
+      if (current) {
+        current.tasks.push(line);
+      }
+    }
+    if (current) rows.push(current);
+
+    // If parsing failed (no months), return empty to allow fallback
+    if (rows.length === 0) return [];
+
+    const headerRow = {
+      type: 'tableRow',
+      content: [
+        { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Month' }] }] },
+        { type: 'tableHeader', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Tasks' }] }] },
+      ],
+    };
+
+    const toBulletList = (tasks: string[]) => ({
+      type: 'bulletList',
+      content: tasks.map(t => ({ type: 'listItem', content: [{ type: 'paragraph', content: [{ type: 'text', text: t }] }] })),
+    });
+
+    const bodyRows = rows.map(r => ({
+      type: 'tableRow',
+      content: [
+        { type: 'tableCell', content: [{ type: 'paragraph', content: [{ type: 'text', text: r.month }]}] },
+        { type: 'tableCell', content: r.tasks.length ? [toBulletList(r.tasks)] : [{ type: 'paragraph' }] },
+      ],
+    }));
+
+    const table = {
+      type: 'table',
+      content: [headerRow, ...bodyRows],
+    };
+    return [table];
+  };
+
+  const generateBlueprint = async () => {
+    if (!editor) return;
+    setGeneratingBlueprint(true);
+    try {
+      const systemPrompt = `You write the student's main blueprint.
+Output format:
+- Use short subheadings as plain lines (no markdown) before related bullets, e.g., Academic Planning: or Academic Planning
+- Use simple dash bullets under each subheading
+- No markdown styling, no code fences
+- Keep it concise and practical.`;
+      const response = await createChatCompletion([
+        { role: 'user', content: 'Generate a base college planning blueprint with sections like academic planning, activities, testing, research, timeline, and financial planning. Use short paragraphs and simple dash bullets.' }
+      ], { system: systemPrompt });
+      const nodes = parsePlainToNodes(response);
+      replaceSectionContent('My Blueprint', nodes);
+    } catch (error: any) {
+      toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setGeneratingBlueprint(false);
+    }
+  };
+
+  const generateCalendar = async () => {
+    if (!editor) return;
+    setGeneratingCalendar(true);
+    try {
+      const systemPrompt = `You write a month-by-month application prep calendar.
+Output format:
+- Use month subheadings as plain lines (e.g., September:, October:)
+- Under each month, use simple dash bullets
+- No markdown styling or code fences.`;
+      const response = await createChatCompletion([
+        { role: 'user', content: 'Generate a base application planning calendar organized month-by-month with actionable tasks and milestones.' }
+      ], { system: systemPrompt });
+      const tableNodes = parseCalendarToTable(response);
+      const nodes = tableNodes.length ? tableNodes : parsePlainToNodes(response);
+      replaceSectionContent('My Calendar', nodes);
+    } catch (error: any) {
+      toast({ title: 'Generation failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setGeneratingCalendar(false);
+    }
+  };
+
+  // Decide per-section whether to show generate overlays
+  const showBlueprintGenerate = useMemo(() => isSectionEmpty('My Blueprint'), [editor?.state]);
+  const showCalendarGenerate = useMemo(() => isSectionEmpty('My Calendar'), [editor?.state]);
+
+  if (!editor) return null;
+
+  // Button overlays below seeded headings when empty
+  const [bpBtnPos, setBpBtnPos] = useState<{ top: number; left: number } | null>(null);
+  const [calBtnPos, setCalBtnPos] = useState<{ top: number; left: number } | null>(null);
+
+  useEffect(() => {
+    if (!editor) return;
+    const updatePositions = () => {
+      const container = document.getElementById('editor-scroll');
+      if (!container) return;
+      const containerRect = container.getBoundingClientRect();
+      let blueprintPos: number | null = null;
+      let calendarPos: number | null = null;
+      editor.state.doc.descendants((node: any, pos: number) => {
+        if (node.type?.name === 'heading' && node.attrs?.level === 1) {
+          const txt = (node.textContent || '').trim();
+          if (txt === 'My Blueprint' && blueprintPos === null) blueprintPos = pos;
+          if (txt === 'My Calendar' && calendarPos === null) calendarPos = pos;
+        }
+        return true;
+      });
+      const getBelow = (pos: number | null) => {
+        if (pos == null) return null;
+        const el = editor.view.nodeDOM(pos) as HTMLElement | null;
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        return { top: rect.bottom - containerRect.top + 8, left: rect.left - containerRect.left };
+      };
+      setBpBtnPos(getBelow(blueprintPos));
+      setCalBtnPos(getBelow(calendarPos));
+    };
+    updatePositions();
+    const container = document.getElementById('editor-scroll');
+    const onScroll = () => updatePositions();
+    window.addEventListener('resize', updatePositions);
+    editor.on('update', updatePositions);
+    container?.addEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('resize', updatePositions);
+      editor.off('update', updatePositions as any);
+      container?.removeEventListener('scroll', onScroll);
+    };
+  }, [editor, showBlueprintGenerate, showCalendarGenerate]);
+
+  return (
+    <div className="w-full h-full flex flex-col overflow-y-auto">
+      <Toolbar editor={editor} saving={saving} />
+      <div id="editor-scroll" className="flex-1 overflow-auto relative" style={{ paddingTop: 'calc(var(--editor-toolbar-height) + 0.5rem)', paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: (showBlueprintGenerate || showCalendarGenerate) ? '6rem' : undefined }}>
+        <EditorContent editor={editor} />
+        {showBlueprintGenerate && bpBtnPos && (
+          <div className="absolute z-10" style={{ top: bpBtnPos.top, left: bpBtnPos.left }}>
+            <Button
+              onClick={generateBlueprint}
+              disabled={generatingBlueprint}
+              className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
+              style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
+            >
+              <span>{generatingBlueprint ? 'Generating...' : 'Generate a base blueprint to get started'}</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        {showCalendarGenerate && calBtnPos && (
+          <div className="absolute z-10" style={{ top: calBtnPos.top, left: calBtnPos.left }}>
+            <Button
+              onClick={generateCalendar}
+              disabled={generatingCalendar}
+              className="text-xs h-7 px-3 pointer-events-auto flex items-center justify-between"
+              style={{ backgroundColor: '#EFDBCB', borderColor: '#EFDBCB', borderWidth: '1px', borderStyle: 'solid', color: '#000000' }}
+            >
+              <span>{generatingCalendar ? 'Generating...' : 'Generate a base calendar to get started'}</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        <TableDeleteButton editor={editor} container={typeof document !== 'undefined' ? document.getElementById('editor-scroll') : null} />
+        {/* Review bar removed */}
+      </div>
+    </div>
+  );
+}
+
+

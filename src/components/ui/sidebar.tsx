@@ -171,7 +171,7 @@ const Sidebar = React.forwardRef<
   }
 
   return (
-    <div
+      <div
       ref={ref}
       className="group peer hidden text-sidebar-foreground md:block"
       data-state={state}

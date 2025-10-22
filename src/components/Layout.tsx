@@ -11,13 +11,9 @@ export function Layout({ children, showGrid = true }: LayoutProps) {
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
-      <div className="relative min-h-screen w-screen overflow-x-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
-        {showGrid && <div className="absolute inset-0 grid-bg opacity-70" />}
-        
+      <div className={"relative min-h-screen w-screen overflow-x-hidden overflow-y-visible bg-[hsl(45_52%_97%)] " + (showGrid ? "grid-bg" : "") }>
         {/* Content */}
-        <div className="relative">
+        <div className="relative min-h-screen">
           {children}
         </div>
       </div>
