@@ -119,9 +119,9 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
   ];
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-gray-200 bg-white">
+    <Sidebar collapsible="icon" className="bg-white">
       {/* Header with Logo */}
-      <SidebarHeader className="h-14 flex flex-row items-center justify-between px-4 border-b border-gray-200">
+      <SidebarHeader className="h-14 flex flex-row items-center justify-between px-4">
         <div className="flex items-center gap-2 group-data-[state=collapsed]:hidden">
           <img src="/long_logo.svg" alt="Blueprint" className="h-4 w-auto" />
         </div>

@@ -202,7 +202,7 @@ const Index = () => {
         currentChatId={currentChatSession?.id}
         refreshTrigger={sidebarRefreshTrigger}
       />
-      <div className="relative h-screen w-full flex flex-col overflow-hidden bg-gray-50">
+      <div className="relative h-screen w-full flex flex-col overflow-hidden bg-white">
       {/* Show header when in chat mode */}
       {messages.length > 0 && <PageHeader />}
       

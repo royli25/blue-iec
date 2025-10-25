@@ -48,7 +48,7 @@ export function PageHeader() {
   const config = getPageConfig(location.pathname, t);
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-white/80 backdrop-blur-sm px-6">
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-white px-6">
       <SidebarTrigger className="h-5 w-5 text-gray-600 hover:text-gray-900" />
       <div className="flex flex-col">
         <h1 className="text-base font-semibold text-gray-900">{config.title}</h1>
