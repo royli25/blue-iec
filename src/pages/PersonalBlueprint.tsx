@@ -11,6 +11,8 @@ import { EditorBridgeProvider } from "@/context/EditorBridge";
 // Removed resizable split between ToC and editor
 
 const PersonalBlueprint = () => {
+  // Temporary feature lock
+  const BLUEPRINT_LOCKED = true;
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -23,6 +25,24 @@ const PersonalBlueprint = () => {
   const [tocLeft, setTocLeft] = useState<number>(0);
   const [sidebarWidth, setSidebarWidth] = useState<number>(380);
   const isDraggingRef = useRef(false);
+
+  // If locked, show a simple locked screen with consistent styling
+  if (BLUEPRINT_LOCKED) {
+    return (
+      <Layout>
+        <div className="min-h-[100dvh] w-full flex items-center justify-center">
+          <div className="w-full max-w-md px-6 text-center space-y-3">
+            <h1 className="text-xl font-semibold text-foreground">My Blueprint</h1>
+            <p className="text-[12px] text-foreground/70">This feature is currently locked.</p>
+            <div className="flex items-center justify-center gap-2">
+              <button onClick={() => navigate('/')} className="rounded-md border border-border bg-white px-4 py-1 text-[12px] text-foreground/70 shadow-sm hover:bg-white">Go Home</button>
+              <button onClick={() => navigate('/chat')} className="rounded-md border border-brand bg-brand px-4 py-1 text-[12px] text-brand-foreground shadow-sm hover:opacity-95">Ask a Question</button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   // Default document used when there is no existing row/content
   const defaultDoc = useMemo(() => ({

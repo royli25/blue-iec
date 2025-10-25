@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MessageSquarePlus, NotebookText, UsersRound, Info, Trash2, Clock } from "lucide-react";
+import { MessageSquarePlus, NotebookText, UsersRound, Info, Trash2, Clock, FileText, ShoppingBag, Unlock } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Sidebar,
@@ -85,9 +85,9 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
     },
     {
       icon: UsersRound,
-      labelKey: "sidebar.admittedProfiles",
-      tooltipKey: "sidebar.admittedProfiles",
-      path: "/admitted-profiles",
+      labelKey: "sidebar.admittedData",
+      tooltipKey: "sidebar.admittedData",
+      path: "/admitted-data",
     },
     {
       icon: NotebookText,
@@ -136,6 +136,35 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
           </SidebarMenu>
         </SidebarGroup>
 
+        {/* Unlocks Section */}
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => handleNavigation("/unlocks")}
+                tooltip={t('sidebar.unlocks')}
+                className="pr-3"
+                isActive={location.pathname === "/unlocks"}
+              >
+                <Unlock className="h-[18px] w-[18px]" />
+                <span>{t('sidebar.unlocks')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => handleNavigation("/purchased-content")}
+                tooltip={t('sidebar.purchasedContent')}
+                className="pr-3"
+                isActive={location.pathname === "/purchased-content"}
+              >
+                <ShoppingBag className="h-[18px] w-[18px]" />
+                <span>{t('sidebar.purchasedContent')}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
         {/* Recent Chats Section - Hidden when collapsed */}
         {location.pathname === "/" && user && recentChats.length > 0 && (
           <div className="group-data-[collapsible=icon]:hidden">
@@ -144,33 +173,43 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
               <div className="px-3 py-2 text-[11px] font-semibold text-sidebar-foreground/70">
                 {t('sidebar.recent')}
               </div>
-              <SidebarMenu>
-                {recentChats.map((chat) => {
-                  const isActive = currentChatId === chat.id;
-                  
-                  return (
-                    <SidebarMenuItem key={chat.id}>
-                      <div className="group/chat-item relative flex items-center">
-                        <SidebarMenuButton
-                          onClick={() => onLoadChat?.(chat)}
-                          className="pr-8 flex-1"
-                          isActive={isActive}
-                          tooltip={chat.title}
-                        >
-                          <span className="truncate">{chat.title}</span>
-                        </SidebarMenuButton>
-                        <button
-                          onClick={(e) => handleDeleteChat(e, chat.id)}
-                          className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-sidebar-accent rounded-md"
-                          title={t('sidebar.deleteChat')}
-                        >
-                          <Trash2 className="h-3 w-3 text-destructive" />
-                        </button>
-                      </div>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
+              <div className="relative">
+                {/* Scrollable chat list with fixed height */}
+                <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-sidebar-accent scrollbar-track-transparent">
+                  <SidebarMenu>
+                    {recentChats.map((chat) => {
+                      const isActive = currentChatId === chat.id;
+                      
+                      return (
+                        <SidebarMenuItem key={chat.id}>
+                          <div className="group/chat-item relative flex items-center">
+                            <SidebarMenuButton
+                              onClick={() => onLoadChat?.(chat)}
+                              className="pr-8 flex-1"
+                              isActive={isActive}
+                              tooltip={chat.title}
+                            >
+                              <span className="truncate">{chat.title}</span>
+                            </SidebarMenuButton>
+                            <button
+                              onClick={(e) => handleDeleteChat(e, chat.id)}
+                              className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-sidebar-accent rounded-md"
+                              title={t('sidebar.deleteChat')}
+                            >
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </button>
+                          </div>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </div>
+                
+                {/* Fade effect at bottom */}
+                {recentChats.length > 4 && (
+                  <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-sidebar-background to-transparent pointer-events-none" />
+                )}
+              </div>
             </SidebarGroup>
           </div>
         )}

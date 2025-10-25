@@ -8,9 +8,11 @@ export const translations: Record<Language, Translations> = {
   en: {
     // Sidebar
     'sidebar.newChat': 'New chat',
-    'sidebar.admittedProfiles': 'Admitted Profiles',
+    'sidebar.admittedData': 'Admitted Data',
     'sidebar.myBlueprint': 'My Blueprint',
     'sidebar.about': 'About',
+    'sidebar.unlocks': 'Unlocks',
+    'sidebar.purchasedContent': 'Purchased Content',
     'sidebar.recent': 'Recent',
     'sidebar.deleteChat': 'Delete chat',
     'language.toggle': '中文',
@@ -78,9 +80,11 @@ export const translations: Record<Language, Translations> = {
   zh: {
     // Sidebar
     'sidebar.newChat': '新聊天',
-    'sidebar.admittedProfiles': '录取档案',
+    'sidebar.admittedData': '录取数据',
     'sidebar.myBlueprint': '我的蓝图',
     'sidebar.about': '关于',
+    'sidebar.unlocks': '解锁内容',
+    'sidebar.purchasedContent': '已购买内容',
     'sidebar.recent': '最近',
     'sidebar.deleteChat': '删除聊天',
     'language.toggle': 'English',
