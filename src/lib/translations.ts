@@ -76,6 +76,15 @@ export const translations: Record<Language, Translations> = {
     'password.betaMessage': 'In beta test mode. Email royli@usc.edu to request for beta access.',
     'password.enterPassword': 'Enter password',
     'password.incorrectPassword': 'Incorrect password. Please try again.',
+    
+    // Page Titles
+    'pages.home.title': 'Dashboard',
+    'pages.blueprint.title': 'My Blueprint',
+    'pages.admittedData.title': 'Admitted Data',
+    'pages.technology.title': 'Technology',
+    'pages.profile.title': 'Profile',
+    'pages.unlocks.title': 'Unlocks',
+    'pages.purchasedContent.title': 'Purchased Content',
   },
   zh: {
     // Sidebar
@@ -148,5 +157,14 @@ export const translations: Record<Language, Translations> = {
     'password.betaMessage': '测试模式。发送邮件至 royli@usc.edu 申请测试访问权限。',
     'password.enterPassword': '输入密码',
     'password.incorrectPassword': '密码错误，请重试。',
+    
+    // Page Titles
+    'pages.home.title': '主页',
+    'pages.blueprint.title': '我的蓝图',
+    'pages.admittedData.title': '录取数据',
+    'pages.technology.title': '技术',
+    'pages.profile.title': '个人资料',
+    'pages.unlocks.title': '解锁内容',
+    'pages.purchasedContent.title': '已购买内容',
   }
 };

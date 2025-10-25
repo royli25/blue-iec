@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MessageSquarePlus, NotebookText, UsersRound, Info, Trash2, Clock, FileText, ShoppingBag, Unlock } from "lucide-react";
+import { MessageSquarePlus, NotebookText, UsersRound, Info, Trash2, ShoppingBag, Unlock, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Sidebar,
@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { fetchChatSessions, deleteChatSession, type ChatSession } from "@/lib/chat-utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,7 +21,7 @@ interface AppSidebarProps {
   onNavigate?: (path: string) => void;
   onLoadChat?: (session: ChatSession) => void;
   currentChatId?: string | null;
-  refreshTrigger?: number; // Add this to force refresh when a chat is saved
+  refreshTrigger?: number;
 }
 
 export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, refreshTrigger }: AppSidebarProps = {}) {
@@ -49,7 +48,6 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
     }
   };
 
-  // Load recent chats when user is logged in and on the home page
   useEffect(() => {
     if (user && location.pathname === "/") {
       loadRecentChats();
@@ -59,23 +57,22 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
   const loadRecentChats = async () => {
     setIsLoadingChats(true);
     const sessions = await fetchChatSessions();
-    setRecentChats(sessions.slice(0, 10)); // Show only 10 most recent
+    setRecentChats(sessions.slice(0, 10));
     setIsLoadingChats(false);
   };
 
   const handleDeleteChat = async (e: React.MouseEvent, sessionId: string) => {
-    e.stopPropagation(); // Prevent loading the chat
+    e.stopPropagation();
     const success = await deleteChatSession(sessionId);
     if (success) {
       setRecentChats(prev => prev.filter(chat => chat.id !== sessionId));
-      // If we deleted the current chat, trigger new chat
       if (currentChatId === sessionId && onNewChat) {
         onNewChat();
       }
     }
   };
 
-  const menuItems = [
+  const mainMenuItems = [
     {
       icon: MessageSquarePlus,
       labelKey: "sidebar.newChat",
@@ -95,6 +92,24 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
       tooltipKey: "sidebar.myBlueprint",
       path: "/personal-blueprint",
     },
+  ];
+
+  const secondaryMenuItems = [
+    {
+      icon: Unlock,
+      labelKey: "sidebar.unlocks",
+      tooltipKey: "sidebar.unlocks",
+      path: "/unlocks",
+    },
+    {
+      icon: ShoppingBag,
+      labelKey: "sidebar.purchasedContent",
+      tooltipKey: "sidebar.purchasedContent",
+      path: "/purchased-content",
+    },
+  ];
+
+  const bottomMenuItems = [
     {
       icon: Info,
       labelKey: "sidebar.about",
@@ -104,18 +119,22 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
   ];
 
   return (
-    <Sidebar collapsible="icon" className="bg-[hsl(var(--sidebar-background))] border-r border-border">
-      <SidebarHeader className="h-10 flex flex-row items-center px-4 py-2 border-b border-border justify-between group-data-[state=collapsed]:justify-center">
-        {/* Blueprint Logo - Only visible when sidebar is open */}
-        <img src="/long_logo.svg" alt="Blueprint" className="h-4 w-auto group-data-[collapsible=icon]:hidden" />
-        <SidebarTrigger className="h-5 w-5" />
+    <Sidebar collapsible="icon" className="border-r border-gray-200 bg-white">
+      {/* Header with Logo */}
+      <SidebarHeader className="h-14 flex flex-row items-center justify-between px-4 border-b border-gray-200">
+        <div className="flex items-center gap-2 group-data-[state=collapsed]:hidden">
+          <img src="/long_logo.svg" alt="Blueprint" className="h-4 w-auto" />
+        </div>
+        <div className="group-data-[state=collapsed]:hidden">
+          <LanguageToggle />
+        </div>
       </SidebarHeader>
-      <SidebarSeparator />
-      <SidebarContent>
+
+      <SidebarContent className="px-2 py-3">
+        {/* Main Menu */}
         <SidebarGroup>
-          <div className="h-3" aria-hidden />
           <SidebarMenu>
-            {menuItems.map((item) => {
+            {mainMenuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path && !currentChatId;
               
@@ -124,11 +143,11 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                   <SidebarMenuButton
                     onClick={item.action ? item.action : () => handleNavigation(item.path)}
                     tooltip={t(item.tooltipKey)}
-                    className="pr-3"
                     isActive={isActive}
+                    className="h-9 text-sm font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
                   >
                     <Icon className="h-[18px] w-[18px]" />
-                    <span>{t(item.labelKey)}</span>
+                    <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
@@ -136,46 +155,15 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Unlocks Section */}
-        <SidebarSeparator />
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => handleNavigation("/unlocks")}
-                tooltip={t('sidebar.unlocks')}
-                className="pr-3"
-                isActive={location.pathname === "/unlocks"}
-              >
-                <Unlock className="h-[18px] w-[18px]" />
-                <span>{t('sidebar.unlocks')}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => handleNavigation("/purchased-content")}
-                tooltip={t('sidebar.purchasedContent')}
-                className="pr-3"
-                isActive={location.pathname === "/purchased-content"}
-              >
-                <ShoppingBag className="h-[18px] w-[18px]" />
-                <span>{t('sidebar.purchasedContent')}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Recent Chats Section - Hidden when collapsed */}
+        {/* Recent Chats Section */}
         {location.pathname === "/" && user && recentChats.length > 0 && (
-          <div className="group-data-[collapsible=icon]:hidden">
-            <SidebarSeparator />
+          <div className="group-data-[state=collapsed]:hidden mt-4">
             <SidebarGroup>
-              <div className="px-3 py-2 text-[11px] font-semibold text-sidebar-foreground/70">
+              <div className="px-3 py-2 text-[11px] font-medium text-gray-500 uppercase tracking-wider">
                 {t('sidebar.recent')}
               </div>
               <div className="relative">
-                {/* Scrollable chat list with fixed height */}
-                <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-sidebar-accent scrollbar-track-transparent">
+                <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                   <SidebarMenu>
                     {recentChats.map((chat) => {
                       const isActive = currentChatId === chat.id;
@@ -185,18 +173,18 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                           <div className="group/chat-item relative flex items-center">
                             <SidebarMenuButton
                               onClick={() => onLoadChat?.(chat)}
-                              className="pr-8 flex-1"
+                              className="h-8 pr-8 flex-1 text-sm text-gray-600 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
                               isActive={isActive}
                               tooltip={chat.title}
                             >
-                              <span className="truncate">{chat.title}</span>
+                              <span className="truncate text-xs">{chat.title}</span>
                             </SidebarMenuButton>
                             <button
                               onClick={(e) => handleDeleteChat(e, chat.id)}
-                              className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-sidebar-accent rounded-md"
+                              className="absolute right-2 opacity-0 group-hover/chat-item:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded-md"
                               title={t('sidebar.deleteChat')}
                             >
-                              <Trash2 className="h-3 w-3 text-destructive" />
+                              <Trash2 className="h-3 w-3 text-gray-500" />
                             </button>
                           </div>
                         </SidebarMenuItem>
@@ -205,24 +193,66 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                   </SidebarMenu>
                 </div>
                 
-                {/* Fade effect at bottom */}
                 {recentChats.length > 4 && (
-                  <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-sidebar-background to-transparent pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                 )}
               </div>
             </SidebarGroup>
           </div>
         )}
 
-        {/* Language Toggle - Bottom of Sidebar */}
-        <SidebarSeparator />
-        <SidebarGroup className="mt-auto">
-          <div className="px-3 py-2 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
-            <LanguageToggle />
-          </div>
-        </SidebarGroup>
+        {/* Secondary Menu */}
+        <div className="mt-auto pt-4">
+          <SidebarSeparator className="bg-gray-200" />
+          <SidebarGroup className="mt-3">
+            <SidebarMenu>
+              {secondaryMenuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      onClick={() => handleNavigation(item.path)}
+                      tooltip={t(item.tooltipKey)}
+                      isActive={isActive}
+                      className="h-9 text-sm font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
+                    >
+                      <Icon className="h-[18px] w-[18px]" />
+                      <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+
+          {/* Bottom Menu */}
+          <SidebarSeparator className="bg-gray-200 mt-3" />
+          <SidebarGroup className="mt-3 pb-2">
+            <SidebarMenu>
+              {bottomMenuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      onClick={() => handleNavigation(item.path)}
+                      tooltip={t(item.tooltipKey)}
+                      isActive={isActive}
+                      className="h-9 text-sm font-normal text-gray-600 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
+                    >
+                      <Icon className="h-[18px] w-[18px]" />
+                      <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        </div>
       </SidebarContent>
     </Sidebar>
   );
 }
-

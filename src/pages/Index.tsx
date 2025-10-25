@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useProfileContext } from '@/hooks/useProfileContext';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { PageHeader } from "@/components/PageHeader";
 import { createChatSession, updateChatSession, type ChatSession } from "@/lib/chat-utils";
 import { retrieveChatContext, buildSystemPromptWithContext } from "@/lib/chat-retrieval";
 import { UserMessage } from "@/components/chat/UserMessage";
@@ -194,16 +195,21 @@ const Index = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <AppSidebar 
         onNewChat={handleNewChat} 
         onLoadChat={handleLoadChat}
         currentChatId={currentChatSession?.id}
         refreshTrigger={sidebarRefreshTrigger}
       />
-      <div className="relative h-screen w-screen overflow-hidden">
-      {/* top-right auth button / email */}
-      <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
+      <div className="relative h-screen w-full flex flex-col overflow-hidden bg-gray-50">
+      {/* Show header when in chat mode */}
+      {messages.length > 0 && <PageHeader />}
+      
+      <div className="flex-1 relative overflow-hidden">
+      {/* top-right auth button / email - only show on landing */}
+      {messages.length === 0 && (
+        <div className="absolute top-4 right-4 z-20 text-[12px] space-y-2">
         {user ? (
           <details className="group relative">
             <summary className="list-none cursor-pointer rounded-md border border-border bg-white/70 px-4 py-1 text-foreground/70 backdrop-blur-sm shadow-sm hover:bg-white">
@@ -228,6 +234,7 @@ const Index = () => {
           </button>
         )}
       </div>
+      )}
       {/* subtle warm background with grid */}
       <div className="absolute inset-0" style={{ backgroundColor: CHAT_COLORS.background }} />
       <div className="absolute inset-0 grid-bg opacity-70" />
@@ -373,6 +380,7 @@ const Index = () => {
       )}
 
       {/* floating chat removed per request */}
+      </div>
       </div>
     </SidebarProvider>
   );

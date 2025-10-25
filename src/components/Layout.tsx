@@ -1,23 +1,34 @@
 import { ReactNode } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { PageHeader } from "@/components/PageHeader";
 
 interface LayoutProps {
   children: ReactNode;
   showGrid?: boolean;
+  showHeader?: boolean;
+  showSidebar?: boolean;
 }
 
-export function Layout({ children, showGrid = true }: LayoutProps) {
+export function Layout({ children, showGrid = false, showHeader = true, showSidebar = true }: LayoutProps) {
+  // If sidebar is hidden, don't use SidebarProvider
+  if (!showSidebar) {
+    return (
+      <div className="relative min-h-screen w-full overflow-x-hidden bg-gray-50">
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <AppSidebar />
-      <div className={"relative min-h-screen w-screen overflow-x-hidden overflow-y-visible bg-[hsl(45_52%_97%)] " + (showGrid ? "grid-bg" : "") }>
-        {/* Content */}
-        <div className="relative min-h-screen">
+      <div className="relative min-h-screen w-full overflow-x-hidden bg-gray-50">
+        {showHeader && <PageHeader />}
+        <div className="relative min-h-[calc(100vh-3.5rem)]">
           {children}
         </div>
       </div>
     </SidebarProvider>
   );
 }
-
