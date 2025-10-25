@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MessageSquarePlus, NotebookText, UsersRound, Info, Trash2, ShoppingBag, Unlock, Settings } from "lucide-react";
+import { MessageSquarePlus, NotebookText, UsersRound, Info, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Sidebar,
@@ -94,20 +94,7 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
     },
   ];
 
-  const secondaryMenuItems = [
-    {
-      icon: Unlock,
-      labelKey: "sidebar.unlocks",
-      tooltipKey: "sidebar.unlocks",
-      path: "/unlocks",
-    },
-    {
-      icon: ShoppingBag,
-      labelKey: "sidebar.purchasedContent",
-      tooltipKey: "sidebar.purchasedContent",
-      path: "/purchased-content",
-    },
-  ];
+  // Secondary menu (Unlocks / Purchased Content) intentionally removed per design
 
   const bottomMenuItems = [
     {
@@ -201,34 +188,8 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
           </div>
         )}
 
-        {/* Secondary Menu */}
+        {/* Bottom Menu */}
         <div className="mt-auto pt-4">
-          <SidebarSeparator className="bg-gray-200" />
-          <SidebarGroup className="mt-3">
-            <SidebarMenu>
-              {secondaryMenuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      onClick={() => handleNavigation(item.path)}
-                      tooltip={t(item.tooltipKey)}
-                      isActive={isActive}
-                      className="h-8 text-[13px] font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-md [&>svg]:h-4 [&>svg]:w-4"
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-
-          {/* Bottom Menu */}
-          <SidebarSeparator className="bg-gray-200 mt-3" />
           <SidebarGroup className="mt-3 pb-2">
             <SidebarMenu>
               {bottomMenuItems.map((item) => {
