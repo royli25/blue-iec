@@ -144,9 +144,9 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                     onClick={item.action ? item.action : () => handleNavigation(item.path)}
                     tooltip={t(item.tooltipKey)}
                     isActive={isActive}
-                    className="h-9 text-sm font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
+                    className="h-8 text-[13px] font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-md [&>svg]:h-4 [&>svg]:w-4"
                   >
-                    <Icon className="h-[18px] w-[18px]" />
+                    <Icon className="h-4 w-4" />
                     <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -171,13 +171,13 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                       return (
                         <SidebarMenuItem key={chat.id}>
                           <div className="group/chat-item relative flex items-center">
-                            <SidebarMenuButton
+                          <SidebarMenuButton
                               onClick={() => onLoadChat?.(chat)}
-                              className="h-8 pr-8 flex-1 text-sm text-gray-600 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
+                              className="h-7 pr-8 flex-1 text-[11px] text-gray-600 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-md"
                               isActive={isActive}
                               tooltip={chat.title}
                             >
-                              <span className="truncate text-xs">{chat.title}</span>
+                              <span className="truncate">{chat.title}</span>
                             </SidebarMenuButton>
                             <button
                               onClick={(e) => handleDeleteChat(e, chat.id)}
@@ -216,9 +216,9 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                       onClick={() => handleNavigation(item.path)}
                       tooltip={t(item.tooltipKey)}
                       isActive={isActive}
-                      className="h-9 text-sm font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
+                      className="h-8 text-[13px] font-normal text-gray-700 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-md [&>svg]:h-4 [&>svg]:w-4"
                     >
-                      <Icon className="h-[18px] w-[18px]" />
+                      <Icon className="h-4 w-4" />
                       <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -241,9 +241,9 @@ export function AppSidebar({ onNewChat, onNavigate, onLoadChat, currentChatId, r
                       onClick={() => handleNavigation(item.path)}
                       tooltip={t(item.tooltipKey)}
                       isActive={isActive}
-                      className="h-9 text-sm font-normal text-gray-600 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-lg"
+                      className="h-8 text-[13px] font-normal text-gray-600 hover:bg-gray-100 data-[active=true]:bg-gray-100 data-[active=true]:text-gray-900 rounded-md [&>svg]:h-4 [&>svg]:w-4"
                     >
-                      <Icon className="h-[18px] w-[18px]" />
+                      <Icon className="h-4 w-4" />
                       <span className="group-data-[state=collapsed]:hidden">{t(item.labelKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
