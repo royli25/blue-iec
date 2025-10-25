@@ -235,9 +235,8 @@ const Index = () => {
         )}
       </div>
       )}
-      {/* subtle warm background with grid */}
-      <div className="absolute inset-0" style={{ backgroundColor: CHAT_COLORS.background }} />
-      <div className="absolute inset-0 grid-bg opacity-70" />
+      {/* background: clean white (no grid/tan) */}
+      <div className="absolute inset-0 bg-white" />
 
       {/* Landing vs Chat layout */}
       {messages.length === 0 ? (

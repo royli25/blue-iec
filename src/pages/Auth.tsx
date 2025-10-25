@@ -74,9 +74,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-screen overflow-hidden flex items-center justify-center">
-      {/* warm background only */}
-      <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
+    <div className="relative min-h-screen w-screen overflow-hidden flex items-center justify-center bg-white">
 
       <div className="relative z-10 w-full max-w-md p-4 flex flex-col items-center">
         <button

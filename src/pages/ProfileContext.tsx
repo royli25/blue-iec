@@ -278,9 +278,8 @@ const ProfileContext = () => {
         )}
       </div>
 
-      {/* subtle warm background with grid */}
-      <div className="absolute inset-0 bg-[hsl(45_52%_97%)]" />
-      <div className="absolute inset-0 grid-bg opacity-70" />
+      {/* background: clean white (no grid/tan) */}
+      <div className="absolute inset-0 bg-white" />
 
       {/* content */}
       <div className="relative px-6 pt-12 pb-8">
